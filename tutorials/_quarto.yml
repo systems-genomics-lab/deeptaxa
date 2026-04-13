@@ -1,0 +1,47 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "DeepTaxa Tutorials"
+  navbar:
+    left:
+      - text: Home
+        href: index.qmd
+      - text: Prediction
+        href: prediction.qmd
+      - text: Training
+        href: training.qmd
+      - text: Analysis
+        href: analysis.qmd
+      - text: Architecture
+        href: architecture.qmd
+    right:
+      - icon: github
+        href: https://github.com/systems-genomics-lab/deeptaxa
+  page-footer:
+    center: "[DeepTaxa](https://github.com/systems-genomics-lab/deeptaxa) — Systems Genomics Lab"
+
+format:
+  html:
+    theme: lumen
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    code-fold: false
+    code-tools: false
+    number-sections: true
+    link-external-newwindow: true
+    link-external-icon: true
+    smooth-scroll: true
+    fig-cap-location: bottom
+    tbl-cap-location: top
+
+date-modified: last-modified
+
+bibliography: references.bib
+csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
+
+execute:
+  freeze: auto
+  echo: true

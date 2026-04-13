@@ -1,0 +1,41 @@
+[project]
+name = "deeptaxa"
+dynamic = ["version"]
+requires-python = ">=3.10"
+description = "A deep learning framework for hierarchical taxonomy classification of 16S rRNA gene sequences."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Khlood Ramadan", email = "khlood.ramadan@aucegypt.edu" },
+    { name = "Lobna Ghonaim", email = "lobnaghonaim@aucegypt.edu" },
+    { name = "Rana Salah", email = "rana_salah@aucegypt.edu" },
+    { name = "Ahmed Moustafa", email = "amoustafa@aucegypt.edu" }
+]
+dependencies = [
+    "torch",
+    "numpy",
+    "transformers",
+    "pandas",
+    "tqdm",
+    "scikit-learn",
+    "biopython",
+    "h5py",
+    "optuna"
+]
+
+[project.scripts]
+deeptaxa = "deeptaxa.cli:main"
+
+[build-system]
+requires = ["setuptools>=64", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["deeptaxa*"]
+exclude = ["data", "outputs", "predictions", "logs"]
+
+[tool.setuptools_scm]
+version_scheme = "release-branch-semver"
+local_scheme = "no-local-version"
+
