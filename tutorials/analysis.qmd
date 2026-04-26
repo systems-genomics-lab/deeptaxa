@@ -295,10 +295,10 @@ print(f'Maximum sequences per species:  {max(species_train_counts.values()):,}')
 #| fig-cap: "Per-species error rate as a function of training set size (log scale). Each point represents one species. The orange curve shows the running median in log-spaced bins. The downward trend confirms that rare species are systematically harder to classify."
 # --- Error rate vs. training frequency ---
 species_stats = (
-    df.groupby('species_true')
-    .apply(lambda g: (g['species_predicted'] != g['species_true']).mean())
-    .rename('error_rate')
-    .reset_index()
+    df.assign(_error=(df['species_predicted'] != df['species_true']).astype(float))
+    .groupby('species_true', as_index=False)['_error']
+    .mean()
+    .rename(columns={'_error': 'error_rate'})
 )
 species_stats['train_count'] = (
     species_stats['species_true'].map(species_train_counts).fillna(0).astype(int)
