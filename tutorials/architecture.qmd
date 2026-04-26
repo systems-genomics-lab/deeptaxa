@@ -55,10 +55,15 @@ To compare variants quantitatively, train each with the same data and seed, then
 ```{python}
 #| eval: true
 #| label: lst-variant-comparison
-#| lst-cap: "Compare accuracy across model variants using metrics from the Optuna-optimized checkpoints."
+#| lst-cap: "Compare accuracy across model variants using metrics from the canonical SMALL ablation runs."
 # --- Model variant comparison ---
-# Each variant was trained with the same Optuna-optimized hyperparameters
-# and evaluated on the same 69,335-sequence test set.
+# Each variant was trained with the canonical SMALL hyperparameters
+# (cross-entropy loss, seed 42, 10 epochs, batch 64, lr 5e-4, kernels
+# 3/5/7, 256 filters, 4 transformer layers, 7 heads, 3584 FFN, 896
+# hidden, dropout 0.20) and evaluated on the same 69,335-sequence test
+# set. The One-Hot CNN row swaps the DNABERT-2 BPE tokenizer for the
+# 4-channel one-hot encoder (--encoding onehot) to isolate the
+# tokenizer's contribution.
 
 import gzip
 import json
@@ -68,14 +73,16 @@ import numpy as np
 RANKS       = ['domain', 'phylum', 'class', 'order', 'family', 'genus', 'species']
 RANK_LABELS = ['Domain', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species']
 
-# Metrics from the Optuna-optimized checkpoints (HuggingFace v1)
+# Metrics from the canonical SMALL ablation runs (seed 42)
 variants = {
-    'Hybrid CNN+BERT': {'accuracy': [0.9998, 0.9970, 0.9963, 0.9905, 0.9863, 0.9688, 0.9297],
-                        'f1':       [0.9998, 0.9969, 0.9959, 0.9895, 0.9843, 0.9643, 0.9200]},
-    'CNN Only':        {'accuracy': [0.9998, 0.9969, 0.9964, 0.9904, 0.9858, 0.9660, 0.9229],
-                        'f1':       [0.9998, 0.9968, 0.9959, 0.9893, 0.9839, 0.9613, 0.9126]},
-    'BERT Only':       {'accuracy': [0.9997, 0.9955, 0.9941, 0.9861, 0.9776, 0.9429, 0.8641],
-                        'f1':       [0.9997, 0.9952, 0.9934, 0.9844, 0.9743, 0.9335, 0.8409]},
+    'Hybrid CNN+BERT': {'accuracy': [0.9999, 0.9968, 0.9963, 0.9909, 0.9861, 0.9693, 0.9288],
+                        'f1':       [0.9999, 0.9967, 0.9959, 0.9899, 0.9841, 0.9651, 0.9203]},
+    'CNN Only':        {'accuracy': [0.9998, 0.9969, 0.9960, 0.9901, 0.9844, 0.9635, 0.9027],
+                        'f1':       [0.9998, 0.9968, 0.9956, 0.9893, 0.9826, 0.9597, 0.8931]},
+    'One-Hot CNN':     {'accuracy': [0.9998, 0.9962, 0.9953, 0.9867, 0.9789, 0.9397, 0.8580],
+                        'f1':       [0.9998, 0.9961, 0.9948, 0.9856, 0.9767, 0.9336, 0.8428]},
+    'BERT Only':       {'accuracy': [0.9931, 0.7584, 0.7454, 0.5047, 0.4012, 0.2053, 0.1414],
+                        'f1':       [0.9902, 0.7348, 0.7195, 0.4537, 0.3391, 0.1412, 0.0849]},
 }
 
 rows = []
@@ -96,7 +103,7 @@ print('\n=== Weighted F1 ===')
 print(pivot_f1.reindex(RANK_LABELS).to_string(float_format='{:.4f}'.format))
 ```
 
-The hybrid model's advantage over the standalone variants is largest at Species, where both local motifs and long-range context contribute to resolving fine-grained distinctions. At coarser ranks (Domain through Class), all three variants typically reach near-ceiling performance, so the gap is negligible.
+The hybrid model's advantage over the standalone variants is largest at Species, where both local motifs and long-range context contribute to resolving fine-grained distinctions. The CNN-only variant (with BPE tokens) trails the hybrid by about 2.7 percentage points at Species F1; the same CNN with one-hot encoding loses another 5.0 points, isolating the BPE tokenizer's contribution. The standalone BERT variant collapses under the canonical SMALL configuration — at 4 transformer layers and 7 heads the encoder alone cannot drive 16,909 species classes from BPE tokens, which is why the hybrid keeps the CNN pathway as the primary feature extractor and treats BERT as a residual contributor. At coarser ranks (Domain through Class), the CNN variants and the hybrid all reach near-ceiling performance, so the gap is negligible there.
 
 ## Input Representation
 
@@ -124,14 +131,14 @@ An alternative encoding (`--encoding onehot`) maps each nucleotide to a 4-channe
 
 ## CNN Pathway
 
-The CNN pathway detects local sequence motifs through multi-scale convolutional filters. The published model uses a single layer of parallel convolutions with kernel sizes of 5, 7, and 9 tokens, capturing patterns at different spatial scales. (The architecture supports stacking multiple layers, but the published checkpoint uses one.)
+The CNN pathway detects local sequence motifs through multi-scale convolutional filters. The published model uses a single layer of parallel convolutions with kernel sizes of 3, 5, and 7 tokens, capturing patterns at different spatial scales. (The architecture supports stacking multiple layers, but the published checkpoint uses one.)
 
 ```{mermaid}
 %%| echo: false
 flowchart LR
-    A[Token Embeddings] --> B["Conv1d K=5"]
-    A --> C["Conv1d K=7"]
-    A --> D["Conv1d K=9"]
+    A[Token Embeddings] --> B["Conv1d K=3"]
+    A --> C["Conv1d K=5"]
+    A --> D["Conv1d K=7"]
     B --> E[Concatenate]
     C --> E
     D --> E
@@ -144,9 +151,9 @@ flowchart LR
     style F fill:#d8e4f0,stroke:#2a5278
 ```
 
-The three kernel branches operate in parallel on the same input. Their outputs are concatenated along the channel dimension, producing a feature map of width `num_filters x 3` channels (1,536 in the published model, with 512 filters per kernel). Each branch applies ReLU activation and dropout (0.17) after the convolution. Global max pooling across the sequence length reduces the output to a fixed-size vector regardless of input length.
+The three kernel branches operate in parallel on the same input. Their outputs are concatenated along the channel dimension, producing a feature map of width `num_filters x 3` channels (768 in the published model, with 256 filters per kernel). Each branch applies ReLU activation and dropout (0.20) after the convolution. Global max pooling across the sequence length reduces the output to a fixed-size vector regardless of input length.
 
-The multi-scale design is motivated by the structure of the 16S gene. Hypervariable regions (V1 through V9) contain short, taxon-specific motifs that smaller kernels (K=5) can isolate precisely. Conserved regions flanking them tend to have longer repetitive stretches that require wider receptive fields (K=9) to encode meaningfully. The intermediate kernel (K=7) bridges both scales.
+The multi-scale design is motivated by the structure of the 16S gene. Hypervariable regions (V1 through V9) contain short, taxon-specific motifs that the narrowest kernel (K=3) can isolate precisely. Conserved regions flanking them tend to have longer repetitive stretches that benefit from wider receptive fields (K=7). The intermediate kernel (K=5) bridges both scales.
 
 Extract and print the CNN layer shapes from the pre-trained checkpoint.
 
@@ -176,10 +183,10 @@ The Transformer pathway captures long-range dependencies across the full sequenc
 
 | Parameter | Published value | Notes |
 |-----------|----------------|-------|
-| Hidden size | 1,024 | Dimension of each transformer layer's output |
-| Layers | 5 | Optimized via Optuna hyperparameter search |
-| Attention heads | 8 | Head dimension = 1,024 / 8 = 128 |
-| FFN intermediate size | 4,096 | 4x expansion ratio |
+| Hidden size | 896 | Dimension of each transformer layer's output |
+| Layers | 4 | Canonical SMALL configuration |
+| Attention heads | 7 | Head dimension = 896 / 7 = 128 |
+| FFN intermediate size | 3,584 | 4x expansion ratio |
 | Max position embeddings | 512 | Matches tokenizer truncation length |
 
 The hybrid model extracts the `[CLS]` token representation (position 0 of the final hidden state) as the Transformer's output vector. The standalone BERT variant uses a different strategy: masked mean pooling, which averages all non-padding positions weighted by the attention mask. Mean pooling preserves information from the full sequence rather than concentrating it in a single token, but the hybrid model delegates that responsibility to the CNN pathway instead.
@@ -204,13 +211,13 @@ else:
 
 ## Fusion Mechanism
 
-In the hybrid model, the CNN and Transformer pathways produce representations of different dimensionalities: the CNN output has `num_filters x 3` channels (1,536 in the published model), while the Transformer output has `hidden_size` dimensions (1,024). A linear projection (1,536 to 1,024) aligns the CNN output to the Transformer's hidden size before fusion.
+In the hybrid model, the CNN and Transformer pathways produce representations of different dimensionalities: the CNN output has `num_filters x 3` channels (768 in the published model), while the Transformer output has `hidden_size` dimensions (896). A linear projection (768 to 896) aligns the CNN output to the Transformer's hidden size before fusion.
 
 The fusion itself uses learnable scalar weights:
 
 $$\mathbf{h}_{\text{fused}} = w_{\text{cnn}} \cdot \text{proj}(\mathbf{h}_{\text{cnn}}) + (1 + w_{\text{bert}}) \cdot \mathbf{h}_{\text{bert}}$$
 
-The $(1 + w_{\text{bert}})$ coefficient ensures that the Transformer representation always contributes at least its unscaled value, acting as a residual connection. This guarantees reliable gradient flow through the Transformer pathway regardless of how small $w_{\text{bert}}$ becomes during training. Both $w_{\text{cnn}}$ and $w_{\text{bert}}$ are initialized to 1.0 and learned jointly with the rest of the model. After fusion, a dropout layer ($p = 0.17$) is applied before the classification heads.
+The $(1 + w_{\text{bert}})$ coefficient ensures that the Transformer representation always contributes at least its unscaled value, acting as a residual connection. This guarantees reliable gradient flow through the Transformer pathway regardless of how small $w_{\text{bert}}$ becomes during training. Both $w_{\text{cnn}}$ and $w_{\text{bert}}$ are initialized to 1.0 and learned jointly with the rest of the model. After fusion, a dropout layer ($p = 0.20$) is applied before the classification heads.
 
 Inspect the learned fusion weights from the pre-trained checkpoint.
 
@@ -233,7 +240,7 @@ Each taxonomic rank has an independent linear classifier that maps the fused rep
 
 $$\mathbf{z}^{(r)} = \mathbf{W}_r \mathbf{h}_{\text{fused}} + \mathbf{b}_r$$
 
-where $\mathbf{W}_r \in \mathbb{R}^{C_r \times d}$, $C_r$ is the number of classes at rank $r$, and $d$ is the dimension of the fused representation (equal to `hidden_size`, 1,024 in the published model). The heads are independent rather than hierarchical (i.e., the Domain prediction does not feed into the Phylum head). This design trades strict taxonomic consistency for training simplicity and parallelism: all seven heads can be computed simultaneously from the same fused vector.
+where $\mathbf{W}_r \in \mathbb{R}^{C_r \times d}$, $C_r$ is the number of classes at rank $r$, and $d$ is the dimension of the fused representation (equal to `hidden_size`, 896 in the published model). The heads are independent rather than hierarchical (i.e., the Domain prediction does not feed into the Phylum head). This design trades strict taxonomic consistency for training simplicity and parallelism: all seven heads can be computed simultaneously from the same fused vector.
 
 :::{.callout-note}
 In practice, hierarchical consistency violations are rare because the shared representation already encodes taxonomic structure. The [analysis tutorial](analysis.qmd) shows that over 95% of species-level errors retain the correct phylum.
@@ -347,7 +354,7 @@ The training pipeline uses standard practices for transformer-based models:
 
 | Component | Setting | Rationale |
 |-----------|---------|-----------|
-| Optimizer | AdamW (lr=3.72e-4, decay=0.042) | Decoupled weight decay; standard for transformers [@loshchilov2019adamw] |
+| Optimizer | AdamW (lr=5e-4, decay=0.01) | Decoupled weight decay; standard for transformers [@loshchilov2019adamw] |
 | LR schedule | Linear warmup (10%) + linear decay | Prevents instability from large early gradients |
 | Mixed precision | FP16 forward, FP32 updates | 2x memory savings, 2-3x throughput on tensor-core GPUs |
 | Gradient clipping | max_norm=0.5 | Prevents gradient explosions in deep networks |

@@ -114,7 +114,7 @@ flowchart LR
     style I fill:#f0e2d6,stroke:#994a2a
 ```
 
-The `deeptaxa train` command orchestrates this entire pipeline. Only `--fasta-file`, `--taxonomy-file`, and `--output-dir` are required — all other flags default to the Optuna-optimized values used in the published checkpoint.
+The `deeptaxa train` command orchestrates this entire pipeline. Only `--fasta-file`, `--taxonomy-file`, and `--output-dir` are required — all other flags default to the canonical SMALL values used in the published checkpoint.
 
 | Flag | Purpose | Default |
 |------|---------|---------|
@@ -123,18 +123,18 @@ The `deeptaxa train` command orchestrates this entire pipeline. Only `--fasta-fi
 | `--output-dir` | Directory for checkpoints, metrics, and logs | *(required)* |
 | `--model-type` | Architecture to use | `hybridcnnbert` |
 | `--epochs` | Number of passes through the training set | 10 |
-| `--batch-size` | Number of sequences per gradient update | 32 |
-| `--learning-rate` | Learning rate | 3.72e-4 |
+| `--batch-size` | Number of sequences per gradient update | 64 |
+| `--learning-rate` | Learning rate | 5e-4 |
 | `--seed` | Random seed for reproducibility | 42 |
-| `--hidden-size` | Transformer hidden dimension | 1024 |
-| `--num-hidden-layers` | Number of Transformer layers | 5 |
-| `--num-attention-heads` | Number of attention heads | 8 |
-| `--intermediate-size` | Transformer feed-forward dimension | 4096 |
+| `--hidden-size` | Transformer hidden dimension | 896 |
+| `--num-hidden-layers` | Number of Transformer layers | 4 |
+| `--num-attention-heads` | Number of attention heads | 7 |
+| `--intermediate-size` | Transformer feed-forward dimension | 3584 |
 | `--embed-dim` | CNN embedding dimension | 896 |
-| `--num-filters` | CNN filters per kernel size | 512 |
-| `--kernel-sizes` | CNN kernel widths | 5 7 9 |
+| `--num-filters` | CNN filters per kernel size | 256 |
+| `--kernel-sizes` | CNN kernel widths | 3 5 7 |
 | `--num-conv-layers` | Number of CNN layers | 1 |
-| `--hidden-dropout-prob` | Dropout probability | 0.17 |
+| `--hidden-dropout-prob` | Dropout probability | 0.20 |
 
 The architecture flags and seed above match the configuration used to produce the published DeepTaxa checkpoint. For details on what each architecture parameter controls, see the [architecture tutorial](architecture.qmd).
 
@@ -191,8 +191,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 n_epochs = 10
-batch_size = 32
-lr_base = 0.000372
+batch_size = 64
+lr_base = 5e-4
 warmup_ratio = 0.1
 n_train = int(277_000 * (1 - 0.1))  # approximate after 10% validation split
 

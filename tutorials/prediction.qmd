@@ -129,7 +129,7 @@ flowchart LR
 
 1. **Tokenization.** The raw nucleotide string is split into subword tokens using DNABERT-2 [@zhou2024dnabert2]'s byte-pair encoding (BPE) vocabulary (4,096 tokens). This is analogous to how language models tokenize text into word pieces rather than individual characters.
 
-2. **Feature extraction.** The token sequence passes through two parallel pathways: a set of convolutional filters that detect local motifs (5, 7, and 9 tokens wide), and a Transformer encoder (5 layers, 8 attention heads) that models dependencies across the full 512-token window.
+2. **Feature extraction.** The token sequence passes through two parallel pathways: a set of convolutional filters that detect local motifs (3, 5, and 7 tokens wide), and a Transformer encoder (4 layers, 7 attention heads) that models dependencies across the full 512-token window.
 
 3. **Fusion.** The outputs of both pathways are combined with learned weights and passed through a dropout layer.
 

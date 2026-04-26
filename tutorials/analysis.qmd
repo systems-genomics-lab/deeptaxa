@@ -463,14 +463,14 @@ model = HybridCNNBERTClassifier(
     tokenizer_name=ckpt['tokenizer_name'],
     num_labels_per_level=ckpt['num_labels_per_level'],
     embed_dim=cnn_cfg.get('embed_dim', 896),
-    num_filters=cnn_cfg.get('num_filters', 512),
-    kernel_sizes=cnn_cfg.get('kernel_sizes', [5, 7, 9]),
+    num_filters=cnn_cfg.get('num_filters', 256),
+    kernel_sizes=cnn_cfg.get('kernel_sizes', [3, 5, 7]),
     num_conv_layers=cnn_cfg.get('num_conv_layers', 1),
-    hidden_dropout_prob=cnn_cfg.get('dropout_prob', 0.17),
-    hidden_size=bert_cfg.get('hidden_size', 1024),
-    num_hidden_layers=bert_cfg.get('num_hidden_layers', 5),
-    num_attention_heads=bert_cfg.get('num_attention_heads', 8),
-    intermediate_size=bert_cfg.get('intermediate_size', 4096),
+    hidden_dropout_prob=cnn_cfg.get('dropout_prob', 0.20),
+    hidden_size=bert_cfg.get('hidden_size', 896),
+    num_hidden_layers=bert_cfg.get('num_hidden_layers', 4),
+    num_attention_heads=bert_cfg.get('num_attention_heads', 7),
+    intermediate_size=bert_cfg.get('intermediate_size', 3584),
 )
 model.load_state_dict(ckpt['state_dict'])
 model.to(device).eval()
