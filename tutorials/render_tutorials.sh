@@ -24,8 +24,11 @@ rm -rf _freeze _site
 echo "Done"
 echo ""
 
-# Render each tutorial
-TUTORIALS="index prediction training analysis architecture"
+# Render each tutorial. Order: cheap/safe first so a failure in a
+# heavyweight tutorial (training, analysis) doesn't strand the others.
+# Per-tutorial failures are reported but do not abort the whole run.
+TUTORIALS="index architecture prediction analysis training"
+FAILED=""
 
 for tutorial in $TUTORIALS; do
     echo "=============================================="
@@ -34,7 +37,13 @@ for tutorial in $TUTORIALS; do
     echo "=============================================="
 
     START=$(date +%s)
-    make "$tutorial"
+    if ! make "$tutorial"; then
+        FAILED="$FAILED $tutorial"
+        echo ""
+        echo "$tutorial FAILED — continuing with remaining tutorials"
+        echo ""
+        continue
+    fi
     END=$(date +%s)
 
     ELAPSED=$((END - START))
@@ -45,6 +54,13 @@ for tutorial in $TUTORIALS; do
     echo "$tutorial completed in ${MINS}m ${SECS}s"
     echo ""
 done
+
+if [ -n "$FAILED" ]; then
+    echo "=============================================="
+    echo "Tutorials that failed to render:$FAILED"
+    echo "=============================================="
+    echo ""
+fi
 
 # Summary
 SCRIPT_END=$(date +%s)
