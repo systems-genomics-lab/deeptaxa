@@ -7,7 +7,7 @@
 [![Issues](https://img.shields.io/github/issues/systems-genomics-lab/deeptaxa)](https://github.com/systems-genomics-lab/deeptaxa/issues)
 [![GitHub Stars](https://img.shields.io/github/stars/systems-genomics-lab/deeptaxa?style=social)](https://github.com/systems-genomics-lab/deeptaxa/stargazers)
 
-**DeepTaxa** is a deep learning framework for hierarchical taxonomic classification of 16S rRNA gene sequences. It classifies sequences into all seven taxonomic ranks (Domain through Species) in a single forward pass, achieving 92.97% species-level accuracy on the Greengenes2 2024.09 test set.
+**DeepTaxa** is a deep learning framework for hierarchical taxonomic classification of 16S rRNA gene sequences. It classifies sequences into all seven taxonomic ranks (Domain through Species) in a single forward pass, achieving 92.96% species-level accuracy (3-seed mean) on the Greengenes2 2024.09 test set.
 
 ---
 
@@ -30,28 +30,28 @@
 
 ## Performance
 
-The published HybridCNNBERT checkpoint, optimized via Optuna hyperparameter search (20 trials), achieves the following on 69,335 held-out test sequences:
+The published HybridCNNBERT checkpoint achieves the following on 69,335 held-out test sequences from Greengenes2 2024.09 (3-seed mean across seeds 42, 123, 456):
 
 | Rank | Accuracy | F1 | ECE |
 |------|----------|-----|-----|
-| Domain | 99.98% | 99.98% | 0.0002 |
-| Phylum | 99.70% | 99.69% | 0.0023 |
-| Class | 99.63% | 99.59% | 0.0026 |
-| Order | 99.05% | 98.95% | 0.0066 |
-| Family | 98.63% | 98.43% | 0.0085 |
-| Genus | 96.88% | 96.43% | 0.0166 |
-| Species | 92.97% | 92.00% | 0.0268 |
+| Domain | 99.98% | 99.98% | 0.0001 |
+| Phylum | 99.69% | 99.68% | 0.0023 |
+| Class | 99.63% | 99.59% | 0.0024 |
+| Order | 99.07% | 98.97% | 0.0056 |
+| Family | 98.61% | 98.41% | 0.0075 |
+| Genus | 96.90% | 96.48% | 0.0144 |
+| Species | 92.96% | 92.12% | 0.0242 |
 
-The table above reports the canonical seed-42 checkpoint. Across three independent training runs (seeds 42, 123, 456), species accuracy is 93.00% +/- 0.04 pp (mean +/- std). Full multi-seed results are in the [submission repository](https://github.com/ahmedmoustafa/deeptaxa-submission).
+Cross-seed standard deviation is at most 0.0008 F1 at every rank (species std 0.0008 F1 / 0.07 percentage points accuracy), demonstrating high reproducibility. Per-seed details are in the [submission repository](https://github.com/ahmedmoustafa/deeptaxa-submission).
 
 ### Architecture
 
 | Component | Configuration |
 |-----------|--------------|
-| CNN | embed_dim=896, 512 filters, kernels [5, 7, 9], 1 conv layer |
-| BERT | 5 layers, 8 heads, hidden=1024, FFN=4096, GELU, random init |
+| CNN | embed_dim=896, 256 filters, kernels [3, 5, 7], 1 conv layer |
+| BERT | 4 layers, 7 heads, hidden=896, FFN=3584, GELU, random init |
 | Fusion | Learnable alpha/beta weights + BERT residual connection |
-| Training | Cross-entropy loss, LR=3.72e-4, batch=32, dropout=0.17, 10 epochs |
+| Training | Cross-entropy loss, LR=5e-4, batch=64, dropout=0.20, 10 epochs |
 
 Three architectures are available:
 
@@ -65,10 +65,10 @@ Two checkpoints are hosted on [Hugging Face](https://huggingface.co/systems-geno
 
 | Checkpoint | Training data | Species accuracy | Parameters |
 |-----------|--------------|-----------------|------------|
-| `deeptaxa-full-length-v1.pt` | Full-length 16S | 92.97% | 112.3M |
-| `deeptaxa-v3v4-v1.pt` | In-silico V3-V4 amplicons | 87.52% | 99.5M |
+| `deeptaxa-full-length-v1.pt` | Full-length 16S (277,336 sequences, ~1,500 bp) | 92.96% (3-seed mean) | 76.4 M |
+| `deeptaxa-v3v4-v1.pt` | In-silico V3-V4 amplicons (~420 bp, 273,003 amplicons) | 87.55% (seed 42) | 75.8 M |
 
-Both use the same architecture. A `config.json` with full model metadata is also available.
+Both checkpoints share the same canonical architecture (the small parameter difference reflects smaller per-rank classifier heads on the V3-V4 model, which has a smaller species vocabulary: 8,347 vs 16,909). A `config.json` with full model metadata is also available.
 
 ---
 
@@ -183,7 +183,7 @@ deeptaxa train \
   --output-dir ../deeptaxa-outputs/
 ```
 
-Training takes approximately 2.5 hours (10 epochs) on an NVIDIA A40 GPU.
+Training takes approximately 1 h 20 m on an NVIDIA RTX 4090 (or 2 h 35 m on an NVIDIA A40) for 10 epochs.
 
 ### Output
 
@@ -241,7 +241,7 @@ Train CNN-only, BERT-only, or the hybrid under the same data and hyperparameters
 
 ### Calibration
 
-When `--taxonomy-file` is provided at prediction time, DeepTaxa computes Expected Calibration Error (ECE) alongside accuracy, F1, precision, recall, and AUC. ECE measures the gap between predicted confidence and observed accuracy across 10 equal-width bins. All metrics are saved to `metrics.json`.
+When `--taxonomy-file` is provided at prediction time, DeepTaxa computes Expected Calibration Error (ECE) alongside accuracy, F1, precision, recall, and AUC. ECE measures the gap between predicted confidence and observed accuracy across 15 equal-width bins. All metrics are saved to `metrics.json`.
 
 ---
 
