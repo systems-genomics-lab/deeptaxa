@@ -286,11 +286,13 @@ Interactive tutorials with executable code are published at [systems-genomics-la
 If DeepTaxa contributes to your research, please cite:
 
 ```bibtex
-@article{salahkhalel2026deeptaxa,
-  title={DeepTaxa: Deep Learning Framework for Taxonomic Classification},
-  author={Salah Khalel, Rana and Abdelaal, Khlood and Ghonaim, Lobna and Awe, Olaitan I. and Moustafa, Ahmed},
+@article{salah2026deeptaxa,
+  title={{DeepTaxa}: A Hybrid {CNN}-{BERT} Framework for {16S} {rRNA} Taxonomic Classification},
+  author={Salah, Rana and AbdElaal, Khlood R. and Ghonaim, Lobna and Awe, Olaitan I. and Moustafa, Ahmed},
+  journal={Bioinformatics Advances},
   year={2026},
-  note={Under review}
+  doi={10.1093/bioadv/vbag166},
+  publisher={Oxford University Press}
 }
 ```
 

@@ -34,4 +34,4 @@ pip install matplotlib scikit-learn
 - [Source code](https://github.com/systems-genomics-lab/deeptaxa)
 - [Pre-trained model](https://huggingface.co/systems-genomics-lab/deeptaxa)
 - [Training data (Greengenes 2)](https://huggingface.co/datasets/systems-genomics-lab/greengenes)
-- DeepTaxa manuscript [@salahkhalel2026deeptaxa]
+- DeepTaxa manuscript [@salah2026deeptaxa]
