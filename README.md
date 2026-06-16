@@ -283,7 +283,7 @@ Interactive tutorials with executable code are published at [systems-genomics-la
 
 ## Citation
 
-If DeepTaxa contributes to your research, please cite:
+If DeepTaxa contributes to your research, please cite our paper in *Bioinformatics Advances*: [https://doi.org/10.1093/bioadv/vbag166](https://doi.org/10.1093/bioadv/vbag166)
 
 ```bibtex
 @article{salah2026deeptaxa,
