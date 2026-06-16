@@ -57,7 +57,7 @@ Three architectures are available:
 
 - **HybridCNNBERTClassifier** (default): Fuses CNN local motif features with BERT global context. Used for the published checkpoints.
 - **CNNClassifier**: Multi-kernel convolutional network only. Faster training, slightly lower species accuracy.
-- **BERTClassifier**: Transformer encoder only. Captures long-range dependencies but requires more data to match CNN performance.
+- **BERTClassifier**: Transformer encoder only. On its own, a from-scratch transformer underperforms substantially at the species rank; provided mainly for ablation.
 
 ### Pre-Trained Checkpoints
 
@@ -173,7 +173,7 @@ wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/config.js
 
 ## Training
 
-All architecture hyperparameters default to the Optuna-optimized values, so a minimal training command reproduces the published checkpoint:
+All architecture hyperparameters default to the published (compact) configuration, so a minimal training command reproduces the published checkpoint:
 
 ```bash
 deeptaxa train \
