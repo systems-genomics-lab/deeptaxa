@@ -241,7 +241,7 @@ Train CNN-only, BERT-only, or the hybrid under the same data and hyperparameters
 
 ### Calibration
 
-When `--taxonomy-file` is provided at prediction time, DeepTaxa computes Expected Calibration Error (ECE) alongside accuracy, F1, precision, recall, and AUC. ECE measures the gap between predicted confidence and observed accuracy across 15 equal-width bins. All metrics are saved to `metrics.json`.
+When `--taxonomy-file` is provided at prediction time, DeepTaxa computes Expected Calibration Error (ECE) alongside accuracy, F1, precision, recall, and AUC. ECE measures the gap between predicted confidence and observed accuracy across 10 equal-width bins. All metrics are saved to `metrics.json`.
 
 ---
 
