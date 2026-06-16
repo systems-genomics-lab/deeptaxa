@@ -68,7 +68,7 @@ Two checkpoints are hosted on [Hugging Face](https://huggingface.co/systems-geno
 | `deeptaxa-full-length-v1.pt` | Full-length 16S (277,336 sequences, ~1,500 bp) | 92.96% (3-seed mean) | 76.4 M |
 | `deeptaxa-v3v4-v1.pt` | In-silico V3-V4 amplicons (~420 bp, 273,003 amplicons) | 87.55% (seed 42) | 75.8 M |
 
-Both checkpoints share the same canonical architecture (the small parameter difference reflects smaller per-rank classifier heads on the V3-V4 model, which has a smaller species vocabulary: 8,347 vs 16,909). A `config.json` with full model metadata is also available.
+Both checkpoints share the same compact architecture (the small parameter difference reflects smaller per-rank classifier heads on the V3-V4 model, which has a smaller species vocabulary: 8,347 vs 16,909). A `config.json` with full model metadata is also available.
 
 ---
 
