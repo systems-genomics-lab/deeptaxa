@@ -13,8 +13,8 @@ set -euo pipefail
 TEST_FASTA="/work/deeptaxa-data/greengenes/gg_2024_09_testing.fna.gz"
 TEST_TAX="/work/deeptaxa-data/greengenes/gg_2024_09_testing.tsv.gz"
 CHECKPOINT="/work/deeptaxa-outputs/baseline_clean_10ep/checkpoints/deeptaxa_2026_03_16T10_40_07_25aca8c0_27fb_4a93_8596_2b1390bcf1f2_epoch10.pt"
-OUTDIR="/work/deeptaxa-outputs/amplicon_eval_v2"
-LOGFILE="${OUTDIR}/amplicon_eval_v2.log"
+OUTDIR="/work/deeptaxa-outputs/amplicon_eval"
+LOGFILE="${OUTDIR}/amplicon_eval.log"
 
 # DeepTaxa public repo (for simulate_amplicons.py)
 DEEPTAXA_DIR="/work/deeptaxa"
@@ -26,7 +26,7 @@ mkdir -p "${OUTDIR}"
 exec > >(tee -a "${LOGFILE}") 2>&1
 
 echo "=========================================="
-echo "Amplicon Evaluation v2 — V3-V4 + CE checkpoint"
+echo "Amplicon Evaluation — V3-V4 + cross-entropy checkpoint"
 echo "Date: $(date)"
 echo "=========================================="
 echo ""
@@ -90,7 +90,7 @@ deeptaxa predict \
 
 echo ""
 echo "=========================================="
-echo "Amplicon evaluation v2 complete."
+echo "Amplicon evaluation complete."
 echo "Results: ${OUTDIR}/predictions_v3v4/metrics.json"
 echo "Log:     ${LOGFILE}"
 echo "=========================================="

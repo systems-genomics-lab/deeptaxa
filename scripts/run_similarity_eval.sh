@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# End-to-end similarity-stratified evaluation pipeline (R1.4)
+# End-to-end similarity-stratified evaluation pipeline
 #
 # 1. Computes nearest-neighbor similarity between test and training sequences
 # 2. Splits test set into similarity buckets
@@ -21,7 +21,7 @@ THREADS="${6:-4}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "=========================================="
-echo "Similarity-Stratified Evaluation (R1.4)"
+echo "Similarity-Stratified Evaluation"
 echo "=========================================="
 echo ""
 
