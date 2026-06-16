@@ -3,13 +3,12 @@ Module: config.py
 
 Description:
     Centralizes configuration parameters for DeepTaxa models and training pipelines.
-    Defaults match the canonical SMALL HybridCNNBERT configuration adopted in
-    Phase 23 (revision/23-arch-and-metric-reconciliation.md): 256 filters /
-    896 hidden / 4 transformer layers / 7 attention heads / 3584 FFN /
-    kernels 3,5,7, trained with cross-entropy loss at LR 5e-4, batch 64,
+    Defaults match the compact HybridCNNBERT configuration used for the published
+    checkpoint: 256 filters / 896 hidden / 4 transformer layers / 7 attention heads /
+    3584 FFN / kernels 3,5,7, trained with cross-entropy loss at LR 5e-4, batch 64,
     dropout 0.20, weight decay 0.01.
 
-    The earlier Optuna-optimized LARGE values (512 filters / 1024 hidden /
+    The earlier Optuna-optimized expanded values (512 filters / 1024 hidden /
     5 layers / 8 heads / 4096 FFN, kernels 5,7,9, LR 3.72e-4, batch 32,
     dropout 0.174, WD 0.042) are preserved in this file's git history.
 """

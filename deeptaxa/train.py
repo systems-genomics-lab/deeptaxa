@@ -4,10 +4,10 @@ Module: train.py
 Description:
     Implements the training pipeline for DeepTaxa models, supporting CNN, BERT, and hybrid architectures
     for hierarchical taxonomy classification of 16S rRNA sequences. Manages data loading, model optimization,
-    evaluation, and checkpointing, with options for resuming training and exporting diagnostics. Employs
-    focal loss to address class imbalance and mixed precision to optimize GPU utilization, ensuring efficient
-    and robust training for genomic data. Training optimizes model weights to minimize a hierarchical focal loss 
-    across taxonomic ranks, using AdamW with a linear warmup scheduler for stable convergence.
+    evaluation, and checkpointing, with options for resuming training and exporting diagnostics. Uses mixed
+    precision to optimize GPU utilization, ensuring efficient and robust training for genomic data. Training
+    minimizes a summed per-rank classification loss across taxonomic ranks (cross-entropy by default, with
+    focal loss available for class imbalance), using AdamW with a linear warmup scheduler for stable convergence.
 """
 
 import torch

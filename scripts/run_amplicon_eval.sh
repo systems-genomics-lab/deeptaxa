@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Amplicon evaluation v2 (R1.3) — V3-V4 in silico PCR + CE checkpoint
+# Amplicon evaluation — V3-V4 in silico PCR + cross-entropy checkpoint
 #
 # Uses simulate_amplicons.py for primer-based extraction from full-length
-# Greengenes 16S reference sequences. Predicts with the CE baseline checkpoint.
+# Greengenes 16S reference sequences. Predicts with the cross-entropy checkpoint.
 #
 # Usage:
-#   bash revision/scripts/run_amplicon_eval_v2.sh
+#   bash scripts/run_amplicon_eval.sh
 
 set -euo pipefail
 
