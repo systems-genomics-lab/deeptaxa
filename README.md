@@ -42,7 +42,7 @@ The published HybridCNNBERT checkpoint achieves the following on 69,335 held-out
 | Genus | 96.90% | 96.48% | 0.0144 |
 | Species | 92.96% | 92.12% | 0.0242 |
 
-Cross-seed standard deviation is at most 0.0008 F1 at every rank (species std 0.0008 F1 / 0.07 percentage points accuracy), demonstrating high reproducibility. Per-seed details are in the [submission repository](https://github.com/ahmedmoustafa/deeptaxa-submission).
+Cross-seed standard deviation is at most 0.0008 F1 at every rank (species std 0.0008 F1 / 0.07 percentage points accuracy), demonstrating high reproducibility.
 
 ### Architecture
 
