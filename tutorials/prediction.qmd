@@ -335,9 +335,21 @@ In most incorrect cases, the species label differs but the genus and family rema
 
 ## Summary
 
-DeepTaxa classified 69,335 held-out 16S rRNA sequences with 93.0% species-level accuracy and 92.0% weighted F1-score. Performance exceeds 99% from Domain through Class, and decreases gradually at finer ranks as the number of target classes grows and the distinguishing sequence features become subtler.
+```{python}
+#| echo: false
+# --- Summary statistics computed from this run (used in the prose below) ---
+from sklearn.metrics import f1_score
+n_eval = len(df)
+species_accuracy = (df['species_predicted'] == df['species_true']).mean() * 100
+species_f1 = f1_score(df['species_true'], df['species_predicted'],
+                      average='weighted', zero_division=0) * 100
+conf_correct = df.loc[correct, 'species_raw_score'].mean()
+conf_incorrect = df.loc[~correct, 'species_raw_score'].mean()
+```
 
-Prediction confidence strongly separates correct from incorrect classifications (mean 0.987 vs. 0.668), confirming that the default confidence threshold of 0.95 is effective for flagging unreliable predictions in practice.
+DeepTaxa classified `{python} f"{n_eval:,}"` held-out 16S rRNA sequences with `{python} f"{species_accuracy:.1f}"`% species-level accuracy and `{python} f"{species_f1:.1f}"`% weighted F1-score. Performance exceeds 99% from Domain through Class, and decreases gradually at finer ranks as the number of target classes grows and the distinguishing sequence features become subtler.
+
+Prediction confidence strongly separates correct from incorrect classifications (mean `{python} f"{conf_correct:.3f}"` vs. `{python} f"{conf_incorrect:.3f}"`), confirming that the default confidence threshold of 0.95 is effective for flagging unreliable predictions in practice.
 
 For training a model on custom reference data, see the [training tutorial](training.qmd). For a deeper analysis of error patterns, calibration, and generalization to novel taxa, see the [analysis tutorial](analysis.qmd).
 
