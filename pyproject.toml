@@ -6,9 +6,12 @@ description = "A deep learning framework for hierarchical taxonomy classificatio
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
-    { name = "Khlood Ramadan", email = "khlood.ramadan@aucegypt.edu" },
-    { name = "Lobna Ghonaim", email = "lobnaghonaim@aucegypt.edu" },
+    { name = "Ahmed Moustafa", email = "amoustafa@aucegypt.edu" },
     { name = "Rana Salah", email = "rana_salah@aucegypt.edu" },
+    { name = "Khlood Ramadan", email = "khlood.ramadan@aucegypt.edu" },
+    { name = "Lobna Ghonaim", email = "lobnaghonaim@aucegypt.edu" }
+]
+maintainers = [
     { name = "Ahmed Moustafa", email = "amoustafa@aucegypt.edu" }
 ]
 dependencies = [
