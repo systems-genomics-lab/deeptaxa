@@ -27,7 +27,9 @@ Package Structure:
 """
 
 try:
+    # Distribution name is "deeptaxa-rrna" (the bare "deeptaxa" name was already
+    # taken on PyPI); the import package and CLI command remain "deeptaxa".
     from importlib.metadata import version
-    __version__ = version("deeptaxa")
+    __version__ = version("deeptaxa-rrna")
 except ImportError:
     __version__ = "0.0.0"  # Fallback version for local development

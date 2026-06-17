@@ -1,5 +1,5 @@
 [project]
-name = "deeptaxa"
+name = "deeptaxa-rrna"
 dynamic = ["version"]
 requires-python = ">=3.10"
 description = "A deep learning framework for hierarchical taxonomy classification of 16S rRNA gene sequences."
