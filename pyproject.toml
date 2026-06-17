@@ -4,7 +4,8 @@ dynamic = ["version"]
 requires-python = ">=3.10"
 description = "A deep learning framework for hierarchical taxonomy classification of 16S rRNA gene sequences."
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "Ahmed Moustafa", email = "amoustafa@aucegypt.edu" },
     { name = "Rana Salah", email = "rana_salah@aucegypt.edu" },
@@ -30,7 +31,7 @@ dependencies = [
 deeptaxa = "deeptaxa.cli:main"
 
 [build-system]
-requires = ["setuptools>=64", "wheel", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=77", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]

@@ -1,6 +1,6 @@
 # DeepTaxa
 
-[![License](https://img.shields.io/github/license/systems-genomics-lab/deeptaxa)](LICENSE)
+[![License](https://img.shields.io/github/license/systems-genomics-lab/deeptaxa)](https://github.com/systems-genomics-lab/deeptaxa/blob/main/LICENSE)
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue)](https://huggingface.co/systems-genomics-lab/deeptaxa)
 [![Tutorials](https://img.shields.io/badge/Tutorials-GitHub%20Pages-green)](https://systems-genomics-lab.github.io/deeptaxa/)
 [![Last Commit](https://img.shields.io/github/last-commit/systems-genomics-lab/deeptaxa)](https://github.com/systems-genomics-lab/deeptaxa/commits/main)
@@ -85,7 +85,7 @@ pip install .
 deeptaxa --version
 ```
 
-Dependencies (torch, transformers, pandas, numpy, scikit-learn, h5py, etc.) are specified in [`pyproject.toml`](pyproject.toml) and installed automatically.
+Dependencies (torch, transformers, pandas, numpy, scikit-learn, h5py, etc.) are specified in [`pyproject.toml`](https://github.com/systems-genomics-lab/deeptaxa/blob/main/pyproject.toml) and installed automatically.
 
 > **Note**: For GPU support, install a CUDA-compatible PyTorch build before running `pip install .`. See the [PyTorch installation guide](https://pytorch.org/get-started/locally/).
 
@@ -276,7 +276,7 @@ Interactive tutorials with executable code are published at [systems-genomics-la
 
 ## License
 
-- **Code and models**: [MIT License](LICENSE)
+- **Code and models**: [MIT License](https://github.com/systems-genomics-lab/deeptaxa/blob/main/LICENSE)
 - **Greengenes dataset**: [Modified BSD License](https://huggingface.co/datasets/systems-genomics-lab/greengenes)
 
 ---
