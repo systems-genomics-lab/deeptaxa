@@ -13,22 +13,22 @@ repository under `recipes/deeptaxa-rrna/`.
 1. **Tag the release** (the version is derived from the git tag via `setuptools_scm`):
 
    ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
+   git tag v1.0.1
+   git push origin v1.0.1
    ```
 
 2. **Build and publish to PyPI** (in a Python >=3.10 environment):
 
    ```bash
    python -m pip install --upgrade build twine
-   python -m build                 # creates dist/deeptaxa_rrna-1.0.0.tar.gz and the wheel
+   python -m build                 # creates dist/deeptaxa_rrna-1.0.1.tar.gz and the wheel
    python -m twine upload dist/*   # requires a PyPI API token
    ```
 
 3. **Compute the sdist checksum** and put it in `meta.yaml` (`source.sha256`):
 
    ```bash
-   openssl sha256 dist/deeptaxa_rrna-1.0.0.tar.gz
+   openssl sha256 dist/deeptaxa_rrna-1.0.1.tar.gz
    ```
 
    Or regenerate the whole recipe from the published PyPI release with grayskull:
