@@ -278,6 +278,7 @@ The `scripts/` directory contains reusable tools for common workflows:
 | `calibration_sweep.sh` | Multi-configuration temperature sweep |
 | `simulate_amplicons.py` | Extract amplicon regions via in-silico PCR |
 | `sequence_similarity.py` | Compute train-test nearest-neighbor identity |
+| `similarity_curve.py` | Plot accuracy stratified by train-test similarity |
 
 ---
 
