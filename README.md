@@ -74,7 +74,25 @@ Both checkpoints share the same compact architecture (the small parameter differ
 
 ## Installation
 
-DeepTaxa requires Python 3.10 or later. We recommend using a Conda environment:
+DeepTaxa requires Python 3.10 or later. It is distributed as **`deeptaxa-rrna`** on PyPI and Bioconda (the bare `deeptaxa` name was already taken on PyPI by an unrelated tool); the import package and the command-line tool are both `deeptaxa`.
+
+### From PyPI
+
+```bash
+pip install deeptaxa-rrna
+deeptaxa --version
+```
+
+### From Bioconda
+
+```bash
+conda install -c bioconda deeptaxa-rrna
+deeptaxa --version
+```
+
+### From source
+
+For the latest development version, or to modify the code:
 
 ```bash
 git clone https://github.com/systems-genomics-lab/deeptaxa.git
@@ -85,9 +103,9 @@ pip install .
 deeptaxa --version
 ```
 
-Dependencies (torch, transformers, pandas, numpy, scikit-learn, h5py, etc.) are specified in [`pyproject.toml`](https://github.com/systems-genomics-lab/deeptaxa/blob/main/pyproject.toml) and installed automatically.
+Dependencies (torch, transformers, pandas, numpy, scikit-learn, biopython, h5py, optuna, etc.) are specified in [`pyproject.toml`](https://github.com/systems-genomics-lab/deeptaxa/blob/main/pyproject.toml) and installed automatically.
 
-> **Note**: For GPU support, install a CUDA-compatible PyTorch build before running `pip install .`. See the [PyTorch installation guide](https://pytorch.org/get-started/locally/).
+> **Note**: For GPU support, install a CUDA-compatible PyTorch build before installing DeepTaxa. See the [PyTorch installation guide](https://pytorch.org/get-started/locally/).
 
 ---
 
