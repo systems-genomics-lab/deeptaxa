@@ -172,7 +172,7 @@ DeepTaxa uses the [Greengenes2](https://greengenes2.ucsd.edu/) database (2024.09
 
 ```bash
 # Dataset
-mkdir -p deeptaxa-data/greengenes && cd deeptaxa-data/greengenes
+mkdir -p ../deeptaxa-data/greengenes && cd ../deeptaxa-data/greengenes
 for f in gg_2024_09_training.fna.gz gg_2024_09_training.tsv.gz \
          gg_2024_09_testing.fna.gz gg_2024_09_testing.tsv.gz; do
   wget https://huggingface.co/datasets/systems-genomics-lab/greengenes/resolve/main/$f
