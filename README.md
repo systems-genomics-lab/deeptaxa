@@ -185,6 +185,8 @@ wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-
 wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/config.json
 ```
 
+> **Tip**: If `wget` is unavailable (for example, on macOS), substitute `curl -L -O` from within the target directory to download each file.
+
 > **Note**: Checkpoint files use PyTorch's `pickle`-based serialization. Download them only from the official Hugging Face repository.
 
 ---
