@@ -59,7 +59,7 @@ def describe(output_dir: str, classifier: DeepTaxaModelDirectoryFormat) -> None:
         with open(metrics_fp) as fh:
             metadata = json.load(fh)
 
-    sections = [f"<h1>DeepTaxa Model</h1>"]
+    sections = ["<h1>DeepTaxa Model</h1>"]
     sections.append(
         f"<p><strong>Version:</strong> {html.escape(str(metadata.get('version', 'N/A')))}</p>"
     )

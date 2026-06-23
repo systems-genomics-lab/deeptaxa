@@ -16,7 +16,7 @@ maintainers = [
     { name = "Ahmed Moustafa", email = "amoustafa@aucegypt.edu" }
 ]
 dependencies = [
-    "torch>=2.0",
+    "torch>=2.4",
     "numpy",
     "transformers>=4.28",
     "pandas",

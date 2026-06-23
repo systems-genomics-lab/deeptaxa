@@ -222,8 +222,12 @@ def fit(
             raise RuntimeError(
                 "DeepTaxa training did not produce a checkpoint."
             )
-        # Checkpoints are named ..._epoch<N>.pt; pick the highest epoch, i.e.
-        # the most-trained model.
+        # A checkpoint and its metrics share the basename
+        # ``deeptaxa_<uuid>_epoch<N>``. Pick the epoch with the lowest validation
+        # loss, which matters when early stopping is on (there the last epoch is
+        # past the best one). Read the small metrics JSON files instead of
+        # loading every checkpoint, and fall back to the most-trained checkpoint
+        # when no validation loss was recorded.
         def _epoch(path):
             stem = os.path.splitext(os.path.basename(path))[0]
             try:
@@ -231,7 +235,25 @@ def fit(
             except (IndexError, ValueError):
                 return -1
 
-        best = max(checkpoints, key=_epoch)
+        by_epoch = {_epoch(c): c for c in checkpoints}
+        scored = []
+        for metrics_fp in glob(os.path.join(tmpdir, "metrics", "*.json")):
+            try:
+                with open(metrics_fp) as fh:
+                    val_loss = json.load(fh)["performance_metrics"][
+                        "validation_loss"
+                    ]
+            except (KeyError, ValueError, OSError):
+                continue
+            epoch = _epoch(metrics_fp)
+            if (
+                epoch in by_epoch
+                and isinstance(val_loss, (int, float))
+                and val_loss > 0
+            ):
+                scored.append((val_loss, epoch))
+
+        chosen = by_epoch[min(scored)[1]] if scored else max(checkpoints, key=_epoch)
 
         # The training checkpoint also stores optimizer, scheduler, scaler, and
         # RNG state, which are only needed to resume training. A DeepTaxaModel
@@ -240,7 +262,7 @@ def fit(
         # read.
         import torch
 
-        checkpoint = torch.load(best, map_location="cpu", weights_only=False)
+        checkpoint = torch.load(chosen, map_location="cpu", weights_only=False)
         for key in (
             "optimizer_state_dict",
             "scheduler_state_dict",
