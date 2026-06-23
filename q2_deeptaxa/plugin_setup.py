@@ -59,9 +59,11 @@ plugin.methods.register_function(
         "classifier": DeepTaxaModel,
     },
     parameters={
+        "confidence": (
+            Float % Range(0, 1, inclusive_end=True) | Str % Choices(["disable"])
+        ),
         "batch_size": Int % Range(1, None),
         "top_k": Int % Range(1, None),
-        "confidence_threshold": Float % Range(0, 1, inclusive_end=True),
         "num_workers": Int % Range(0, None),
         "seed": Int,
     },
@@ -71,12 +73,13 @@ plugin.methods.register_function(
         "classifier": "The trained DeepTaxa model.",
     },
     parameter_descriptions={
+        "confidence": (
+            "Confidence threshold for limiting taxonomic depth. Use 'disable' "
+            "to keep the full lineage, or a value between 0 and 1 to trim the "
+            "lineage at the first rank whose score drops below it."
+        ),
         "batch_size": "Number of sequences per inference batch.",
         "top_k": "Number of top candidate labels considered per rank.",
-        "confidence_threshold": (
-            "Softmax confidence below which a prediction is flagged as "
-            "low-confidence."
-        ),
         "num_workers": "Number of data-loading worker processes.",
         "seed": "Random seed for reproducibility.",
     },

@@ -72,6 +72,45 @@ def lineage_from_labels(ranks, labels):
     return "; ".join(parts)
 
 
+def assign_taxonomy(ranks, labels, scores, confidence=None):
+    """Build a ``(taxon, confidence)`` pair from one sequence's per-rank output.
+
+    Parameters
+    ----------
+    ranks : sequence of str
+        Ordered taxonomic rank names.
+    labels : sequence of str
+        Predicted label per rank, aligned with ``ranks``.
+    scores : sequence of float or None
+        Softmax probability per rank, aligned with ``ranks``. ``None`` marks a
+        rank with no score.
+    confidence : float or None
+        If ``None``, keep the whole lineage and report the lowest per-rank score
+        as a cautious whole-lineage confidence. If a threshold is given, keep
+        ranks from the top down only while their score stays at or above it, and
+        report the score of the deepest kept rank. A sequence whose very first
+        rank is below the threshold becomes ``Unassigned``.
+    """
+    if confidence is None:
+        taxon = lineage_from_labels(ranks, labels)
+        present = [s for s in scores if s is not None]
+        return taxon, (min(present) if present else float("nan"))
+
+    kept_labels, kept_scores = [], []
+    for label, score in zip(labels, scores):
+        if score is None or score < confidence:
+            break
+        kept_labels.append(label)
+        kept_scores.append(score)
+
+    if kept_labels:
+        taxon = lineage_from_labels(ranks[: len(kept_labels)], kept_labels)
+        return taxon, kept_scores[-1]
+
+    first = scores[0] if scores else None
+    return "Unassigned", (first if first is not None else float("nan"))
+
+
 def _parse_lineage(taxon):
     """Parse one QIIME lineage string into ``{rank_name: label}``.
 

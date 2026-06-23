@@ -11,6 +11,7 @@ import pandas as pd
 from q2_deeptaxa._taxonomy import (
     DEFAULT_RANKS,
     UNCLASSIFIED,
+    assign_taxonomy,
     lineage_from_labels,
     taxonomy_series_to_table,
 )
@@ -76,6 +77,46 @@ class TestTaxonomySeriesToTable(unittest.TestCase):
         self.assertEqual(row["domain"], "Bacteria")
         self.assertEqual(row["genus"], "Bacillus")
         self.assertEqual(row["species"], "subtilis")
+
+
+class TestAssignTaxonomy(unittest.TestCase):
+    RANKS = ["domain", "phylum", "class", "order", "family", "genus", "species"]
+    LABELS = ["Bacteria", "Firmicutes", "Bacilli", "Bacillales",
+              "Bacillaceae", "Bacillus", "subtilis"]
+
+    def test_no_threshold_keeps_full_lineage_and_min_confidence(self):
+        scores = [0.99, 0.95, 0.90, 0.80, 0.70, 0.60, 0.30]
+        taxon, conf = assign_taxonomy(self.RANKS, self.LABELS, scores, None)
+        self.assertTrue(taxon.endswith("s__subtilis"))
+        self.assertEqual(conf, 0.30)
+
+    def test_threshold_below_all_keeps_full_lineage_deepest_score(self):
+        scores = [0.99, 0.95, 0.90, 0.80, 0.70, 0.60, 0.30]
+        taxon, conf = assign_taxonomy(self.RANKS, self.LABELS, scores, 0.2)
+        self.assertTrue(taxon.endswith("s__subtilis"))
+        self.assertEqual(conf, 0.30)
+
+    def test_threshold_truncates_tail(self):
+        scores = [0.99, 0.95, 0.90, 0.80, 0.70, 0.40, 0.20]
+        taxon, conf = assign_taxonomy(self.RANKS, self.LABELS, scores, 0.5)
+        self.assertEqual(
+            taxon,
+            "d__Bacteria; p__Firmicutes; c__Bacilli; o__Bacillales; "
+            "f__Bacillaceae",
+        )
+        self.assertEqual(conf, 0.70)
+
+    def test_threshold_above_domain_is_unassigned(self):
+        scores = [0.40, 0.30, 0.20, 0.10, 0.05, 0.02, 0.01]
+        taxon, conf = assign_taxonomy(self.RANKS, self.LABELS, scores, 0.5)
+        self.assertEqual(taxon, "Unassigned")
+        self.assertEqual(conf, 0.40)
+
+    def test_missing_score_truncates_there(self):
+        scores = [0.99, 0.95, None, 0.80, 0.70, 0.60, 0.30]
+        taxon, conf = assign_taxonomy(self.RANKS, self.LABELS, scores, 0.5)
+        self.assertEqual(taxon, "d__Bacteria; p__Firmicutes")
+        self.assertEqual(conf, 0.95)
 
 
 if __name__ == "__main__":

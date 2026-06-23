@@ -341,6 +341,18 @@ qiime deeptaxa classify \
   --o-classification taxonomy.qza
 ```
 
+By default `classify` reports all seven ranks. Pass `--p-confidence` with a value
+between 0 and 1 to trim the lineage at the first rank whose score falls below it,
+the way `classify-sklearn` does:
+
+```bash
+qiime deeptaxa classify \
+  --i-reads rep-seqs.qza \
+  --i-classifier deeptaxa-model.qza \
+  --p-confidence 0.9 \
+  --o-classification taxonomy.qza
+```
+
 The result is an ordinary `FeatureData[Taxonomy]`, so it feeds into the rest of
 QIIME just like the output of any other classifier, such as a taxonomy bar plot:
 
@@ -370,10 +382,10 @@ qiime deeptaxa fit \
 ```
 
 The plugin needs a QIIME 2 distribution that provides `q2-types`, such as the
-amplicon distribution. `classify` returns all seven ranks for every sequence; it
-does not trim low-confidence tail ranks the way some classifiers do. The
+amplicon distribution. With `--p-confidence` disabled (the default), the
 `Confidence` column holds the lowest per-rank softmax probability along the
-lineage, which is a cautious score for the whole assignment.
+lineage, a cautious score for the whole assignment; with a threshold, it holds
+the score of the deepest rank that was kept.
 
 The plugin was tested with the QIIME 2 amplicon 2024.10 distribution, installed
 through conda as shown above. `classify` runs on either CPU or GPU; whether you

@@ -23,7 +23,7 @@ from deeptaxa.config import DEFAULT_CONFIG
 from ._formats import DeepTaxaModelDirectoryFormat
 from ._taxonomy import (
     DEFAULT_RANKS,
-    lineage_from_labels,
+    assign_taxonomy,
     taxonomy_series_to_table,
 )
 
@@ -77,9 +77,9 @@ def _read_ranks(checkpoint_path: str):
 def classify(
     reads: DNAFASTAFormat,
     classifier: DeepTaxaModelDirectoryFormat,
+    confidence: float = "disable",
     batch_size: int = DEFAULT_CONFIG["batch_size"],
     top_k: int = DEFAULT_CONFIG["top_k"],
-    confidence_threshold: float = DEFAULT_CONFIG["confidence_threshold"],
     num_workers: int = DEFAULT_CONFIG["num_workers"],
     seed: int = DEFAULT_CONFIG["seed"],
 ) -> pd.DataFrame:
@@ -91,14 +91,20 @@ def classify(
         Sequences to classify (FeatureData[Sequence]).
     classifier : DeepTaxaModelDirectoryFormat
         Trained DeepTaxa model.
+    confidence : float or "disable"
+        Confidence threshold for limiting how deep a lineage is reported.
+        ``"disable"`` (the default) keeps all ranks. A float between 0 and 1
+        trims the lineage at the first rank whose score falls below it, so only
+        the confident part of the assignment is kept.
 
     Returns
     -------
     pandas.DataFrame
         Indexed by ``Feature ID`` with ``Taxon`` and ``Confidence`` columns,
-        which q2-types turns into FeatureData[Taxonomy]. ``Confidence`` is the
-        lowest per-rank softmax probability along the lineage, used as a
-        cautious score for the whole lineage.
+        which q2-types turns into FeatureData[Taxonomy]. With ``confidence``
+        disabled, ``Confidence`` is the lowest per-rank softmax probability
+        along the lineage; with a threshold, it is the score of the deepest
+        rank that was kept.
     """
     checkpoint = _checkpoint_path(classifier)
     ranks = _read_ranks(checkpoint)
@@ -111,7 +117,6 @@ def classify(
             output_dir=tmpdir,
             batch_size=batch_size,
             top_k=top_k,
-            confidence_threshold=confidence_threshold,
             num_workers=num_workers,
             seed=seed,
         )
@@ -132,6 +137,8 @@ def classify(
     seq_ids = output["sequence_ids"]
     predictions = output["predictions"]
 
+    threshold = None if confidence == "disable" else float(confidence)
+
     taxa, confidences = [], []
     for pred in predictions:
         labels, scores = [], []
@@ -139,10 +146,10 @@ def classify(
             entry = pred.get(rank, {})
             labels.append(entry.get("label", ""))
             score = entry.get("raw_score")
-            if score is not None:
-                scores.append(float(score))
-        taxa.append(lineage_from_labels(ranks, labels))
-        confidences.append(min(scores) if scores else float("nan"))
+            scores.append(float(score) if score is not None else None)
+        taxon, conf = assign_taxonomy(ranks, labels, scores, threshold)
+        taxa.append(taxon)
+        confidences.append(conf)
 
     result = pd.DataFrame(
         {"Taxon": taxa, "Confidence": confidences}, index=pd.Index(seq_ids)
