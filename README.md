@@ -28,10 +28,11 @@
 6. [Experimentation](#experimentation)
 7. [Scripts](#scripts)
 8. [Tutorials](#tutorials)
-9. [License](#license)
-10. [Citation](#citation)
-11. [Contact](#contact)
-12. [Acknowledgements](#acknowledgements)
+9. [QIIME 2 plugin](#qiime-2-plugin)
+10. [License](#license)
+11. [Citation](#citation)
+12. [Contact](#contact)
+13. [Acknowledgements](#acknowledgements)
 
 ---
 
@@ -299,6 +300,66 @@ Interactive tutorials with executable code are published at [systems-genomics-la
 - [Training](https://systems-genomics-lab.github.io/deeptaxa/training.html): Train from scratch on Greengenes2
 - [Analysis](https://systems-genomics-lab.github.io/deeptaxa/analysis.html): Evaluate performance, calibration, and error patterns
 - [Architecture](https://systems-genomics-lab.github.io/deeptaxa/architecture.html): Model internals and extensibility
+
+---
+
+## QIIME 2 plugin
+
+DeepTaxa comes with a [QIIME 2](https://qiime2.org) plugin (`q2-deeptaxa`) so you
+can run it inside QIIME 2 workflows. The plugin is part of the package, so there
+is nothing extra to install. In an activated QIIME 2 environment, install
+DeepTaxa from Bioconda and refresh the plugin cache:
+
+```bash
+conda install -c bioconda deeptaxa-rrna
+qiime dev refresh-cache
+qiime deeptaxa --help
+```
+
+A trained model is a QIIME 2 artifact of semantic type `DeepTaxaModel`, so its
+provenance is tracked like any other artifact. Import a checkpoint, then
+classify representative sequences:
+
+```bash
+# Import a trained checkpoint as a DeepTaxaModel artifact
+qiime tools import \
+  --type DeepTaxaModel \
+  --input-path deeptaxa-full-length-v1.pt \
+  --input-format DeepTaxaModelFormat \
+  --output-path deeptaxa-model.qza
+
+# Classify FeatureData[Sequence] -> FeatureData[Taxonomy]
+qiime deeptaxa classify \
+  --i-reads rep-seqs.qza \
+  --i-classifier deeptaxa-model.qza \
+  --o-classification taxonomy.qza
+
+# Inspect a model
+qiime deeptaxa describe \
+  --i-classifier deeptaxa-model.qza \
+  --o-visualization model-summary.qzv
+```
+
+Train a new model from reference sequences and taxonomy (GPU recommended):
+
+```bash
+qiime deeptaxa fit \
+  --i-reference-reads ref-seqs.qza \
+  --i-reference-taxonomy ref-taxonomy.qza \
+  --p-epochs 10 \
+  --o-classifier deeptaxa-model.qza
+```
+
+The plugin needs a QIIME 2 distribution that provides `q2-types`, such as the
+amplicon distribution. In the `Confidence` column, `classify` reports the lowest
+softmax probability across the ranks, which is a cautious estimate of the
+confidence for the whole lineage.
+
+The plugin was tested with the QIIME 2 amplicon 2024.10 distribution, installed
+through conda as shown above. `classify` runs on either CPU or GPU; whether you
+get a GPU build of PyTorch depends on what conda resolves for your QIIME 2
+release, so for heavy training jobs you may prefer the native `deeptaxa train`
+command (see [Training](#training)) on a GPU machine.
 
 ---
 
