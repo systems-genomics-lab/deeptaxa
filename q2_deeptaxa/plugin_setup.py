@@ -74,9 +74,9 @@ plugin.methods.register_function(
     },
     parameter_descriptions={
         "confidence": (
-            "Confidence threshold for limiting taxonomic depth. Use 'disable' "
-            "to keep the full lineage, or a value between 0 and 1 to trim the "
-            "lineage at the first rank whose score drops below it."
+            "Confidence threshold for limiting taxonomic depth (default 0.7). "
+            "A value between 0 and 1 trims the lineage at the first rank whose "
+            "score drops below it; use 'disable' to keep the full lineage."
         ),
         "batch_size": "Number of sequences per inference batch.",
         "top_k": "Number of top candidate labels considered per rank.",

@@ -77,7 +77,7 @@ def _read_ranks(checkpoint_path: str):
 def classify(
     reads: DNAFASTAFormat,
     classifier: DeepTaxaModelDirectoryFormat,
-    confidence: float = "disable",
+    confidence: float = 0.7,
     batch_size: int = DEFAULT_CONFIG["batch_size"],
     top_k: int = DEFAULT_CONFIG["top_k"],
     num_workers: int = DEFAULT_CONFIG["num_workers"],
@@ -93,18 +93,18 @@ def classify(
         Trained DeepTaxa model.
     confidence : float or "disable"
         Confidence threshold for limiting how deep a lineage is reported.
-        ``"disable"`` (the default) keeps all ranks. A float between 0 and 1
-        trims the lineage at the first rank whose score falls below it, so only
-        the confident part of the assignment is kept.
+        Defaults to 0.7: the lineage is trimmed at the first rank whose score
+        falls below the threshold, so only the confident part of the assignment
+        is kept. Pass ``"disable"`` to report the full lineage instead.
 
     Returns
     -------
     pandas.DataFrame
         Indexed by ``Feature ID`` with ``Taxon`` and ``Confidence`` columns,
-        which q2-types turns into FeatureData[Taxonomy]. With ``confidence``
-        disabled, ``Confidence`` is the lowest per-rank softmax probability
-        along the lineage; with a threshold, it is the score of the deepest
-        rank that was kept.
+        which q2-types turns into FeatureData[Taxonomy]. With a threshold,
+        ``Confidence`` is the score of the deepest rank that was kept; with
+        ``confidence`` disabled, it is the lowest per-rank softmax probability
+        along the full lineage.
     """
     checkpoint = _checkpoint_path(classifier)
     ranks = _read_ranks(checkpoint)
