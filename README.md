@@ -317,32 +317,51 @@ qiime deeptaxa --help
 ```
 
 A trained model is a QIIME 2 artifact of semantic type `DeepTaxaModel`, so its
-provenance is tracked like any other artifact. Import a checkpoint, then
-classify representative sequences:
+provenance is tracked like any other artifact. Download a published checkpoint
+that matches your amplicon region from the
+[model repository](https://huggingface.co/systems-genomics-lab/deeptaxa)
+(`deeptaxa-full-length-v1.pt` for full-length 16S, `deeptaxa-v3v4-v1.pt` for
+V3-V4), then import it once:
 
 ```bash
-# Import a trained checkpoint as a DeepTaxaModel artifact
 qiime tools import \
   --type DeepTaxaModel \
   --input-path deeptaxa-full-length-v1.pt \
   --input-format DeepTaxaModelFormat \
   --output-path deeptaxa-model.qza
+```
 
-# Classify FeatureData[Sequence] -> FeatureData[Taxonomy]
+Classify the representative sequences from your workflow (for example
+`rep-seqs.qza` from DADA2 or Deblur):
+
+```bash
 qiime deeptaxa classify \
   --i-reads rep-seqs.qza \
   --i-classifier deeptaxa-model.qza \
   --o-classification taxonomy.qza
+```
 
-# Inspect a model
+The result is an ordinary `FeatureData[Taxonomy]`, so it feeds into the rest of
+QIIME just like the output of any other classifier, such as a taxonomy bar plot:
+
+```bash
+qiime taxa barplot \
+  --i-table table.qza \
+  --i-taxonomy taxonomy.qza \
+  --m-metadata-file metadata.tsv \
+  --o-visualization taxa-bar-plots.qzv
+```
+
+You can also summarize a model, or train a new one from reference sequences and
+their taxonomy (training is a heavy job, so a GPU is recommended):
+
+```bash
+# Summarize a model
 qiime deeptaxa describe \
   --i-classifier deeptaxa-model.qza \
   --o-visualization model-summary.qzv
-```
 
-Train a new model from reference sequences and taxonomy (GPU recommended):
-
-```bash
+# Train a new model
 qiime deeptaxa fit \
   --i-reference-reads ref-seqs.qza \
   --i-reference-taxonomy ref-taxonomy.qza \
@@ -351,9 +370,10 @@ qiime deeptaxa fit \
 ```
 
 The plugin needs a QIIME 2 distribution that provides `q2-types`, such as the
-amplicon distribution. In the `Confidence` column, `classify` reports the lowest
-softmax probability across the ranks, which is a cautious estimate of the
-confidence for the whole lineage.
+amplicon distribution. `classify` returns all seven ranks for every sequence; it
+does not trim low-confidence tail ranks the way some classifiers do. The
+`Confidence` column holds the lowest per-rank softmax probability along the
+lineage, which is a cautious score for the whole assignment.
 
 The plugin was tested with the QIIME 2 amplicon 2024.10 distribution, installed
 through conda as shown above. `classify` runs on either CPU or GPU; whether you
