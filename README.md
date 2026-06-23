@@ -3,6 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/deeptaxa-rrna)](https://pypi.org/project/deeptaxa-rrna/)
 [![Bioconda](https://img.shields.io/conda/vn/bioconda/deeptaxa-rrna?label=bioconda)](https://anaconda.org/bioconda/deeptaxa-rrna)
 [![DOI](https://img.shields.io/badge/DOI-10.1093%2Fbioadv%2Fvbag166-blue)](https://doi.org/10.1093/bioadv/vbag166)
+[![bio.tools](https://img.shields.io/badge/bio.tools-deeptaxa-2c5985)](https://bio.tools/deeptaxa)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/project/deeptaxa-rrna/)
 [![License](https://img.shields.io/github/license/systems-genomics-lab/deeptaxa)](https://github.com/systems-genomics-lab/deeptaxa/blob/main/LICENSE)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/deeptaxa-rrna?label=PyPI%20downloads)](https://pypi.org/project/deeptaxa-rrna/)
