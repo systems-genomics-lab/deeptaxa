@@ -1,0 +1,58 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  unit:
+    name: Unit tests (pure Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install pandas
+        run: pip install pandas
+      - name: Run pure-Python tests
+        run: |
+          python -m unittest \
+            q2_deeptaxa.tests.test_taxonomy \
+            q2_deeptaxa.tests.test_checkpoint -v
+
+  qiime2:
+    name: QIIME 2 plugin tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # setuptools_scm needs tags/history for the version
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+      - name: Create the QIIME 2 environment
+        run: |
+          wget -q -O env.yml \
+            https://data.qiime2.org/distro/amplicon/qiime2-amplicon-2024.10-py310-linux-conda.yml
+          conda env create -n qiime2 --file env.yml
+      - name: Install DeepTaxa and the plugin
+        run: |
+          # Bring the heavy runtime deps in through conda so they co-resolve with
+          # the QIIME 2 stack, then overlay the plugin code without letting pip
+          # re-resolve dependencies.
+          conda install -n qiime2 -y -c conda-forge -c bioconda \
+            "pytorch>=2.4" "transformers>=4.28" biopython h5py optuna tqdm \
+            scikit-learn
+          conda run -n qiime2 pip install --no-deps .
+          conda run -n qiime2 qiime dev refresh-cache
+      - name: Check the plugin is registered
+        run: conda run -n qiime2 qiime deeptaxa --help
+      - name: Run the full test suite
+        run: |
+          conda run -n qiime2 python -m unittest discover \
+            -s q2_deeptaxa/tests -p "test_*.py" -v
