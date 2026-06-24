@@ -4,8 +4,18 @@ channels:
 - bioconda
 dependencies:
   - qiime2-amplicon
-  # Pin the runtime versions the plugin code needs so conda resolves a torch new
-  # enough for inference (older torch lacks torch.load(weights_only=...)).
-  - pytorch >=2.4
-  - transformers >=4.28
-  - deeptaxa-rrna
+  # Light deps come from conda so pip does not disturb the QIIME 2 stack.
+  - h5py
+  - biopython
+  - optuna
+  # torch and transformers cannot be co-resolved with QIIME 2 2024.10 by conda
+  # (the distribution pins libprotobuf/zlib), so install them with pip. The CPU
+  # torch wheel keeps the download small and avoids GPU-build resolution on
+  # machines without a GPU; transformers is held below 5 so it does not pull a
+  # click that breaks q2cli.
+  - pip
+  - pip:
+    - --extra-index-url https://download.pytorch.org/whl/cpu
+    - torch>=2.4
+    - transformers>=4.28,<5
+    - deeptaxa-rrna

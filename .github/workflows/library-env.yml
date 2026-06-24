@@ -1,0 +1,36 @@
+name: library-env
+
+# Validates the QIIME 2 Library environment file end to end: build the env from
+# the exact file users get, and confirm the plugin registers. Runs only when the
+# environment file (or this workflow) changes.
+on:
+  push:
+    paths:
+      - environment-files/**
+      - .github/workflows/library-env.yml
+  pull_request:
+    paths:
+      - environment-files/**
+      - .github/workflows/library-env.yml
+  workflow_dispatch:
+
+jobs:
+  install:
+    name: Build env from the Library file and check registration
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+      - name: Create the environment from the Library file
+        run: |
+          conda env create -n deeptaxa-q2 \
+            -f environment-files/deeptaxa-qiime2-amplicon-2024.10.yml
+      - name: Plugin registers in QIIME 2
+        run: |
+          conda run -n deeptaxa-q2 qiime dev refresh-cache
+          conda run -n deeptaxa-q2 qiime deeptaxa --help
