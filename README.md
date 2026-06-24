@@ -28,10 +28,11 @@
 6. [Experimentation](#experimentation)
 7. [Scripts](#scripts)
 8. [Tutorials](#tutorials)
-9. [License](#license)
-10. [Citation](#citation)
-11. [Contact](#contact)
-12. [Acknowledgements](#acknowledgements)
+9. [QIIME 2 plugin](#qiime-2-plugin)
+10. [License](#license)
+11. [Citation](#citation)
+12. [Contact](#contact)
+13. [Acknowledgements](#acknowledgements)
 
 ---
 
@@ -299,6 +300,110 @@ Interactive tutorials with executable code are published at [systems-genomics-la
 - [Training](https://systems-genomics-lab.github.io/deeptaxa/training.html): Train from scratch on Greengenes2
 - [Analysis](https://systems-genomics-lab.github.io/deeptaxa/analysis.html): Evaluate performance, calibration, and error patterns
 - [Architecture](https://systems-genomics-lab.github.io/deeptaxa/architecture.html): Model internals and extensibility
+
+---
+
+## QIIME 2 plugin
+
+DeepTaxa comes with a [QIIME 2](https://qiime2.org) plugin (`q2-deeptaxa`) so you
+can run it inside QIIME 2 workflows. The plugin is part of the package, so there
+is nothing extra to install. In an activated QIIME 2 environment, install
+DeepTaxa from Bioconda and refresh the plugin cache:
+
+```bash
+conda install -c bioconda deeptaxa-rrna
+qiime dev refresh-cache
+qiime deeptaxa --help
+```
+
+A trained model is a QIIME 2 artifact of semantic type `DeepTaxaModel`, so its
+provenance is tracked like any other artifact. Download a published checkpoint
+that matches your amplicon region from the
+[model repository](https://huggingface.co/systems-genomics-lab/deeptaxa)
+(`deeptaxa-full-length-v1.pt` for full-length 16S, `deeptaxa-v3v4-v1.pt` for
+V3-V4), then import it once:
+
+```bash
+qiime tools import \
+  --type DeepTaxaModel \
+  --input-path deeptaxa-full-length-v1.pt \
+  --input-format DeepTaxaModelFormat \
+  --output-path deeptaxa-model.qza
+```
+
+A `DeepTaxaModel` wraps a PyTorch checkpoint, which is loaded with `pickle`.
+Loading a checkpoint runs whatever code it was saved with, so only import model
+files from a source you trust (the same caution applies to any PyTorch model, or
+to a scikit-learn classifier in QIIME 2).
+
+Classify the representative sequences from your workflow (for example
+`rep-seqs.qza` from DADA2 or Deblur):
+
+```bash
+qiime deeptaxa classify \
+  --i-reads rep-seqs.qza \
+  --i-classifier deeptaxa-model.qza \
+  --o-classification taxonomy.qza
+```
+
+Like `classify-sklearn`, `classify` trims each lineage at a confidence of 0.7 by
+default, so only the confident part of the assignment is reported. Adjust the
+threshold with `--p-confidence`, or pass `--p-confidence disable` to keep all
+seven ranks:
+
+```bash
+# Keep the full seven-rank lineage instead of trimming
+qiime deeptaxa classify \
+  --i-reads rep-seqs.qza \
+  --i-classifier deeptaxa-model.qza \
+  --p-confidence disable \
+  --o-classification taxonomy.qza
+```
+
+The result is an ordinary `FeatureData[Taxonomy]`, so it feeds into the rest of
+QIIME just like the output of any other classifier, such as a taxonomy bar plot:
+
+```bash
+qiime taxa barplot \
+  --i-table table.qza \
+  --i-taxonomy taxonomy.qza \
+  --m-metadata-file metadata.tsv \
+  --o-visualization taxa-bar-plots.qzv
+```
+
+You can also summarize a model, or train a new one from reference sequences and
+their taxonomy (training is a heavy job, so a GPU is recommended):
+
+```bash
+# Summarize a model
+qiime deeptaxa describe \
+  --i-classifier deeptaxa-model.qza \
+  --o-visualization model-summary.qzv
+
+# Train a new model
+qiime deeptaxa fit \
+  --i-reference-reads ref-seqs.qza \
+  --i-reference-taxonomy ref-taxonomy.qza \
+  --p-epochs 10 \
+  --o-classifier deeptaxa-model.qza
+```
+
+`fit` trains on the seven standard ranks (domain through species). Each
+reference lineage is mapped onto those ranks by prefix (`d__` or `k__` for
+domain, then `p__ c__ o__ f__ g__ s__`); any rank missing from a lineage is
+recorded as `Unclassified`.
+
+The plugin needs a QIIME 2 distribution that provides `q2-types`, such as the
+amplicon distribution. With a threshold in effect (the default), the
+`Confidence` column holds the score of the deepest rank that was kept; with
+`--p-confidence disable`, it holds the lowest per-rank softmax probability along
+the full lineage, a cautious score for the whole assignment.
+
+The plugin was tested with the QIIME 2 amplicon 2024.10 distribution, installed
+through conda as shown above. `classify` runs on either CPU or GPU; whether you
+get a GPU build of PyTorch depends on what conda resolves for your QIIME 2
+release, so for heavy training jobs you may prefer the native `deeptaxa train`
+command (see [Training](#training)) on a GPU machine.
 
 ---
 

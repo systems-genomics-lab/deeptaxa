@@ -16,9 +16,9 @@ maintainers = [
     { name = "Ahmed Moustafa", email = "amoustafa@aucegypt.edu" }
 ]
 dependencies = [
-    "torch",
+    "torch>=2.4",
     "numpy",
-    "transformers",
+    "transformers>=4.28",
     "pandas",
     "tqdm",
     "scikit-learn",
@@ -40,6 +40,9 @@ classifiers = [
 [project.scripts]
 deeptaxa = "deeptaxa.cli:main"
 
+[project.entry-points."qiime2.plugins"]
+q2-deeptaxa = "q2_deeptaxa.plugin_setup:plugin"
+
 [project.urls]
 Homepage = "https://github.com/systems-genomics-lab/deeptaxa"
 Repository = "https://github.com/systems-genomics-lab/deeptaxa"
@@ -52,8 +55,11 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["deeptaxa*"]
+include = ["deeptaxa*", "q2_deeptaxa*"]
 exclude = ["data", "outputs", "predictions", "logs"]
+
+[tool.setuptools.package-data]
+q2_deeptaxa = ["citations.bib"]
 
 [tool.setuptools_scm]
 version_scheme = "release-branch-semver"
