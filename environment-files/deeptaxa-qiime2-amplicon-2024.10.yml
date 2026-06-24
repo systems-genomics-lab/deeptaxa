@@ -1,0 +1,7 @@
+channels:
+- https://packages.qiime2.org/qiime2/2024.10/amplicon/released
+- conda-forge
+- bioconda
+dependencies:
+  - qiime2-amplicon
+  - deeptaxa-rrna
