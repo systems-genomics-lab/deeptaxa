@@ -4,4 +4,8 @@ channels:
 - bioconda
 dependencies:
   - qiime2-amplicon
+  # Pin the runtime versions the plugin code needs so conda resolves a torch new
+  # enough for inference (older torch lacks torch.load(weights_only=...)).
+  - pytorch >=2.4
+  - transformers >=4.28
   - deeptaxa-rrna
