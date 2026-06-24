@@ -67,6 +67,17 @@ class TestTaxonomySeriesToTable(unittest.TestCase):
         table = taxonomy_series_to_table(series)
         self.assertEqual(table.iloc[0]["phylum"], UNCLASSIFIED)
 
+    def test_kingdom_prefix_maps_to_domain(self):
+        # Legacy Greengenes 13_8 uses k__ for the top rank instead of d__.
+        series = pd.Series(
+            {"seq1": "k__Bacteria; p__Firmicutes; c__Bacilli; o__Bacillales; "
+             "f__Bacillaceae; g__Bacillus; s__subtilis"}
+        )
+        table = taxonomy_series_to_table(series)
+        row = table.iloc[0]
+        self.assertEqual(row["domain"], "Bacteria")
+        self.assertEqual(row["phylum"], "Firmicutes")
+
     def test_positional_lineage_without_prefixes(self):
         series = pd.Series(
             {"seq1": "Bacteria;Firmicutes;Bacilli;Bacillales;Bacillaceae;"

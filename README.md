@@ -331,6 +331,11 @@ qiime tools import \
   --output-path deeptaxa-model.qza
 ```
 
+A `DeepTaxaModel` wraps a PyTorch checkpoint, which is loaded with `pickle`.
+Loading a checkpoint runs whatever code it was saved with, so only import model
+files from a source you trust (the same caution applies to any PyTorch model, or
+to a scikit-learn classifier in QIIME 2).
+
 Classify the representative sequences from your workflow (for example
 `rep-seqs.qza` from DADA2 or Deblur):
 

@@ -49,6 +49,14 @@ DEFAULT_RANKS = (
 
 UNCLASSIFIED = "Unclassified"
 
+# Some references label the top rank kingdom (``k__``, e.g. legacy Greengenes
+# 13_8) instead of domain (``d__``). Treat the two as interchangeable so the
+# domain column is filled either way.
+RANK_ALIASES = {
+    "domain": ("domain", "kingdom"),
+    "kingdom": ("kingdom", "domain"),
+}
+
 
 def prefix_for_rank(rank):
     """Return the single-letter lineage prefix for a DeepTaxa rank name."""
@@ -158,10 +166,15 @@ def taxonomy_series_to_table(taxonomy, ranks=DEFAULT_RANKS):
         parsed, positional = _parse_lineage(taxon)
         row = {"sequence_id": seq_id}
         for i, rank in enumerate(ranks):
-            if rank in parsed:
-                row[rank] = parsed[rank]
-            elif i < len(positional):
-                # No prefixes present: fall back to positional assignment.
+            value = None
+            for alias in RANK_ALIASES.get(rank, (rank,)):
+                if alias in parsed:
+                    value = parsed[alias]
+                    break
+            if value is not None:
+                row[rank] = value
+            elif not parsed and i < len(positional):
+                # No prefixes anywhere: fall back to positional assignment.
                 row[rank] = positional[i]
             else:
                 row[rank] = UNCLASSIFIED
