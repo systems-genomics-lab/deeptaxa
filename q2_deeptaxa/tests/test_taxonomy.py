@@ -13,6 +13,7 @@ from q2_deeptaxa._taxonomy import (
     UNCLASSIFIED,
     assign_taxonomy,
     lineage_from_labels,
+    predictions_to_dataframe,
     taxonomy_series_to_table,
 )
 
@@ -128,6 +129,38 @@ class TestAssignTaxonomy(unittest.TestCase):
         taxon, conf = assign_taxonomy(self.RANKS, self.LABELS, scores, 0.5)
         self.assertEqual(taxon, "d__Bacteria; p__Firmicutes")
         self.assertEqual(conf, 0.95)
+
+
+class TestPredictionsToDataframe(unittest.TestCase):
+    RANKS = ["domain", "phylum", "class", "order", "family", "genus", "species"]
+    LABELS = ["Bacteria", "Firmicutes", "Bacilli", "Bacillales",
+              "Bacillaceae", "Bacillus", "subtilis"]
+
+    def _pred(self, scores):
+        return {
+            r: {"label": lbl, "raw_score": s}
+            for r, lbl, s in zip(self.RANKS, self.LABELS, scores)
+        }
+
+    def test_full_lineage_no_threshold(self):
+        preds = [self._pred([0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.3])]
+        df = predictions_to_dataframe(["s1"], preds, self.RANKS, None)
+        self.assertEqual(df.index.name, "Feature ID")
+        self.assertEqual(list(df.columns), ["Taxon", "Confidence"])
+        self.assertTrue(df.loc["s1", "Taxon"].endswith("s__subtilis"))
+        self.assertAlmostEqual(df.loc["s1", "Confidence"], 0.3)
+
+    def test_truncates_at_threshold(self):
+        preds = [self._pred([0.99, 0.95, 0.4, 0.3, 0.2, 0.1, 0.05])]
+        df = predictions_to_dataframe(["s1"], preds, self.RANKS, 0.5)
+        self.assertEqual(df.loc["s1", "Taxon"], "d__Bacteria; p__Firmicutes")
+        self.assertAlmostEqual(df.loc["s1", "Confidence"], 0.95)
+
+    def test_multiple_sequences_stay_aligned(self):
+        preds = [self._pred([0.9] * 7), self._pred([0.8] * 7)]
+        df = predictions_to_dataframe(["a", "b"], preds, self.RANKS, None)
+        self.assertEqual(list(df.index), ["a", "b"])
+        self.assertAlmostEqual(df.loc["b", "Confidence"], 0.8)
 
 
 if __name__ == "__main__":

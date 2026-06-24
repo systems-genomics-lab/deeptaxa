@@ -388,6 +388,11 @@ qiime deeptaxa fit \
   --o-classifier deeptaxa-model.qza
 ```
 
+`fit` trains on the seven standard ranks (domain through species). Each
+reference lineage is mapped onto those ranks by prefix (`d__` or `k__` for
+domain, then `p__ c__ o__ f__ g__ s__`); any rank missing from a lineage is
+recorded as `Unclassified`.
+
 The plugin needs a QIIME 2 distribution that provides `q2-types`, such as the
 amplicon distribution. With a threshold in effect (the default), the
 `Confidence` column holds the score of the deepest rank that was kept; with

@@ -20,10 +20,11 @@ from q2_types.feature_data import DNAFASTAFormat
 
 from deeptaxa.config import DEFAULT_CONFIG
 
+from ._checkpoint import choose_checkpoint, strip_training_state
 from ._formats import DeepTaxaModelDirectoryFormat
 from ._taxonomy import (
     DEFAULT_RANKS,
-    assign_taxonomy,
+    predictions_to_dataframe,
     taxonomy_series_to_table,
 )
 
@@ -134,28 +135,10 @@ def classify(
         with open(matches[0]) as fh:
             output = json.load(fh)
 
-    seq_ids = output["sequence_ids"]
-    predictions = output["predictions"]
-
     threshold = None if confidence == "disable" else float(confidence)
-
-    taxa, confidences = [], []
-    for pred in predictions:
-        labels, scores = [], []
-        for rank in ranks:
-            entry = pred.get(rank, {})
-            labels.append(entry.get("label", ""))
-            score = entry.get("raw_score")
-            scores.append(float(score) if score is not None else None)
-        taxon, conf = assign_taxonomy(ranks, labels, scores, threshold)
-        taxa.append(taxon)
-        confidences.append(conf)
-
-    result = pd.DataFrame(
-        {"Taxon": taxa, "Confidence": confidences}, index=pd.Index(seq_ids)
+    return predictions_to_dataframe(
+        output["sequence_ids"], output["predictions"], ranks, threshold
     )
-    result.index.name = "Feature ID"
-    return result
 
 
 def fit(
@@ -186,7 +169,14 @@ def fit(
     Returns
     -------
     DeepTaxaModelDirectoryFormat
-        The trained model (the final checkpoint), as a DeepTaxaModel artifact.
+        The trained model, as a DeepTaxaModel artifact.
+
+    Notes
+    -----
+    Training uses the seven standard ranks (domain through species). Each input
+    lineage is mapped onto those ranks by prefix (``d__`` or ``k__`` for domain,
+    ``p__``, ``c__``, ``o__``, ``f__``, ``g__``, ``s__`` for the rest); ranks
+    absent from a lineage are recorded as ``Unclassified``.
     """
     taxonomy_table = taxonomy_series_to_table(reference_taxonomy, ranks=DEFAULT_RANKS)
 
@@ -222,54 +212,18 @@ def fit(
             raise RuntimeError(
                 "DeepTaxa training did not produce a checkpoint."
             )
-        # A checkpoint and its metrics share the basename
-        # ``deeptaxa_<uuid>_epoch<N>``. Pick the epoch with the lowest validation
-        # loss, which matters when early stopping is on (there the last epoch is
-        # past the best one). Read the small metrics JSON files instead of
-        # loading every checkpoint, and fall back to the most-trained checkpoint
-        # when no validation loss was recorded.
-        def _epoch(path):
-            stem = os.path.splitext(os.path.basename(path))[0]
-            try:
-                return int(stem.rsplit("epoch", 1)[1])
-            except (IndexError, ValueError):
-                return -1
+        # Choose the lowest-validation-loss checkpoint (see _checkpoint.py),
+        # then drop the resume-only training state so the artifact stays small.
+        # The remaining metadata is what predict and describe read.
+        chosen = choose_checkpoint(
+            checkpoints, glob(os.path.join(tmpdir, "metrics", "*.json"))
+        )
 
-        by_epoch = {_epoch(c): c for c in checkpoints}
-        scored = []
-        for metrics_fp in glob(os.path.join(tmpdir, "metrics", "*.json")):
-            try:
-                with open(metrics_fp) as fh:
-                    val_loss = json.load(fh)["performance_metrics"][
-                        "validation_loss"
-                    ]
-            except (KeyError, ValueError, OSError):
-                continue
-            epoch = _epoch(metrics_fp)
-            if (
-                epoch in by_epoch
-                and isinstance(val_loss, (int, float))
-                and val_loss > 0
-            ):
-                scored.append((val_loss, epoch))
-
-        chosen = by_epoch[min(scored)[1]] if scored else max(checkpoints, key=_epoch)
-
-        # The training checkpoint also stores optimizer, scheduler, scaler, and
-        # RNG state, which are only needed to resume training. A DeepTaxaModel
-        # artifact is used for prediction, so drop those large keys to keep the
-        # artifact small. The remaining metadata is what predict and describe
-        # read.
         import torch
 
-        checkpoint = torch.load(chosen, map_location="cpu", weights_only=False)
-        for key in (
-            "optimizer_state_dict",
-            "scheduler_state_dict",
-            "scaler_state_dict",
-            "rng_state",
-        ):
-            checkpoint.pop(key, None)
+        checkpoint = strip_training_state(
+            torch.load(chosen, map_location="cpu", weights_only=False)
+        )
         torch.save(checkpoint, os.path.join(str(result), "model.pt"))
 
     return result

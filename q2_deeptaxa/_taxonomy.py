@@ -119,6 +119,47 @@ def assign_taxonomy(ranks, labels, scores, confidence=None):
     return "Unassigned", (first if first is not None else float("nan"))
 
 
+def predictions_to_dataframe(seq_ids, predictions, ranks, confidence=None):
+    """Turn DeepTaxa per-sequence predictions into a taxonomy DataFrame.
+
+    Parameters
+    ----------
+    seq_ids : sequence of str
+        Feature ids, aligned with ``predictions``.
+    predictions : sequence of dict
+        One dict per sequence, keyed by rank name, each value a dict with at
+        least ``label`` and ``raw_score``.
+    ranks : sequence of str
+        Ordered taxonomic rank names.
+    confidence : float or None
+        Passed through to :func:`assign_taxonomy` (None keeps the full lineage).
+
+    Returns
+    -------
+    pandas.DataFrame
+        Indexed by ``Feature ID`` with ``Taxon`` and ``Confidence`` columns.
+    """
+    import pandas as pd
+
+    taxa, confidences = [], []
+    for pred in predictions:
+        labels, scores = [], []
+        for rank in ranks:
+            entry = pred.get(rank, {})
+            labels.append(entry.get("label", ""))
+            score = entry.get("raw_score")
+            scores.append(float(score) if score is not None else None)
+        taxon, conf = assign_taxonomy(ranks, labels, scores, confidence)
+        taxa.append(taxon)
+        confidences.append(conf)
+
+    result = pd.DataFrame(
+        {"Taxon": taxa, "Confidence": confidences}, index=pd.Index(seq_ids)
+    )
+    result.index.name = "Feature ID"
+    return result
+
+
 def _parse_lineage(taxon):
     """Parse one QIIME lineage string into ``{rank_name: label}``.
 
