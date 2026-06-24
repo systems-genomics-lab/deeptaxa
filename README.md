@@ -1,5 +1,6 @@
 # DeepTaxa
 
+[![CI](https://github.com/systems-genomics-lab/deeptaxa/actions/workflows/ci.yml/badge.svg)](https://github.com/systems-genomics-lab/deeptaxa/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/deeptaxa-rrna)](https://pypi.org/project/deeptaxa-rrna/)
 [![Bioconda](https://img.shields.io/conda/vn/bioconda/deeptaxa-rrna?label=bioconda)](https://anaconda.org/bioconda/deeptaxa-rrna)
 [![DOI](https://img.shields.io/badge/DOI-10.1093%2Fbioadv%2Fvbag166-blue)](https://doi.org/10.1093/bioadv/vbag166)
