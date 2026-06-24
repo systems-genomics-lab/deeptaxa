@@ -42,13 +42,14 @@ jobs:
           conda env create -n qiime2 --file env.yml
       - name: Install DeepTaxa and the plugin
         run: |
-          # Bring the heavy runtime deps in through conda so they co-resolve with
-          # the QIIME 2 stack, then overlay the plugin code without letting pip
-          # re-resolve dependencies.
-          conda install -n qiime2 -y -c conda-forge -c bioconda \
-            "pytorch>=2.4" "transformers>=4.28" biopython h5py optuna tqdm \
-            scikit-learn
           conda run -n qiime2 pip install --no-deps .
+          # CPU torch wheel: the runner has no GPU, so a conda solve picks a CUDA
+          # build that cannot be satisfied. transformers is pinned below 5 because
+          # newer versions pull a click that q2cli in 2024.10 cannot use.
+          conda run -n qiime2 pip install "torch>=2.4" \
+            --index-url https://download.pytorch.org/whl/cpu
+          conda run -n qiime2 pip install "transformers>=4.28,<5" \
+            biopython h5py optuna tqdm
           conda run -n qiime2 qiime dev refresh-cache
       - name: Check the plugin is registered
         run: conda run -n qiime2 qiime deeptaxa --help
