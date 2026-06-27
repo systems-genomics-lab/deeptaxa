@@ -6,11 +6,12 @@ DeepTaxa is a hybrid CNN-BERT model that classifies 16S rRNA gene sequences into
 
 ## Tutorials
 
-The tutorials are independent but build on each other conceptually. For new users, the recommended reading order is Prediction, Training, Analysis, then Architecture.
+The tutorials are independent but build on each other conceptually. For new users, the recommended reading order is Prediction, Validation, Training, Analysis, then Architecture.
 
 | Tutorial | Scope |
 |----------|-------|
 | [Prediction](prediction.qmd) | Classify 16S sequences with the pre-trained model, interpret per-rank accuracy, and examine confidence scores |
+| [Validation](validation.qmd) | Validate the model on mock communities of known composition, comparing genus- and species-level calls with a reference method across V3-V4 and full-length 16S |
 | [Training](training.qmd) | Train a model from scratch on the Greengenes 2 dataset, monitor learning curves, and evaluate the trained checkpoint |
 | [Analysis](analysis.qmd) | Evaluate classification performance in depth: confusion patterns, sequence and embedding similarity, calibration, and novel taxa detection |
 | [Architecture](architecture.qmd) | Understand the CNN-Transformer fusion, the focal loss formulation, and how to adapt the model to other marker genes |
