@@ -10,7 +10,10 @@ names behind them, so before applying a classifier to study samples it is worth 
 it on a community whose composition is already known. Here DeepTaxa [@salah2026deeptaxa]
 is checked against the ZymoBIOMICS mock community, sequenced two ways: over the V3-V4
 amplicon, the region most often used on Illumina platforms, and over the full-length
-16S gene, which resolves finer, species-level detail.
+16S gene, which resolves finer, species-level detail. Both are public ZymoBIOMICS runs
+in the Sequence Read Archive: the V3-V4 reads are run
+[SRR35133066](https://www.ncbi.nlm.nih.gov/sra/SRR35133066) and the full-length reads
+are run [SRR38028391](https://www.ncbi.nlm.nih.gov/sra/SRR38028391).
 
 ## How each region is checked
 
