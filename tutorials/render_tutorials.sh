@@ -24,10 +24,12 @@ rm -rf _freeze _site
 echo "Done"
 echo ""
 
-# Render each tutorial. Order: cheap/safe first so a failure in a
-# heavyweight tutorial (training, analysis) doesn't strand the others.
+# Render order matters. prediction runs first because it creates
+# ~/deeptaxa-workspace, clones DeepTaxa, and downloads the checkpoint that
+# architecture and analysis load; running them before prediction fails. training
+# is self-contained but slow (~2.5 h), so it runs last and strands nothing.
 # Per-tutorial failures are reported but do not abort the whole run.
-TUTORIALS="index architecture prediction validation analysis training"
+TUTORIALS="index prediction architecture analysis validation training"
 FAILED=""
 
 for tutorial in $TUTORIALS; do
