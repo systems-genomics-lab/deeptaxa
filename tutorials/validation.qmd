@@ -63,9 +63,7 @@ omitted because both methods assign the correct genus to essentially every read.
 SILVA assigns a species only by exact matching and abstains otherwise, so its lower
 values reflect caution, not error; DeepTaxa also credits close relatives that 16S cannot
 distinguish, in red. Near neighbors the reference does resolve, such as *Salmonella
-enterica* labeled *S. bongori*, are counted as misses. Computed from the tables in
-`validation/data/` by
-`validation/make_overview_figure.py`; no value is hardcoded.](validation/overview-species.png)
+enterica* labeled *S. bongori*, are counted as misses.](validation/overview-species.png)
 
 ## Three points that govern correct use
 
