@@ -10,6 +10,8 @@ website:
         href: index.qmd
       - text: Prediction
         href: prediction.qmd
+      - text: Validation
+        href: validation.qmd
       - text: Training
         href: training.qmd
       - text: Analysis
