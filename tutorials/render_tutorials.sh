@@ -27,7 +27,7 @@ echo ""
 # Render each tutorial. Order: cheap/safe first so a failure in a
 # heavyweight tutorial (training, analysis) doesn't strand the others.
 # Per-tutorial failures are reported but do not abort the whole run.
-TUTORIALS="index architecture prediction analysis training"
+TUTORIALS="index architecture prediction validation analysis training"
 FAILED=""
 
 for tutorial in $TUTORIALS; do
