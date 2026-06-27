@@ -71,8 +71,8 @@ Classify V3-V4 reads with the V3-V4 checkpoint, and full-length reads with the
 full-length checkpoint.
 
 The second is to read the confidence score as a measure of how much information the
-input carries, not as a promise that the call is correct. The score is well calibrated
-on the held-out data, and it falls at the finer ranks, and on short or off-region reads,
+input carries, not as a promise that the call is correct. In the published benchmark a high score corresponds to a high chance of
+being correct. The score falls at the finer ranks, and on short or off-region reads,
 because the marker carries less information there. A low score is the model declining to
 commit, and filtering it out, for example below 0.5, is reasonable.
 
