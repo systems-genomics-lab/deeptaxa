@@ -1,0 +1,5 @@
+# These notebooks require a GPU and download a model checkpoint, so they are not
+# re-executed at site-build time. Quarto renders the outputs saved in the .ipynb
+# files. Each notebook carries an "Open in Colab" badge so readers can run it.
+execute:
+  enabled: false
