@@ -3,7 +3,7 @@ title: "Validation Against Known Communities"
 subtitle: "Classifying 16S rRNA with DeepTaxa, and checking the result against a known composition"
 ---
 
-The pages in this section apply the DeepTaxa workflow to communities whose
+The pages in this section apply the DeepTaxa workflow [@salah2026deeptaxa] to communities whose
 composition is known in advance. Because the correct answer is available, these
 examples measure accuracy directly rather than infer it, and they are the
 recommended way to gain confidence in the tool before applying it to study samples.
@@ -34,7 +34,8 @@ notebook on a free GPU.
 
 At the genus rank, both DeepTaxa and the reference method recovered all eight expected
 genera and agreed on the genus of essentially every read, so they are indistinguishable
-there. The reference method here is DADA2 with the SILVA v138 database, written DADA2 +
+there. The reference method here is DADA2 [@callahan2016dada2] with the SILVA v138
+database [@quast2013silva], written DADA2 +
 SILVA below: SILVA is the reference database, and DADA2 is the classifier, which uses a
 naive Bayes model for the genus and exact matching for the species.
 
@@ -65,36 +66,36 @@ values reflect caution, not error; DeepTaxa also credits close relatives that 16
 distinguish, in red. Near neighbors the reference does resolve, such as *Salmonella
 enterica* labeled *S. bongori*, are counted as misses.](validation/overview-species.png)
 
-## Three points that govern correct use
+## Three practical points
 
-The examples are built around three practical lessons, each supported by the results
-they report.
+Three choices mostly decide whether a run is trustworthy, and the examples are built
+around them.
 
-First, the model checkpoint should correspond to the sequenced region. This
-correspondence is the principal determinant of accuracy. The published paper shows
-that applying the full-length checkpoint to V3-V4 sequences lowers species accuracy
-from 92.96 percent to 60.7 percent, and that a checkpoint trained on the V3-V4
-window recovers most of the loss. V3-V4 data should be classified with the V3-V4
-checkpoint, and full-length data with the full-length checkpoint.
+The first, and the most important, is to match the checkpoint to the sequenced region.
+The paper [@salah2026deeptaxa] puts a figure on the cost of getting this wrong: applying
+the full-length checkpoint to V3-V4 reads lowers species accuracy from 92.96 percent to
+60.7 percent, while a checkpoint trained on the V3-V4 window recovers most of the loss.
+Classify V3-V4 reads with the V3-V4 checkpoint, and full-length reads with the
+full-length checkpoint.
 
-Second, the confidence score reports the amount of information present in the input,
-not a guarantee of correctness. On the held-out reference data the score is well
-calibrated. It declines at the deeper ranks because the 16S gene carries less
-information at finer levels, and it declines on short or off-region input. Low scores
-should be read as the model declining to commit, and may be filtered, for example
-below 0.5.
+The second is to read the confidence score as a measure of how much information the
+input carries, not as a promise that the call is correct. The score is well calibrated
+on the held-out data, and it falls at the finer ranks, and on short or off-region reads,
+because the marker carries less information there. A low score is the model declining to
+commit, and filtering it out, for example below 0.5, is reasonable.
 
-Third, taxonomic names must be reconciled before validation. DeepTaxa is trained on
-the GTDB taxonomy used by Greengenes2, which renames or subdivides several genera
-relative to the NCBI names that most reference materials report. *Lactobacillus
-fermentum*, for instance, is named *Limosilactobacillus* in GTDB. Without
-reconciliation, correct assignments are counted as errors. Both notebooks include a
-short function that performs this step.
+The third is easy to overlook: reconcile the taxonomy before scoring anything. DeepTaxa
+reports the GTDB names used by Greengenes2 [@mcdonald2024greengenes], which renames or
+splits several genera relative to the NCBI names on most reference materials.
+*Lactobacillus fermentum*, for instance, becomes *Limosilactobacillus*. Without this
+step, correct calls are counted as errors, and both notebooks include a short function
+that handles it.
 
-## Reference
+## References
 
-The method, the architecture, and the held-out benchmark are described in the paper:
-[DeepTaxa: A Hybrid CNN-BERT Framework for 16S rRNA Taxonomic Classification](https://doi.org/10.1093/bioadv/vbag166).
-Source code and checkpoints are available on
+The source code and the trained checkpoints are on
 [GitHub](https://github.com/systems-genomics-lab/deeptaxa) and
 [Hugging Face](https://huggingface.co/systems-genomics-lab/deeptaxa).
+
+::: {#refs}
+:::
