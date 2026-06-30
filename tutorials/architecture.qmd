@@ -103,7 +103,7 @@ print('\n=== Weighted F1 ===')
 print(pivot_f1.reindex(RANK_LABELS).to_string(float_format='{:.4f}'.format))
 ```
 
-The hybrid model's advantage over the standalone variants is largest at Species, where both local motifs and long-range context contribute to resolving fine-grained distinctions. The CNN-only variant (with BPE tokens) trails the hybrid by about 2.7 percentage points at Species F1; the same CNN with one-hot encoding loses another 5.0 points, isolating the BPE tokenizer's contribution. The standalone BERT variant collapses under the compact configuration — at 4 transformer layers and 7 heads the encoder alone cannot drive 16,909 species classes from BPE tokens, which is why the hybrid keeps the CNN pathway as the primary feature extractor and treats BERT as a residual contributor. At coarser ranks (Domain through Class), the CNN variants and the hybrid all reach near-ceiling performance, so the gap is negligible there.
+The hybrid model's advantage over the standalone variants is largest at Species, where both local motifs and long-range context contribute to resolving fine-grained distinctions. The CNN-only variant (with BPE tokens) trails the hybrid by about 2.7 percentage points at Species F1; the same CNN with one-hot encoding loses another 5.0 points, isolating the BPE tokenizer's contribution. The standalone BERT variant collapses under the compact configuration: at 4 transformer layers and 7 heads the encoder alone cannot drive 16,909 species classes from BPE tokens, which is why the hybrid keeps the CNN pathway as the primary feature extractor and treats BERT as a residual contributor. At coarser ranks (Domain through Class), the CNN variants and the hybrid all reach near-ceiling performance, so the gap is negligible there.
 
 ## Input Representation
 
@@ -301,7 +301,7 @@ plt.show()
 
 The plot illustrates the key tradeoff. Standard cross-entropy (black curve) decreases smoothly as confidence increases, but even at $p_t = 0.9$ (90% confident and correct) the loss is still around 0.1, so every example contributes to the gradient regardless of how well-classified it is. With $\gamma = 2$ (green curve), an example at $p_t = 0.9$ produces a loss of only $(1 - 0.9)^2 \times (-\log 0.9) \approx 0.001$, effectively removing it from the gradient signal. At $\gamma = 5$ (red curve), only severely misclassified examples ($p_t < 0.2$) generate meaningful loss.
 
-When class imbalance is severe — as in the Greengenes training set, where some species have thousands of sequences and others fewer than five — focal loss prevents the optimizer from spending most of its updates on already-confident predictions for abundant taxa. With $\gamma = 2$, the well-classified majority produces negligible loss, freeing the optimizer to concentrate on underrepresented cases.
+When class imbalance is severe, as in the Greengenes training set where some species have thousands of sequences and others fewer than five, focal loss prevents the optimizer from spending most of its updates on already-confident predictions for abundant taxa. With $\gamma = 2$, the well-classified majority produces negligible loss, freeing the optimizer to concentrate on underrepresented cases.
 
 ### Multi-rank loss aggregation
 

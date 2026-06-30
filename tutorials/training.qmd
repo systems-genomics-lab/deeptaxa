@@ -114,7 +114,7 @@ flowchart LR
     style I fill:#f0e2d6,stroke:#994a2a
 ```
 
-The `deeptaxa train` command orchestrates this entire pipeline. Only `--fasta-file`, `--taxonomy-file`, and `--output-dir` are required — all other flags default to the compact-configuration values used in the published checkpoint.
+The `deeptaxa train` command orchestrates this entire pipeline. Only `--fasta-file`, `--taxonomy-file`, and `--output-dir` are required; all other flags default to the compact-configuration values used in the published checkpoint.
 
 | Flag | Purpose | Default |
 |------|---------|---------|
@@ -180,7 +180,7 @@ DeepTaxa also supports focal loss (`--loss-type focal`), which down-weights well
 
 ### Learning rate schedule
 
-Training uses a linear warmup-and-decay schedule: the learning rate increases linearly from zero to the base rate over the first 10% of steps (warmup), then decreases linearly back to zero over the remaining 90% (decay). Warmup prevents early instability — the classification heads start from random weights and initially produce large, noisy gradients that would destabilize training if the full learning rate were applied immediately.
+Training uses a linear warmup-and-decay schedule: the learning rate increases linearly from zero to the base rate over the first 10% of steps (warmup), then decreases linearly back to zero over the remaining 90% (decay). Warmup prevents early instability: the classification heads start from random weights and initially produce large, noisy gradients that would destabilize training if the full learning rate were applied immediately.
 
 ```{python}
 #| eval: true

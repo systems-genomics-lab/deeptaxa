@@ -190,7 +190,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-Phyla at the bottom of the heatmap — those with the lowest species-level accuracy — are typically those with either sparse training representation or inherently low 16S diversity, where the gene does not carry enough signal to resolve species boundaries reliably. Phyla that show strong genus but weak species accuracy indicate that the genus assignment is still trustworthy even when the exact species is uncertain. This phylum-level view is useful for communicating the model's reliability to biologists working with specific lineages.
+Phyla at the bottom of the heatmap, those with the lowest species-level accuracy, are typically those with either sparse training representation or inherently low 16S diversity, where the gene does not carry enough signal to resolve species boundaries reliably. Phyla that show strong genus but weak species accuracy indicate that the genus assignment is still trustworthy even when the exact species is uncertain. This phylum-level view is useful for communicating the model's reliability to biologists working with specific lineages.
 
 ## Confusion Analysis
 
@@ -330,7 +330,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-The downward trend is clear: species with one or two training sequences are classified correctly far less often than those with hundreds. This has a practical implication for reference database curation — adding more representative sequences for underrepresented taxa is likely to produce larger accuracy gains than architectural modifications. The scatter around the trend also shows that sequence count alone does not fully determine difficulty; intrinsic 16S diversity within a species and similarity to closely related species also contribute.
+The downward trend is clear: species with one or two training sequences are classified correctly far less often than those with hundreds. This has a practical implication for reference database curation: adding more representative sequences for underrepresented taxa is likely to produce larger accuracy gains than architectural modifications. The scatter around the trend also shows that sequence count alone does not fully determine difficulty; intrinsic 16S diversity within a species and similarity to closely related species also contribute.
 
 ## Sequence and Embedding Similarity
 
