@@ -114,7 +114,7 @@ flowchart LR
     style I fill:#f0e2d6,stroke:#994a2a
 ```
 
-The `deeptaxa train` command orchestrates this entire pipeline. Only `--fasta-file`, `--taxonomy-file`, and `--output-dir` are required — all other flags default to the canonical SMALL values used in the published checkpoint.
+The `deeptaxa train` command orchestrates this entire pipeline. Only `--fasta-file`, `--taxonomy-file`, and `--output-dir` are required — all other flags default to the compact-configuration values used in the published checkpoint.
 
 | Flag | Purpose | Default |
 |------|---------|---------|

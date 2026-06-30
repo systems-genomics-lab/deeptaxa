@@ -55,9 +55,9 @@ To compare variants quantitatively, train each with the same data and seed, then
 ```{python}
 #| eval: true
 #| label: lst-variant-comparison
-#| lst-cap: "Compare accuracy across model variants using metrics from the canonical SMALL ablation runs."
+#| lst-cap: "Compare accuracy across model variants using metrics from the compact-configuration ablation runs."
 # --- Model variant comparison ---
-# Each variant was trained with the canonical SMALL hyperparameters
+# Each variant was trained with the compact-configuration hyperparameters
 # (cross-entropy loss, seed 42, 10 epochs, batch 64, lr 5e-4, kernels
 # 3/5/7, 256 filters, 4 transformer layers, 7 heads, 3584 FFN, 896
 # hidden, dropout 0.20) and evaluated on the same 69,335-sequence test
@@ -73,7 +73,7 @@ import numpy as np
 RANKS       = ['domain', 'phylum', 'class', 'order', 'family', 'genus', 'species']
 RANK_LABELS = ['Domain', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species']
 
-# Metrics from the canonical SMALL ablation runs (seed 42)
+# Metrics from the compact-configuration ablation runs (seed 42)
 variants = {
     'Hybrid CNN+BERT': {'accuracy': [0.9999, 0.9968, 0.9963, 0.9909, 0.9861, 0.9693, 0.9288],
                         'f1':       [0.9999, 0.9967, 0.9959, 0.9899, 0.9841, 0.9651, 0.9203]},
@@ -103,7 +103,7 @@ print('\n=== Weighted F1 ===')
 print(pivot_f1.reindex(RANK_LABELS).to_string(float_format='{:.4f}'.format))
 ```
 
-The hybrid model's advantage over the standalone variants is largest at Species, where both local motifs and long-range context contribute to resolving fine-grained distinctions. The CNN-only variant (with BPE tokens) trails the hybrid by about 2.7 percentage points at Species F1; the same CNN with one-hot encoding loses another 5.0 points, isolating the BPE tokenizer's contribution. The standalone BERT variant collapses under the canonical SMALL configuration — at 4 transformer layers and 7 heads the encoder alone cannot drive 16,909 species classes from BPE tokens, which is why the hybrid keeps the CNN pathway as the primary feature extractor and treats BERT as a residual contributor. At coarser ranks (Domain through Class), the CNN variants and the hybrid all reach near-ceiling performance, so the gap is negligible there.
+The hybrid model's advantage over the standalone variants is largest at Species, where both local motifs and long-range context contribute to resolving fine-grained distinctions. The CNN-only variant (with BPE tokens) trails the hybrid by about 2.7 percentage points at Species F1; the same CNN with one-hot encoding loses another 5.0 points, isolating the BPE tokenizer's contribution. The standalone BERT variant collapses under the compact configuration — at 4 transformer layers and 7 heads the encoder alone cannot drive 16,909 species classes from BPE tokens, which is why the hybrid keeps the CNN pathway as the primary feature extractor and treats BERT as a residual contributor. At coarser ranks (Domain through Class), the CNN variants and the hybrid all reach near-ceiling performance, so the gap is negligible there.
 
 ## Input Representation
 
@@ -184,7 +184,7 @@ The Transformer pathway captures long-range dependencies across the full sequenc
 | Parameter | Published value | Notes |
 |-----------|----------------|-------|
 | Hidden size | 896 | Dimension of each transformer layer's output |
-| Layers | 4 | Canonical SMALL configuration |
+| Layers | 4 | Compact configuration |
 | Attention heads | 7 | Head dimension = 896 / 7 = 128 |
 | FFN intermediate size | 3,584 | 4x expansion ratio |
 | Max position embeddings | 512 | Matches tokenizer truncation length |
