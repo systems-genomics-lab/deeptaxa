@@ -22,7 +22,7 @@ website:
       - icon: github
         href: https://github.com/systems-genomics-lab/deeptaxa
   page-footer:
-    center: "[DeepTaxa](https://github.com/systems-genomics-lab/deeptaxa), Systems Genomics Lab"
+    center: "[DeepTaxa](https://github.com/systems-genomics-lab/deeptaxa) — Systems Genomics Lab"
 
 format:
   html:
