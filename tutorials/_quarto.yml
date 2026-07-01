@@ -12,6 +12,8 @@ website:
         href: prediction.qmd
       - text: Validation
         href: validation.qmd
+      - text: Case study
+        href: casestudy.qmd
       - text: Training
         href: training.qmd
       - text: Analysis
@@ -26,7 +28,7 @@ website:
 
 format:
   html:
-    theme: lumen
+    theme: [lumen, custom.scss]
     toc: true
     toc-depth: 3
     toc-title: "Contents"
@@ -39,10 +41,8 @@ format:
     fig-cap-location: bottom
     tbl-cap-location: top
 
-date-modified: last-modified
-
 bibliography: references.bib
-csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
+csl: apa.csl
 
 execute:
   freeze: auto

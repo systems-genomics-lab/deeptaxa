@@ -1,6 +1,17 @@
 ---
 title: "Analyzing DeepTaxa Model Performance"
+subtitle: "Per-rank metrics, confusion patterns, embeddings, calibration, and novel-taxa detection"
 ---
+
+::: {.callout-note appearance="simple"}
+**Objective.** Evaluate a trained DeepTaxa model's classification behavior in depth, mapping where it performs well, where it fails systematically, and why.
+
+**Prerequisites.** DeepTaxa (`pip install deeptaxa-rrna`), Python 3.10 or later, PyTorch 2.4 or later, plus matplotlib and scikit-learn. A CUDA-capable GPU is optional. This page reuses the prediction output from the prediction tutorial.
+
+**Inputs.** The test-set predictions and the pre-trained checkpoint.  **Outputs.** Per-rank metrics, confusion patterns, calibration, embedding and novel-taxa analyses.  **Runtime.** A few minutes on a GPU.
+
+*Last validated July 2026.*
+:::
 
 This tutorial provides a detailed examination of a trained DeepTaxa model's classification behavior: identifying areas of strong performance, systematic failure modes, and their biological explanations. Each section introduces the relevant evaluation concept, defines the mathematical framework, applies it to real prediction data, and interprets the results in biological terms.
 
@@ -13,11 +24,11 @@ The analysis covers six areas:
 5. **Hierarchical error propagation** (when species classification fails, how far up the taxonomy tree does the error extend)
 6. **Novel taxa detection** (how the model handles species absent from the training data)
 
-**Prerequisites**: a completed prediction run from the [prediction tutorial](prediction.qmd) producing a TSV file with true labels, predicted labels, and confidence scores. If you have not yet run the prediction tutorial, follow it first or download pre-computed results from the [pre-trained model page](https://huggingface.co/systems-genomics-lab/deeptaxa) on Hugging Face.
+This analysis requires a completed prediction run from the [prediction tutorial](prediction.qmd), producing a TSV file with true labels, predicted labels, and confidence scores. If you have not run the prediction tutorial yet, follow it first, or download pre-computed results from the [pre-trained model page](https://huggingface.co/systems-genomics-lab/deeptaxa) on Hugging Face.
 
-## Setup and Data Loading
+## Setup and data loading
 
-Load the prediction output from the [prediction tutorial](prediction.qmd) and define the rank labels used throughout this analysis.
+Load the prediction output from the [prediction tutorial](prediction.qmd) and define the rank labels used throughout this analysis. Every metric on this page is computed live from the pre-trained checkpoint on the held-out test set, so values may differ slightly from the headline figures in the paper, which report a mean over three training seeds.
 
 ```{python}
 #| eval: true
@@ -67,7 +78,7 @@ for r, label in zip(RANKS, RANK_LABELS):
     print(' ', label + ':', df[r + '_true'].nunique(), 'classes')
 ```
 
-## Per-Rank Classification Performance
+## Per-rank classification performance
 
 ### Background
 
@@ -132,6 +143,7 @@ The following chart compares accuracy and weighted F1 side by side at each rank,
 #| eval: true
 #| label: fig-metrics-by-rank
 #| fig-cap: "Accuracy and weighted F1-score at each taxonomic rank, showing the gradual decrease from Domain to Species."
+#| fig-alt: "Grouped bar chart with paired accuracy and weighted F1 bars at each of the seven ranks from Domain to Species, both trending downward toward finer ranks."
 # --- Accuracy and weighted F1 by rank ---
 fig, ax = plt.subplots()
 x = np.arange(len(metrics_df))
@@ -162,6 +174,7 @@ Aggregate metrics hide substantial variation across bacterial and archaeal phyla
 #| eval: true
 #| label: fig-phylum-heatmap
 #| fig-cap: "Per-phylum classification accuracy at each taxonomic rank. Phyla are sorted by species-level accuracy (bottom = lowest). Color ranges from 0.5 (red) to 1.0 (green)."
+#| fig-alt: "Heatmap with phyla as rows and the seven taxonomic ranks as columns, cells colored from red (low accuracy) to green (high accuracy), with color shifting toward red at the species column and for phyla near the bottom."
 # --- Per-phylum accuracy heatmap ---
 counts = df['phylum_true'].value_counts()
 major_phyla = counts[counts >= 100].index.tolist()
@@ -192,7 +205,7 @@ plt.show()
 
 Phyla at the bottom of the heatmap, those with the lowest species-level accuracy, are typically those with either sparse training representation or inherently low 16S diversity, where the gene does not carry enough signal to resolve species boundaries reliably. Phyla that show strong genus but weak species accuracy indicate that the genus assignment is still trustworthy even when the exact species is uncertain. This phylum-level view is useful for communicating the model's reliability to biologists working with specific lineages.
 
-## Confusion Analysis
+## Confusion analysis
 
 ### Background
 
@@ -204,6 +217,7 @@ At the phylum level, the matrix is small enough to visualize directly. At the sp
 #| eval: true
 #| label: fig-confusion-matrix
 #| fig-cap: "Normalized confusion matrix at the phylum level. Each row represents a true phylum and each column a predicted phylum; cell intensity indicates recall."
+#| fig-alt: "Square phylum-by-phylum confusion matrix in shades of blue, with a strongly dominant diagonal indicating high recall and only faint off-diagonal cells."
 # --- Phylum-level confusion matrix ---
 counts = df['phylum_true'].value_counts()
 major = counts[counts >= 50].index.tolist()
@@ -250,7 +264,7 @@ for _, row in pairs.iterrows():
 
 The most frequent confusion pairs involve organisms within the same genus (e.g., *Escherichia ruysiae* vs. *Unclassified Escherichia*, or named vs. unnamed strains of *Pelagibacter*). These are cases where the taxonomic boundary between species is ambiguous even by genomic standards, and the 16S gene alone may not carry enough phylogenetic signal to resolve them. From a biological standpoint, confusing two species within the same genus is far less consequential than confusing organisms across phyla.
 
-## Class Frequency and Error Rate
+## Class frequency and error rate
 
 The confusion patterns above reflect which species are confused, but a more fundamental question is *why* some species are harder than others. One direct explanation is class imbalance: species with few training sequences have fewer examples from which the model can learn discriminative features. The scatter plot below makes this relationship explicit by plotting per-species error rate against the number of training sequences.
 
@@ -293,6 +307,7 @@ print(f'Maximum sequences per species:  {max(species_train_counts.values()):,}')
 #| eval: true
 #| label: fig-freq-error
 #| fig-cap: "Per-species error rate as a function of training set size (log scale). Each point represents one species. The orange curve shows the running median in log-spaced bins. The downward trend confirms that rare species are systematically harder to classify."
+#| fig-alt: "Scatter plot of per-species error rate against the number of training sequences on a logarithmic x-axis, with an overlaid orange running-median curve that declines from left to right."
 # --- Error rate vs. training frequency ---
 species_stats = (
     df.assign(_error=(df['species_predicted'] != df['species_true']).astype(float))
@@ -318,7 +333,7 @@ for b in np.unique(bin_idx):
     if mask.sum() >= 5:
         lo, hi = bins[b - 1], bins[min(b, len(bins) - 1)]
         bin_centers.append(np.sqrt(lo * hi))
-        bin_medians.append(plot_df['error_rate'].values[mask].mean())
+        bin_medians.append(np.median(plot_df['error_rate'].values[mask]))
 plt.plot(bin_centers, bin_medians, 'o-', color='#994a2a',
          linewidth=2, markersize=5, label='Median per bin')
 
@@ -332,7 +347,7 @@ plt.show()
 
 The downward trend is clear: species with one or two training sequences are classified correctly far less often than those with hundreds. This has a practical implication for reference database curation: adding more representative sequences for underrepresented taxa is likely to produce larger accuracy gains than architectural modifications. The scatter around the trend also shows that sequence count alone does not fully determine difficulty; intrinsic 16S diversity within a species and similarity to closely related species also contribute.
 
-## Sequence and Embedding Similarity
+## Sequence and embedding similarity
 
 ### Background
 
@@ -400,7 +415,8 @@ Compute the same metric for randomly sampled non-confused species pairs to estab
 ```{python}
 #| eval: true
 #| label: fig-similarity-comparison
-#| fig-cap: "Distribution of 6-mer Jaccard similarity for top confused species pairs versus randomly sampled non-confused pairs. Confused pairs cluster near 1.0, indicating near-identical sequences."
+#| fig-cap: "Distribution of 6-mer Jaccard similarity for top confused species pairs versus randomly sampled non-confused pairs. Confused pairs show substantially higher similarity than random pairs, consistent with sequence resemblance driving most of the confusion, though not every confused pair is near-identical."
+#| fig-alt: "Overlaid density histograms of 6-mer Jaccard similarity; the random-pairs distribution is broad and centered at lower values while the confused-pairs distribution is concentrated at high similarity."
 # --- Similarity comparison: confused vs. random pairs ---
 import random
 random.seed(42)
@@ -437,7 +453,7 @@ The confused pairs cluster at high Jaccard values (typically above 0.8), confirm
 
 ### Embedding space visualization
 
-Beyond raw sequence similarity, we can examine how the model's learned representations organize taxa. The fused embedding vector (the 1,024-dimensional representation produced after combining CNN and Transformer features, immediately before the classification heads) encodes whatever the model has learned about each sequence. If two species are consistently confused, their embeddings should overlap in this space.
+Beyond raw sequence similarity, we can examine how the model's learned representations organize taxa. The fused embedding vector (the 896-dimensional representation produced after combining CNN and Transformer features, immediately before the classification heads) encodes whatever the model has learned about each sequence. If two species are consistently confused, their embeddings should overlap in this space.
 
 Extract the fused embeddings for a subsample of test sequences using a forward hook on the model's dropout layer.
 
@@ -512,6 +528,7 @@ Project the embeddings into two dimensions using t-SNE and color each point by i
 #| eval: true
 #| label: fig-tsne-embeddings
 #| fig-cap: "t-SNE projection of fused embeddings for 5,000 test sequences, colored by genus. Confused species (highlighted genera) occupy overlapping regions, explaining the model's misclassifications."
+#| fig-alt: "Two-dimensional t-SNE scatter plot of embeddings with most points in light gray and the top confused genera highlighted in distinct colors, forming overlapping or adjacent clusters."
 # --- t-SNE visualization of embeddings ---
 from sklearn.manifold import TSNE
 
@@ -532,12 +549,13 @@ plt.figure(figsize=(10, 8))
 other_mask = ~np.isin(genera, list(top_confused_genera))
 plt.scatter(coords[other_mask, 0], coords[other_mask, 1], c='lightgray', s=3, alpha=0.3, label='Other genera')
 
-# Plot top confused genera in distinct colors
-colors = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#a65628']
+# Plot the top confused genera in distinct colors (colormap sized to the number of genera,
+# so colors are never reused even if there are more than a handful of genera)
+palette = plt.cm.tab10(np.linspace(0, 1, max(len(top_confused_genera), 1)))
 for i, genus in enumerate(sorted(top_confused_genera)):
     mask = genera == genus
     if mask.sum() > 0:
-        plt.scatter(coords[mask, 0], coords[mask, 1], s=8, alpha=0.7, c=colors[i % len(colors)], label=genus)
+        plt.scatter(coords[mask, 0], coords[mask, 1], s=8, alpha=0.7, color=palette[i], label=genus)
 
 plt.xlabel('t-SNE 1')
 plt.ylabel('t-SNE 2')
@@ -554,6 +572,7 @@ Quantify this by comparing the cosine similarity between embeddings of confused 
 #| eval: true
 #| label: fig-cosine-similarity
 #| fig-cap: "Cosine similarity in embedding space for confused species pairs versus randomly sampled non-confused pairs. The model's representations place confused species closer together."
+#| fig-alt: "Overlaid density histograms of embedding-space cosine similarity, with the confused-pairs distribution shifted toward higher similarity than the random-pairs distribution."
 # --- Cosine similarity: confused vs. random pairs ---
 from scipy.spatial.distance import cosine
 
@@ -599,9 +618,12 @@ Print the mean cosine similarity for each group.
 #| eval: true
 #| label: lst-cosine-stats
 #| lst-cap: "Mean cosine similarity for confused versus random species pairs."
-# --- Cosine similarity summary ---
-print(f'Confused pairs:  mean cosine similarity = {np.mean(confused_cosines):.3f}')
-print(f'Random pairs:    mean cosine similarity = {np.mean(random_cosines):.3f}')
+# --- Cosine similarity summary (guard against empty subsamples) ---
+if len(confused_cosines) > 0 and len(random_cosines) > 0:
+    print(f'Confused pairs:  mean cosine similarity = {np.mean(confused_cosines):.3f}')
+    print(f'Random pairs:    mean cosine similarity = {np.mean(random_cosines):.3f}')
+else:
+    print('Not enough sampled pairs in this run to compare cosine similarity.')
 ```
 
 ### Interpretation
@@ -612,7 +634,7 @@ The sequence similarity analysis confirms that the model's most frequent misclas
 When two species consistently receive high cosine similarity in embedding space, consider whether the taxonomic boundary between them is well-supported by independent evidence (e.g., whole-genome ANI). In some cases, the model may be revealing genuine taxonomic ambiguity rather than making errors.
 :::
 
-## Prediction Confidence and Calibration
+## Prediction confidence and calibration
 
 ### Background
 
@@ -636,6 +658,7 @@ The reliability diagram (right panel) provides a visual calibration check. Each 
 #| eval: true
 #| label: fig-calibration
 #| fig-cap: "Left: confidence distribution for correct and incorrect species predictions (log-scaled density). Right: reliability diagram comparing mean confidence to observed accuracy across 10 bins."
+#| fig-alt: "Two-panel figure. Left: overlaid log-scaled confidence histograms where correct predictions cluster near 1.0 and incorrect ones spread wider. Right: reliability diagram of accuracy bars against mean confidence with a diagonal reference line the bars roughly follow."
 # --- Confidence and calibration ---
 correct = df['species_predicted'] == df['species_true']
 conf = df['species_raw_score']
@@ -653,15 +676,16 @@ axes[0].legend()
 # Right: reliability diagram
 n_bins = 10
 bin_edges = np.linspace(0, 1, n_bins + 1)
-bin_acc, bin_conf, bin_count = [], [], []
+bin_acc, bin_conf, bin_mid, bin_count = [], [], [], []
 for i in range(n_bins):
     m = (conf >= bin_edges[i]) & (conf < bin_edges[i+1])
     if m.sum() > 0:
         bin_acc.append(correct[m].mean())
         bin_conf.append(conf[m].mean())
+        bin_mid.append((bin_edges[i] + bin_edges[i+1]) / 2)   # bin center, for bar placement
         bin_count.append(m.sum())
 
-axes[1].bar(bin_conf, bin_acc, width=0.08, alpha=0.7)
+axes[1].bar(bin_mid, bin_acc, width=0.09, alpha=0.7, align='center')
 axes[1].plot([0, 1], [0, 1], 'k--', linewidth=1)
 axes[1].set_xlabel('Mean Confidence')
 axes[1].set_ylabel('Fraction Correct')
@@ -701,6 +725,7 @@ Species-level calibration is typically the most challenging because the number o
 #| eval: true
 #| label: fig-ece-by-rank
 #| fig-cap: "Expected Calibration Error (ECE) at each taxonomic rank. Lower values indicate better correspondence between reported confidence and observed accuracy."
+#| fig-alt: "Bar chart of Expected Calibration Error at each of the seven ranks, lowest at Domain and Phylum and rising to its highest value at Species."
 # --- ECE at each taxonomic rank ---
 n_bins = 10
 bin_edges = np.linspace(0, 1, n_bins + 1)
@@ -737,6 +762,7 @@ Any fixed confidence threshold defines a trade-off: raising it improves accuracy
 #| eval: true
 #| label: fig-threshold-sweep
 #| fig-cap: "Left: species accuracy on retained sequences as a function of the fraction retained (higher threshold = fewer sequences retained). Right: fraction of sequences retained at each threshold value. The vertical line marks the default threshold of 0.95."
+#| fig-alt: "Two-panel line chart. Left: accuracy on retained sequences rising as the retained fraction shrinks, with a dashed vertical line marking the 0.95 default. Right: fraction of sequences retained declining as the confidence threshold increases, with a dashed line at 0.95."
 # --- Confidence threshold sweep ---
 thresholds  = np.linspace(0, 1, 300)
 correct_sp  = df['species_predicted'] == df['species_true']
@@ -786,7 +812,7 @@ for t in [0.50, 0.75, 0.90, 0.95, 0.99]:
 
 The left panel shows that accuracy on retained sequences rises sharply as the threshold increases, approaching near-perfect accuracy at the highest thresholds. The right panel shows that this comes at the cost of rapidly declining data volume. The default threshold of 0.95 sits near the elbow of both curves, where large accuracy gains can still be achieved while retaining most sequences. Users who need to classify every sequence regardless of confidence can set the threshold to 0; users for whom every retained prediction must be reliable should raise it toward 0.99.
 
-## Hierarchical Error Analysis
+## Hierarchical error analysis
 
 ### Background
 
@@ -800,6 +826,7 @@ The chart below shows, among all species-level errors, what fraction still have 
 #| eval: true
 #| label: fig-hierarchical-errors
 #| fig-cap: "Among species-level errors, the fraction that retain the correct label at each coarser taxonomic rank."
+#| fig-alt: "Bar chart showing, among species-level errors, the fraction still correct at each coarser rank from Domain to Genus, near 1.0 at the coarsest ranks and declining toward Genus."
 # --- Hierarchical error analysis ---
 species_errors = df[df['species_true'] != df['species_predicted']]
 
@@ -829,9 +856,9 @@ for rank, acc in higher_acc.items():
 
 ### Interpretation
 
-The vast majority of species-level errors retain the correct genus (roughly 60%) and nearly all retain the correct phylum (over 95%). This confirms that the model's errors are taxonomically shallow: it confuses closely related species, not distant lineages. From a practical standpoint, this means that even when the species assignment is wrong, the broader ecological or clinical interpretation (which often depends on genus or family identity) remains valid.
+The vast majority of species-level errors retain the correct genus (roughly 60%) and nearly all retain the correct phylum (over 95%). This confirms that the model's errors are taxonomically shallow: it confuses closely related species, not distant lineages. From a practical standpoint, this means that even when the species assignment is wrong, the genus- or family-level assignment it depends on usually remains correct, which supports exploratory ecological interpretation. Species-level errors should still be treated with caution in clinical or disease-associated settings.
 
-## Novel Taxa Detection
+## Novel taxa detection
 
 ### Background
 
@@ -865,6 +892,7 @@ Compare per-rank accuracy between known and novel species.
 #| eval: true
 #| label: fig-novel-taxa
 #| fig-cap: "Per-rank accuracy for sequences with known species (present in training vocabulary) versus novel species (absent from training vocabulary)."
+#| fig-alt: "Grouped bar chart comparing per-rank accuracy for known versus novel species; the two are similar at coarse ranks but novel species drop to zero at the species rank."
 # --- Novel taxa detection: compare accuracy ---
 known_acc = [accuracy_score(df.loc[~df['novel'], f'{r}_true'],
                              df.loc[~df['novel'], f'{r}_predicted']) for r in RANKS]
@@ -905,7 +933,7 @@ In practice, sequences with high genus-level confidence but low species-level co
 
 For running predictions with the pre-trained model, see the [prediction tutorial](prediction.qmd). For training a model on custom data, see the [training tutorial](training.qmd).
 
-## Appendix: Key Concepts
+## Appendix: key concepts
 
 **Accuracy.** The fraction of predictions that match the true label. It is the most intuitive classification metric but can be misleading when some classes are much more common than others, because a model that always predicts the majority class can achieve high accuracy without learning anything useful.
 
@@ -928,3 +956,11 @@ For running predictions with the pre-trained model, see the [prediction tutorial
 **t-SNE (t-distributed Stochastic Neighbor Embedding).** A dimensionality reduction algorithm that projects high-dimensional data (such as embeddings) onto two dimensions for visualization. t-SNE preserves local neighborhood structure, placing points that are close in the original space close together in the projection. It is well-suited for revealing cluster structure in learned representations.
 
 **Taxonomy.** The hierarchical classification of organisms. Modern microbial taxonomy combines morphological, biochemical, and genomic criteria. The [Greengenes 2](https://doi.org/10.1038/s41587-023-01845-1) database used by DeepTaxa follows the Genome Taxonomy Database (GTDB) naming conventions.
+
+---
+
+::: {.d-flex .justify-content-between}
+[← Previous: Training](training.qmd)
+
+[Next: Architecture →](architecture.qmd)
+:::

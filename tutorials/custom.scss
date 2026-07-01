@@ -1,0 +1,28 @@
+/*-- scss:rules --*/
+
+// Light navbar (white background, dark text, blue accent) instead of the lumen
+// theme's default solid-blue primary navbar. Quarto pins the navbar to the theme
+// primary, so override the Bootstrap navbar variables and background directly.
+.navbar {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #e9ecef;
+  --bs-navbar-color: #2c3e50;
+  --bs-navbar-hover-color: #158cba;
+  --bs-navbar-active-color: #158cba;
+  --bs-navbar-brand-color: #158cba;
+  --bs-navbar-brand-hover-color: #158cba;
+}
+
+// The title, links, and tool icons (search, GitHub) inherit the navbar color.
+.navbar .navbar-brand,
+.navbar .nav-link,
+.navbar .quarto-navbar-tools a,
+.navbar .navbar-toggler {
+  color: #2c3e50;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus,
+.navbar .nav-link.active {
+  color: #158cba;
+}

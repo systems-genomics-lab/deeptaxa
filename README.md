@@ -70,14 +70,15 @@ Three architectures are available:
 
 ### Pre-Trained Checkpoints
 
-Two checkpoints are hosted on [Hugging Face](https://huggingface.co/systems-genomics-lab/deeptaxa):
+Three checkpoints are hosted on [Hugging Face](https://huggingface.co/systems-genomics-lab/deeptaxa):
 
 | Checkpoint | Training data | Species accuracy | Parameters |
 |-----------|--------------|-----------------|------------|
 | `deeptaxa-full-length-v1.pt` | Full-length 16S (277,336 sequences, ~1,500 bp) | 92.96% (3-seed mean) | 76.4 M |
-| `deeptaxa-v3v4-v1.pt` | In-silico V3-V4 amplicons (~420 bp, 273,003 amplicons) | 87.55% (seed 42) | 75.8 M |
+| `deeptaxa-v3v4-v1.pt` | In-silico V3-V4 amplicons (341F/805R, ~420 bp, 273,003 amplicons) | 87.55% (seed 42) | 75.8 M |
+| `deeptaxa-v4-v1.pt` | In-silico V4 amplicons (515F/806R, ~253 bp, 274,509 amplicons) | 82.84% (seed 42) | 76.4 M |
 
-Both checkpoints share the same compact architecture (the small parameter difference reflects smaller per-rank classifier heads on the V3-V4 model, which has a smaller species vocabulary: 8,347 vs 16,909). A `config.json` with full model metadata is also available.
+All three checkpoints share the same compact architecture. The V4 checkpoint keeps the full 16,909-species label space (V4 amplicons extract at 99 percent yield) and matches the full-length parameter count, while the V3-V4 model is slightly smaller because its per-rank heads cover a smaller species vocabulary (8,347 vs 16,909). A `config.json` with full model metadata is also available.
 
 ---
 
@@ -298,6 +299,8 @@ The `scripts/` directory contains reusable tools for common workflows:
 Interactive tutorials with executable code are published at [systems-genomics-lab.github.io/deeptaxa](https://systems-genomics-lab.github.io/deeptaxa/):
 
 - [Prediction](https://systems-genomics-lab.github.io/deeptaxa/prediction.html): Classify sequences with the pre-trained model
+- [Validation](https://systems-genomics-lab.github.io/deeptaxa/validation.html): Validate on mock communities of known composition
+- [Case study](https://systems-genomics-lab.github.io/deeptaxa/casestudy.html): Reanalyze a published ALS gut-microbiome dataset
 - [Training](https://systems-genomics-lab.github.io/deeptaxa/training.html): Train from scratch on Greengenes2
 - [Analysis](https://systems-genomics-lab.github.io/deeptaxa/analysis.html): Evaluate performance, calibration, and error patterns
 - [Architecture](https://systems-genomics-lab.github.io/deeptaxa/architecture.html): Model internals and extensibility

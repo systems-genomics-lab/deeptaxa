@@ -1,38 +1,69 @@
 ---
 title: "DeepTaxa Tutorials"
+subtitle: "A hands-on guide from running predictions to understanding the model architecture"
 ---
 
 DeepTaxa is a hybrid CNN-BERT model that classifies 16S rRNA gene sequences into a seven-rank taxonomic hierarchy (Domain through Species). These tutorials are intended for researchers in microbial ecology, clinical metagenomics, or machine learning who want to use the pre-trained model, train a custom model, or understand the design choices behind the architecture.
 
 ## Tutorials
 
-The tutorials are independent but build on each other conceptually. For new users, the recommended reading order is Prediction, Validation, Training, Analysis, then Architecture.
+The tutorials are independent but build on each other conceptually. For new users, the recommended reading order is Prediction, Validation, Case study, Training, Analysis, then Architecture. If you only need to classify sequences with the released model, the [Prediction](prediction.qmd) tutorial is a self-contained starting point; if you intend to train your own model, begin with [Training](training.qmd).
 
 | Tutorial | Scope |
 |----------|-------|
 | [Prediction](prediction.qmd) | Classify 16S sequences with the pre-trained model, interpret per-rank accuracy, and examine confidence scores |
 | [Validation](validation.qmd) | Validate the model on mock communities of known composition, comparing genus- and species-level calls with a reference method across V3-V4 and full-length 16S |
+| [Case study](casestudy.qmd) | Apply DeepTaxa to a real clinical cohort: reanalyze a published ALS gut-microbiome dataset, cross-check the genus assignments against SILVA, and reproduce the original study's findings |
 | [Training](training.qmd) | Train a model from scratch on the Greengenes 2 dataset, monitor learning curves, and evaluate the trained checkpoint |
 | [Analysis](analysis.qmd) | Evaluate classification performance in depth: confusion patterns, sequence and embedding similarity, calibration, and novel taxa detection |
-| [Architecture](architecture.qmd) | Understand the CNN-Transformer fusion, the focal loss formulation, and how to adapt the model to other marker genes |
+| [Architecture](architecture.qmd) | Understand the CNN-Transformer fusion, the loss formulation including the optional focal loss, and how to adapt the model to other marker genes |
 
 : {tbl-colwidths="[20,80]"}
 
 ## Prerequisites
 
 - Python 3.10 or later
-- A CUDA-capable GPU is strongly recommended for training; CPU training is possible but approximately 10x slower. Prediction and analysis can run on CPU, though at reduced throughput.
+- A CUDA-capable GPU is strongly recommended for training; CPU training is possible but roughly an order of magnitude slower, with the exact ratio depending on the CPU model and core count. Prediction and analysis can run on CPU, though at reduced throughput.
 
 Install DeepTaxa and the packages required for plotting and evaluation:
 
 ```bash
-pip install git+https://github.com/systems-genomics-lab/deeptaxa.git
+pip install deeptaxa-rrna
 pip install matplotlib scikit-learn
 ```
 
+DeepTaxa is distributed as `deeptaxa-rrna` on PyPI and Bioconda because the name `deeptaxa` was already taken by an unrelated package; the import package and the command-line tool are both `deeptaxa`.
+
 ## Resources
 
-- [Source code](https://github.com/systems-genomics-lab/deeptaxa)
-- [Pre-trained model](https://huggingface.co/systems-genomics-lab/deeptaxa)
+- [DeepTaxa source code (GitHub)](https://github.com/systems-genomics-lab/deeptaxa)
+- [Pre-trained models (Hugging Face)](https://huggingface.co/systems-genomics-lab/deeptaxa)
 - [Training data (Greengenes 2)](https://huggingface.co/datasets/systems-genomics-lab/greengenes)
+- [Issue tracker](https://github.com/systems-genomics-lab/deeptaxa/issues)
+- [License (MIT)](https://github.com/systems-genomics-lab/deeptaxa/blob/main/LICENSE)
 - DeepTaxa manuscript [@salah2026deeptaxa]
+
+## Troubleshooting
+
+- **No GPU detected.** Prediction and analysis run on CPU, though more slowly; training requires a CUDA-capable GPU. Confirm the device with `python -c "import torch; print(torch.cuda.is_available())"`.
+- **CUDA out of memory.** Lower the batch size (for example, `--batch-size 32` or `16`), or run on CPU.
+- **Checkpoint fails to load.** Verify the file path and that the download completed. The checkpoints are about 306 MB; resume a partial transfer with `curl -C - -L -O <url>`.
+- **Download interrupted.** Add `-C -` to the `curl` command to resume, and confirm the Hugging Face URL is reachable.
+- **Dependency conflicts.** Install into a clean environment. DeepTaxa requires Python 3.10 or later and PyTorch 2.4 or later; `pip install deeptaxa-rrna` pulls compatible versions.
+
+## How to cite
+
+If you use DeepTaxa in your work, please cite the manuscript [@salah2026deeptaxa]:
+
+```bibtex
+@article{salah2026deeptaxa,
+  title   = {{DeepTaxa}: A Hybrid {CNN}-{BERT} Framework for {16S} {rRNA} Taxonomic Classification},
+  author  = {Salah, Rana and AbdElaal, Khlood R. and Ghonaim, Lobna and Awe, Olaitan I. and Moustafa, Ahmed},
+  journal = {Bioinformatics Advances},
+  year    = {2026},
+  volume  = {6},
+  number  = {1},
+  pages   = {vbag166},
+  doi     = {10.1093/bioadv/vbag166}
+}
+```

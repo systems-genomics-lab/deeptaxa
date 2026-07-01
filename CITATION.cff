@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use DeepTaxa, please cite the article below."
+title: DeepTaxa
+abstract: "A hybrid CNN-BERT framework for hierarchical 16S rRNA taxonomic classification."
+authors:
+  - family-names: Salah
+    given-names: Rana
+  - family-names: AbdElaal
+    given-names: Khlood R.
+  - family-names: Ghonaim
+    given-names: Lobna
+  - family-names: Awe
+    given-names: Olaitan I.
+  - family-names: Moustafa
+    given-names: Ahmed
+repository-code: "https://github.com/systems-genomics-lab/deeptaxa"
+license: MIT
+preferred-citation:
+  type: article
+  title: "DeepTaxa: A Hybrid CNN-BERT Framework for 16S rRNA Taxonomic Classification"
+  authors:
+    - family-names: Salah
+      given-names: Rana
+    - family-names: AbdElaal
+      given-names: Khlood R.
+    - family-names: Ghonaim
+      given-names: Lobna
+    - family-names: Awe
+      given-names: Olaitan I.
+    - family-names: Moustafa
+      given-names: Ahmed
+  journal: "Bioinformatics Advances"
+  year: 2026
+  volume: 6
+  issue: 1
+  doi: 10.1093/bioadv/vbag166

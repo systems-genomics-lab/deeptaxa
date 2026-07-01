@@ -1,6 +1,17 @@
 ---
 title: "Taxonomic Classification of 16S rRNA Sequences with DeepTaxa"
+subtitle: "Running the pre-trained model and interpreting per-rank predictions and confidence scores"
 ---
+
+::: {.callout-note appearance="simple"}
+**Objective.** Classify a set of 16S rRNA sequences with a pre-trained DeepTaxa model and interpret the per-rank taxonomic predictions and confidence scores.
+
+**Prerequisites.** DeepTaxa (`pip install deeptaxa-rrna`), Python 3.10 or later, and PyTorch 2.4 or later. A CUDA-capable GPU is optional; prediction also runs on CPU.
+
+**Inputs.** A FASTA file of 16S sequences and a pre-trained model checkpoint (about 306 MB), plus an optional ground-truth taxonomy file for evaluation.  **Outputs.** A per-rank taxonomy TSV with confidence and entropy columns, along with accuracy and confidence summary figures.  **Runtime.** A few minutes; the full test-set prediction takes about 6 minutes on an NVIDIA A40 GPU.
+
+*Last validated July 2026.*
+:::
 
 The 16S ribosomal RNA gene is a roughly 1,500-nucleotide region present in all bacteria and archaea. Because portions of this gene evolve slowly while others accumulate mutations rapidly, it serves as a molecular clock for placing organisms within the tree of life. Sequencing the 16S gene from an environmental sample and assigning each read to a taxonomic lineage is one of the foundational tasks in microbial ecology and clinical metagenomics [@mcdonald2024greengenes].
 
@@ -65,15 +76,15 @@ Confirm the installation.
 deeptaxa --version
 ```
 
-## Data and Model
+## Data and model
 
-DeepTaxa ships a pre-trained checkpoint on [Hugging Face](https://huggingface.co/systems-genomics-lab/deeptaxa). This checkpoint was trained on approximately 277,000 full-length 16S sequences from the [Greengenes 2](https://greengenes2.ucsd.edu/) reference database (release 2024.09), covering over 16,000 species across all known bacterial and archaeal phyla.
+DeepTaxa ships a pre-trained checkpoint on [Hugging Face](https://huggingface.co/systems-genomics-lab/deeptaxa). This checkpoint was trained on approximately 277,000 full-length 16S sequences from the [Greengenes 2](https://huggingface.co/datasets/systems-genomics-lab/greengenes) reference database (release 2024.09), covering over 16,000 species across all known bacterial and archaeal phyla.
 
 The test set contains 69,335 sequences held out from training. Each sequence carries a known ground-truth taxonomy, enabling direct measurement of classification accuracy. The commands below place all files under a shared workspace directory:
 
 | File | Description | Size |
 |------|-------------|------|
-| `data/models/deeptaxa-full-length-v1.pt` | Pre-trained model checkpoint | ~870 MB |
+| `data/models/deeptaxa-full-length-v1.pt` | Pre-trained model checkpoint | ~306 MB |
 | `data/greengenes/gg_2024_09_testing.fna.gz` | Test sequences (FASTA, compressed) | ~65 MB |
 | `data/greengenes/gg_2024_09_testing.tsv.gz` | Ground-truth taxonomy (TSV, compressed) | ~1.5 MB |
 
@@ -102,7 +113,21 @@ List the downloaded files.
 ls -lh ~/deeptaxa-workspace/data/models/ ~/deeptaxa-workspace/data/greengenes/
 ```
 
-## Running Predictions
+To confirm that the downloads are intact, compare each file against its published
+SHA-256 checksum. The following commands write the expected values to a file and
+verify them; every line should report `OK`.
+
+```bash
+cd ~/deeptaxa-workspace
+cat > data/CHECKSUMS.sha256 <<'EOF'
+b924500450ba623e26c7a023bf7246c0d4fb61787e8aa8d720d7ad35c3c6dfb4  data/models/deeptaxa-full-length-v1.pt
+d79347cb231edc72371c20daa8384581a1e6fbb9fa8ad6e172a3eecba29b5709  data/greengenes/gg_2024_09_testing.fna.gz
+d5268e7980ce81a39a521e22ff6078f622843c792682e7f95519188475c6d6bb  data/greengenes/gg_2024_09_testing.tsv.gz
+EOF
+sha256sum -c data/CHECKSUMS.sha256
+```
+
+## Running predictions
 
 ### How prediction works
 
@@ -129,9 +154,9 @@ flowchart LR
 
 1. **Tokenization.** The raw nucleotide string is split into subword tokens using DNABERT-2 [@zhou2024dnabert2]'s byte-pair encoding (BPE) vocabulary (4,096 tokens). This is analogous to how language models tokenize text into word pieces rather than individual characters.
 
-2. **Feature extraction.** The token sequence passes through two parallel pathways: a set of convolutional filters that detect local motifs (3, 5, and 7 tokens wide), and a Transformer encoder (4 layers, 7 attention heads) that models dependencies across the full 512-token window.
+2. **Feature extraction.** The token sequence passes through two parallel pathways: a set of convolutional filters that detect local motifs (256 filters at each of three kernel widths: 3, 5, and 7 tokens), and a Transformer encoder (4 layers, 7 attention heads) that models dependencies across the full 512-token window.
 
-3. **Fusion.** The outputs of both pathways are combined with learned weights and passed through a dropout layer.
+3. **Fusion.** The outputs of both pathways are combined through a learnable scalar fusion weight and passed through a dropout layer.
 
 4. **Classification.** Seven independent linear heads produce probability distributions over the classes at each taxonomic rank. The predicted class is the one with the highest probability, and that probability serves as the confidence score.
 
@@ -179,9 +204,9 @@ for f in pred_files:
     print(f'{f} ({size_mb:.1f} MB)')
 ```
 
-## Interpreting the Results
+## Interpreting the results
 
-The prediction output is a TSV file with one row per sequence. For each of the seven taxonomic ranks, the file reports:
+The prediction output is a TSV file with one row per sequence, identified by a `sequence_id` column. For each of the seven taxonomic ranks, the file then reports:
 
 | Column | Description |
 |--------|-------------|
@@ -231,6 +256,7 @@ Compute and plot accuracy at each rank.
 #| eval: true
 #| label: fig-accuracy-by-rank
 #| fig-cap: "Classification accuracy at each taxonomic rank, showing the expected decrease from Domain to Species."
+#| fig-alt: "Bar chart of classification accuracy for the seven taxonomic ranks from Domain to Species, with bars near 1.0 at the coarse ranks and declining to about 0.93 at Species."
 # --- Per-rank accuracy ---
 accuracies = [accuracy_score(df[f'{r}_true'], df[f'{r}_predicted']) for r in RANKS]
 
@@ -269,6 +295,7 @@ Plot the confidence distribution for correct and incorrect species predictions.
 #| eval: true
 #| label: fig-confidence
 #| fig-cap: "Left: confidence distribution for correct and incorrect species predictions (log-scaled density). Right: zoomed view below the 0.95 threshold, where most misclassifications concentrate."
+#| fig-alt: "Two overlaid histograms of species-level prediction confidence. The left panel spans the full 0-to-1 range on a log-scaled density axis, with correct predictions concentrated near 1.0 and incorrect predictions spread lower. The right panel zooms below 0.95, where incorrect predictions dominate."
 # --- Confidence analysis at species level ---
 correct = df['species_predicted'] == df['species_true']
 
@@ -353,7 +380,7 @@ Prediction confidence strongly separates correct from incorrect classifications 
 
 For training a model on custom reference data, see the [training tutorial](training.qmd). For a deeper analysis of error patterns, calibration, and generalization to novel taxa, see the [analysis tutorial](analysis.qmd).
 
-## Appendix: Key Concepts
+## Appendix: key concepts
 
 **Accuracy.** The fraction of predictions that match the true label. It is the most intuitive classification metric but can be misleading when some classes are much more common than others, because a model that always predicts the majority class can achieve high accuracy without learning anything useful.
 
@@ -374,3 +401,11 @@ Each level is a superset of those below it: every species belongs to exactly one
 **Softmax.** A mathematical function that converts a vector of real numbers (logits) into a probability distribution. Each output value is between 0 and 1, and all outputs sum to 1. The class with the highest softmax probability is the model's prediction.
 
 **Byte-pair encoding (BPE).** A tokenization algorithm that starts with individual characters and iteratively merges the most frequent adjacent pairs into new tokens. Applied to DNA sequences, BPE learns a vocabulary of common k-mers without requiring a fixed k-mer size.
+
+---
+
+::: {.d-flex .justify-content-between}
+[← Home](index.qmd)
+
+[Next: Validation →](validation.qmd)
+:::
