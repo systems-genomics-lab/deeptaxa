@@ -20,6 +20,8 @@ website:
         href: analysis.qmd
       - text: Architecture
         href: architecture.qmd
+      - text: QIIME 2
+        href: qiime2.qmd
     right:
       - icon: github
         href: https://github.com/systems-genomics-lab/deeptaxa

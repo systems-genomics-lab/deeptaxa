@@ -448,5 +448,5 @@ For running predictions, see the [prediction tutorial](prediction.qmd). For trai
 ::: {.d-flex .justify-content-between}
 [← Previous: Analysis](analysis.qmd)
 
-<span></span>
+[Next: QIIME 2 →](qiime2.qmd)
 :::

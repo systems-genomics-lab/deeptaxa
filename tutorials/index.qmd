@@ -7,7 +7,7 @@ DeepTaxa is a hybrid CNN-BERT model that classifies 16S rRNA gene sequences into
 
 ## Tutorials
 
-The tutorials are independent but build on each other conceptually. For new users, the recommended reading order is Prediction, Validation, Case study, Training, Analysis, then Architecture. If you only need to classify sequences with the released model, the [Prediction](prediction.qmd) tutorial is a self-contained starting point; if you intend to train your own model, begin with [Training](training.qmd).
+The tutorials are independent but build on each other conceptually. For new users, the recommended reading order is Prediction, Validation, Case study, Training, Analysis, then Architecture, with a final QIIME 2 tutorial for running the classifier inside QIIME 2. If you only need to classify sequences with the released model, the [Prediction](prediction.qmd) tutorial is a self-contained starting point; if you intend to train your own model, begin with [Training](training.qmd).
 
 | Tutorial | Scope |
 |----------|-------|
@@ -17,6 +17,7 @@ The tutorials are independent but build on each other conceptually. For new user
 | [Training](training.qmd) | Train a model from scratch on the Greengenes 2 dataset, monitor learning curves, and evaluate the trained checkpoint |
 | [Analysis](analysis.qmd) | Evaluate classification performance in depth: confusion patterns, sequence and embedding similarity, calibration, and novel taxa detection |
 | [Architecture](architecture.qmd) | Understand the CNN-Transformer fusion, the loss formulation including the optional focal loss, and how to adapt the model to other marker genes |
+| [QIIME 2](qiime2.qmd) | Run DeepTaxa inside a QIIME 2 workflow: import a model, classify representative sequences into `FeatureData[Taxonomy]`, and train |
 
 : {tbl-colwidths="[20,80]"}
 
@@ -37,6 +38,7 @@ DeepTaxa is distributed as `deeptaxa-rrna` on PyPI and Bioconda because the name
 ## Resources
 
 - [DeepTaxa source code (GitHub)](https://github.com/systems-genomics-lab/deeptaxa)
+- [QIIME 2 plugin (`q2-deeptaxa`)](https://github.com/systems-genomics-lab/deeptaxa/tree/main/q2_deeptaxa) for classifying `FeatureData[Sequence]` inside QIIME 2
 - [Pre-trained models (Hugging Face)](https://huggingface.co/systems-genomics-lab/deeptaxa)
 - [Training data (Greengenes 2)](https://huggingface.co/datasets/systems-genomics-lab/greengenes)
 - [Issue tracker](https://github.com/systems-genomics-lab/deeptaxa/issues)

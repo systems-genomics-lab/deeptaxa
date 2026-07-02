@@ -1,4 +1,4 @@
-MODULES := index prediction training architecture analysis
+MODULES := index prediction training architecture analysis qiime2
 
 .PHONY: preview render clean list $(MODULES) validation casestudy
 
