@@ -346,7 +346,6 @@ def predict(args):
     # Inference loop: process batches without gradient computation
     with torch.no_grad():  # Disables gradient tracking, reducing memory footprint
         for batch_idx, batch in enumerate(tqdm(data_loader, desc="Predicting")):
-            batch_start_time = time.time()
             input_ids = batch['input_ids'].to(device)  # Tokenized sequences
             attention_mask = batch.get('attention_mask')  # Padding mask, optional for CNN
             if attention_mask is not None:
@@ -357,8 +356,6 @@ def predict(args):
             logits = outputs[0] if isinstance(outputs, tuple) else outputs  # Handle Hybrid’s (logits, attentions) tuple
             batch_size = len(batch['input_ids'])
 
-            batch_scores = {rank: [] for rank in taxonomic_ranks}  # Per-rank scores for logging
-            
             # Process each sequence in the batch
             for i in range(batch_size):
                 pred_dict = {}
@@ -376,7 +373,6 @@ def predict(args):
                     pred_label = id2label[lvl_idx][pred_id]
                     pred_score = probs[pred_id].item()
                     score_distributions[rank].append(pred_score)
-                    batch_scores[rank].append(pred_score)
 
                     # Compute entropy as an uncertainty metric
                     entropy = max(0, -torch.sum(probs * torch.log(probs + 1e-10)).item())
@@ -445,13 +441,6 @@ def predict(args):
 
                 if args.taxonomy_file:
                     true_labels.append(batch['raw_labels'][i])
-
-            # Log batch-level diagnostics for performance profiling
-            batch_time = time.time() - batch_start_time
-            for rank, scores in batch_scores.items():
-                avg_score = sum(scores) / len(scores) if scores else 0
-                # logger.debug("Batch %d, Rank %s: Average raw_score=%.4f", batch_idx + 1, rank, avg_score)
-            # logger.debug("Batch %d: Processed %d sequences in %.2f seconds", batch_idx + 1, batch_size, batch_time)
 
     # Post-process predictions for output consistency
     prediction_time = time.time() - start_time
@@ -666,7 +655,7 @@ def predict(args):
         df.to_csv(tabular_file, sep='\t', index=False)
         logger.info("Saved tabular prediction results to: %s", tabular_file)
     
-    logger.info(f"\n{'=' * 70}\nThank you for using DeepTaxa 🤗\n{'=' * 70}")
+    logger.info(f"\n{'=' * 70}\nThank you for using DeepTaxa\n{'=' * 70}")
 
 if __name__ == "__main__":
     pass
