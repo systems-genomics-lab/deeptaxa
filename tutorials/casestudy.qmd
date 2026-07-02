@@ -30,6 +30,16 @@ execute:
 <small>A stylized illustration of the gut-brain axis</small>
 :::
 
+::: {.callout-note appearance="simple"}
+**Objective.** Reanalyze a published ALS gut-microbiome dataset with DeepTaxa, validate the genus calls against an independent SILVA classification, and test whether species-level caution is warranted for this dataset.
+
+**Prerequisites.** DeepTaxa (`pip install deeptaxa-rrna`), Python 3.10 or later, and pandas. The classification step uses a CUDA-capable GPU; the analysis below runs on CPU.
+
+**Inputs.** ASV sequences and count tables from BioProject PRJNA566436, and the region-matched V4 DeepTaxa checkpoint.  **Outputs.** Genus-level concordance with SILVA, community-level comparisons between the ALS and control groups, and a revisited functional claim.  **Runtime.** A few minutes for the analysis on CPU; the ASV classification is precomputed and committed with the tutorial.
+
+*Last validated July 2026.*
+:::
+
 ## Summary
 
 Short-read 16S amplicons are easy to generate but difficult to classify confidently below
