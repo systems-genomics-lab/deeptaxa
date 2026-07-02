@@ -63,6 +63,7 @@ def setup_model(args, num_labels_per_level):
         cnn_args = ["embed_dim", "num_filters", "kernel_sizes", "num_conv_layers"]
         for arg in cnn_args:
             model_args[arg] = getattr(args, arg, DEFAULT_CONFIG[arg])
+        model_args["mask_padding"] = getattr(args, "mask_padding", DEFAULT_CONFIG["mask_padding"])
 
     if args.model_type in ["bert", "hybridcnnbert"]:
         bert_args = ["max_length", "hidden_size", "num_hidden_layers", "num_attention_heads", "intermediate_size"]
@@ -574,6 +575,8 @@ def train(args, trial=None):
             args.num_filters = cnn_cfg.get("num_filters", args.num_filters)
             args.kernel_sizes = cnn_cfg.get("kernel_sizes", args.kernel_sizes)
             args.num_conv_layers = cnn_cfg.get("num_conv_layers", args.num_conv_layers)
+            # Legacy checkpoints predate the flag and were trained unmasked.
+            args.mask_padding = cnn_cfg.get("mask_padding", False)
             bert_cfg = model_config.get("bert", {})
             args.hidden_size = bert_cfg.get("hidden_size", args.hidden_size)
             args.num_hidden_layers = bert_cfg.get("num_hidden_layers", args.num_hidden_layers)
@@ -585,6 +588,8 @@ def train(args, trial=None):
             args.num_filters = model_config.get("num_filters", args.num_filters)
             args.kernel_sizes = model_config.get("kernel_sizes", args.kernel_sizes)
             args.num_conv_layers = model_config.get("num_conv_layers", args.num_conv_layers)
+            # Legacy checkpoints predate the flag and were trained unmasked.
+            args.mask_padding = model_config.get("mask_padding", False)
         elif args.model_type == "bert" and isinstance(model_config, dict):
             args.hidden_size = model_config.get("hidden_size", args.hidden_size)
             args.num_hidden_layers = model_config.get("num_hidden_layers", args.num_hidden_layers)

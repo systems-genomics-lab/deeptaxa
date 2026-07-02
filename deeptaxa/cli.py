@@ -332,6 +332,16 @@ def parse_args():
         help="Use uniform level weights (all 1.0) instead of hierarchical weighting"
     )
     train_parser.add_argument(
+        "--no-mask-padding", action="store_false", dest="mask_padding",
+        default=DEFAULT_CONFIG["mask_padding"],
+        help=(
+            "Include padded positions in the CNN and hybrid max pooling. By default "
+            "padding is masked out so it cannot leak into the pooled features. This "
+            "flag restores the older unmasked behavior for comparison; the setting is "
+            "recorded in the checkpoint so prediction reproduces how the model was trained."
+        )
+    )
+    train_parser.add_argument(
         "--early-stopping-patience", type=int, default=DEFAULT_CONFIG["early_stopping_patience"],
         help=f"Epochs without improvement before early stopping (0 = disabled, default: {DEFAULT_CONFIG['early_stopping_patience']})"
     )

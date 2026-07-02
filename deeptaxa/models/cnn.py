@@ -56,7 +56,7 @@ class ResidualConvBlock(nn.Module):
 class CNNClassifier(nn.Module):
     def __init__(self, tokenizer_name: str, num_labels_per_level: dict, embed_dim: int, num_filters: int,
                  kernel_sizes: list[int], num_conv_layers: int, hidden_dropout_prob: float,
-                 input_mode: str = "dnabert") -> None:
+                 input_mode: str = "dnabert", mask_padding: bool = False) -> None:
         """
         Initialize the CNNClassifier with configurable architecture.
 
@@ -78,6 +78,7 @@ class CNNClassifier(nn.Module):
         """
         super().__init__()
         self.input_mode = input_mode
+        self.mask_padding = mask_padding
         self.hidden_dropout_prob = hidden_dropout_prob
         self.num_labels_per_level = num_labels_per_level
 
@@ -124,7 +125,8 @@ class CNNClassifier(nn.Module):
             "kernel_sizes": kernel_sizes,
             "num_conv_layers": num_conv_layers,
             "hidden_dropout_prob": hidden_dropout_prob,
-            "input_mode": input_mode
+            "input_mode": input_mode,
+            "mask_padding": mask_padding
         }
         logger.info("Initialized CNNClassifier with %d conv layers, kernel sizes: %s, input_mode: %s",
                      num_conv_layers, kernel_sizes, input_mode)
@@ -161,6 +163,11 @@ class CNNClassifier(nn.Module):
             x = torch.cat(branch_outputs, dim=1)  # Concatenate multi-scale features
         
         # Global max pooling: [batch_size, in_channels, seq_len] -> [batch_size, in_channels]
+        if self.mask_padding and attention_mask is not None:
+            # Push padded positions below every real activation so they cannot win
+            # the max; a padded column would otherwise leak in through the conv bias.
+            pad = (attention_mask == 0).unsqueeze(1)  # [batch_size, 1, seq_len]
+            x = x.masked_fill(pad, torch.finfo(x.dtype).min)
         pooled = torch.max(x, dim=2)[0]
         pooled = self.dropout(pooled)
         

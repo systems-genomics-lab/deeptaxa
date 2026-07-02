@@ -265,7 +265,9 @@ def predict(args):
             num_hidden_layers=num_hidden_layers,
             num_attention_heads=num_attention_heads,
             intermediate_size=intermediate_size,
-            output_attentions=output_attentions
+            output_attentions=output_attentions,
+            # Absent in pre-flag checkpoints, which were trained unmasked.
+            mask_padding=cnn_config.get('mask_padding', False)
         )
     elif model_type == 'cnn':
         cnn_config = model_config if isinstance(model_config, dict) else model_config.__dict__
@@ -285,7 +287,9 @@ def predict(args):
             kernel_sizes=kernel_sizes,
             num_conv_layers=num_conv_layers,
             hidden_dropout_prob=hidden_dropout_prob,
-            input_mode=input_mode
+            input_mode=input_mode,
+            # Absent in pre-flag checkpoints, which were trained unmasked.
+            mask_padding=cnn_config.get('mask_padding', False)
         )
     elif model_type == 'bert':
         bert_config = model_config.__dict__ if hasattr(model_config, '__dict__') else model_config
