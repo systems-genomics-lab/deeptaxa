@@ -3,7 +3,7 @@ title: "DeepTaxa Tutorials"
 subtitle: "A hands-on guide from running predictions to understanding the model architecture"
 ---
 
-DeepTaxa is a hybrid CNN-BERT model that classifies 16S rRNA gene sequences into a seven-rank taxonomic hierarchy (Domain through Species). These tutorials are intended for researchers in microbial ecology, clinical metagenomics, or machine learning who want to use the pre-trained model, train a custom model, or understand the design choices behind the architecture.
+DeepTaxa is a hybrid CNN-BERT model that classifies 16S rRNA gene sequences into a seven-rank taxonomic hierarchy (Domain through Species). These tutorials are intended for researchers in microbial ecology, clinical microbiome research, or machine learning who want to use the pre-trained model, train a custom model, or understand the design choices behind the architecture.
 
 ## Tutorials
 
