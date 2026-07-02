@@ -405,7 +405,15 @@ def predict(args):
                     # Evaluate against ground truth if provided
                     if args.taxonomy_file:
                         true_label = batch['raw_labels'][i][rank]
-                        agreement = pred_label == true_label or (rank == "species" and true_label.endswith(pred_label))
+                        # At species rank a model may emit a bare epithet while the
+                        # reference stores a full binomial or a prefixed label. Allow
+                        # that only when the epithet lines up on a name boundary, so an
+                        # empty prediction or an arbitrary suffix does not count as a hit.
+                        agreement = pred_label == true_label or (
+                            rank == "species"
+                            and pred_label != ""
+                            and (true_label.endswith(" " + pred_label) or true_label.endswith("__" + pred_label))
+                        )
                         pred_dict[rank]["agreement"] = agreement
                         if not agreement:
                             pred_dict[rank]["mismatch_detail"] = {"predicted": pred_label, "true": true_label}
@@ -518,7 +526,10 @@ def predict(args):
 
             # Compute AUC with class count limitation for scalability
             # Exclude the novel-label sentinel (-1) from AUC; F1 uses the full arrays.
+            # Probability rows are only stored for non-novel sequences, so the true
+            # labels must be trimmed the same way to keep the two arrays row-aligned.
             unique_true_labels = np.unique(y_true[y_true >= 0])
+            y_true_auc = y_true[y_true >= 0]
             auc = None
             if len(unique_true_labels) > 1:
                 if all_pred_probs[rank] and len(unique_true_labels) <= MAX_CLASSES_FOR_AUC:
@@ -530,9 +541,9 @@ def predict(args):
 
                     try:
                         if len(unique_true_labels) == 2:
-                            auc = roc_auc_score(y_true, y_score_filtered[:, 1])
+                            auc = roc_auc_score(y_true_auc, y_score_filtered[:, 1])
                         else:
-                            auc = roc_auc_score(y_true, y_score_filtered, multi_class='ovr', average='weighted', labels=label_ids)
+                            auc = roc_auc_score(y_true_auc, y_score_filtered, multi_class='ovr', average='weighted', labels=label_ids)
                     except ValueError as e:
                         logger.warning(f"Rank {rank}: AUC calculation failed: {str(e)}")
                 else:
