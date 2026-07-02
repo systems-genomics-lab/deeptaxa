@@ -49,6 +49,31 @@ def labels_agree(pred_label, true_label, rank):
         return true_label.endswith(" " + pred_label) or true_label.endswith("__" + pred_label)
     return False
 
+def rank_auc(y_true, prob_rows, max_classes):
+    """Weighted one-vs-rest AUC for a single rank, or None when it cannot be computed.
+
+    ``y_true`` may carry the -1 novel-label sentinel. Probability rows are only
+    stored for known-label samples, so the true labels are trimmed to those same
+    rows before scoring, which keeps the two arrays aligned. Returns None when
+    there are fewer than two classes, too many classes to be tractable, no stored
+    probabilities, or scikit-learn rejects the inputs.
+    """
+    y_true = np.asarray(y_true, dtype=int).flatten()
+    known = y_true[y_true >= 0]
+    unique = np.unique(known)
+    if len(unique) <= 1 or not len(prob_rows) or len(unique) > max_classes:
+        return None
+    label_ids = sorted(int(u) for u in unique)
+    y_score = np.stack(prob_rows)[:, label_ids]
+    row_sums = y_score.sum(axis=1, keepdims=True)
+    y_score = y_score / np.where(row_sums == 0, 1, row_sums)
+    try:
+        if len(unique) == 2:
+            return float(roc_auc_score(known, y_score[:, 1]))
+        return float(roc_auc_score(known, y_score, multi_class='ovr', average='weighted', labels=label_ids))
+    except ValueError:
+        return None
+
 def save_metrics_json(args, checkpoint, performance_stats, prediction_time, post_process_time, total_sequences, run_uuid, taxonomic_ranks, num_labels_per_level, model):
     """
     Save performance metrics to a JSON file in the output directory.
@@ -533,28 +558,14 @@ def predict(args):
             precision = precision_score(y_true, y_pred, average='weighted', zero_division=0)
             recall = recall_score(y_true, y_pred, average='weighted', zero_division=0)
 
-            # Compute AUC with class count limitation for scalability
             # Exclude the novel-label sentinel (-1) from AUC; F1 uses the full arrays.
-            # Probability rows are only stored for non-novel sequences, so the true
-            # labels must be trimmed the same way to keep the two arrays row-aligned.
             unique_true_labels = np.unique(y_true[y_true >= 0])
-            y_true_auc = y_true[y_true >= 0]
             auc = None
             if len(unique_true_labels) > 1:
                 if all_pred_probs[rank] and len(unique_true_labels) <= MAX_CLASSES_FOR_AUC:
-                    y_score = np.stack(all_pred_probs[rank])
-                    label_ids = sorted(unique_true_labels)
-                    y_score_filtered = y_score[:, label_ids]
-                    row_sums = y_score_filtered.sum(axis=1, keepdims=True)
-                    y_score_filtered = y_score_filtered / np.where(row_sums == 0, 1, row_sums)
-
-                    try:
-                        if len(unique_true_labels) == 2:
-                            auc = roc_auc_score(y_true_auc, y_score_filtered[:, 1])
-                        else:
-                            auc = roc_auc_score(y_true_auc, y_score_filtered, multi_class='ovr', average='weighted', labels=label_ids)
-                    except ValueError as e:
-                        logger.warning(f"Rank {rank}: AUC calculation failed: {str(e)}")
+                    auc = rank_auc(y_true, all_pred_probs[rank], MAX_CLASSES_FOR_AUC)
+                    if auc is None:
+                        logger.warning(f"Rank {rank}: AUC calculation failed")
                 else:
                     logger.info(f"Rank {rank}: Skipping AUC (too many classes: {len(unique_true_labels)} > {MAX_CLASSES_FOR_AUC})")
             auc_value = f"{auc:.4f}" if auc is not None else "N/A"

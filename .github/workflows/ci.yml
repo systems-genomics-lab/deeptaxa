@@ -44,6 +44,7 @@ jobs:
             tests.test_dataset \
             tests.test_gradient_accumulation \
             tests.test_predict_agreement \
+            tests.test_predict_auc \
             tests.test_pooling_mask \
             tests.test_save_best_only \
             tests.test_train_predict_smoke -v
