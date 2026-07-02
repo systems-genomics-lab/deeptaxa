@@ -47,8 +47,10 @@ class BERTClassifier(nn.Module):
         self.num_labels_per_level = num_labels_per_level
         self.hidden_dropout_prob = hidden_dropout_prob
         
-        # Load tokenizer to align vocab size with embedding layer
-        vocab_size = AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True).vocab_size
+        # Load tokenizer to align vocab size with embedding layer. Use the full
+        # vocabulary length (including any added tokens) so the embedding covers
+        # every id the tokenizer can emit, matching the CNN and hybrid models.
+        vocab_size = len(AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True).get_vocab())
         
         # Configure BERT with CLI-driven parameters
         config = BertConfig(
@@ -97,7 +99,8 @@ class BERTClassifier(nn.Module):
         
         # Mask padded tokens and compute mean pooling
         masked_output = sequence_output * attention_mask.unsqueeze(-1)  # Zero out padding
-        pooled = masked_output.sum(dim=1) / attention_mask.sum(dim=1).unsqueeze(-1)  # Average over valid tokens
+        valid_tokens = attention_mask.sum(dim=1).clamp(min=1).unsqueeze(-1)  # Guard against an all-padding row
+        pooled = masked_output.sum(dim=1) / valid_tokens  # Average over valid tokens
         
         # Apply dropout to pooled representation
         pooled = self.dropout(pooled)
