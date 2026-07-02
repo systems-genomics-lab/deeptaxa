@@ -31,6 +31,32 @@ pip install -e .
 Editable mode links the installed package to your working copy, so changes to the
 source take effect without reinstalling.
 
+## Project layout
+
+The two packages are the command-line tool and the QIIME 2 plugin:
+
+```text
+deeptaxa/
+  cli.py        Command-line interface and argument parsing
+  config.py     Default model and training configuration
+  dataset.py    FASTA/taxonomy loading and sequence encoding
+  train.py      Training loop
+  predict.py    Inference and evaluation
+  describe.py   Checkpoint inspection
+  tune.py       Hyperparameter tuning with Optuna
+  utils.py      Shared helpers
+  models/       CNN, BERT, and hybrid CNN-BERT architectures, and loss functions
+
+q2_deeptaxa/
+  plugin_setup.py  Plugin registration (actions, inputs, parameters)
+  _methods.py      classify and fit actions
+  _visualizers.py  describe visualizer
+  _types.py        DeepTaxaModel semantic type
+  _formats.py      On-disk format for a model artifact
+  _taxonomy.py     Lineage handling shared by the actions
+  tests/           Pure-Python and plugin tests
+```
+
 ## Running the tests
 
 The pure-Python tests do not require a GPU or the full QIIME 2 stack. They run with
