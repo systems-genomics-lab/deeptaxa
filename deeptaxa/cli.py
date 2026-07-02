@@ -349,13 +349,14 @@ def parse_args():
         )
     )
     train_parser.add_argument(
-        "--no-mask-padding", action="store_false", dest="mask_padding",
+        "--mask-padding", action="store_true", dest="mask_padding",
         default=DEFAULT_CONFIG["mask_padding"],
         help=(
-            "Include padded positions in the CNN and hybrid max pooling. By default "
-            "padding is masked out so it cannot leak into the pooled features. This "
-            "flag restores the older unmasked behavior for comparison; the setting is "
-            "recorded in the checkpoint so prediction reproduces how the model was trained."
+            "Mask padded positions out of the CNN and hybrid max pooling so they cannot "
+            "leak into the pooled features. Off by default, which matches the unmasked "
+            "pooling of the published checkpoints; enable it to remove the leakage in new "
+            "models. The setting is recorded in the checkpoint so prediction reproduces "
+            "how the model was trained."
         )
     )
     train_parser.add_argument(

@@ -502,6 +502,7 @@ def predict(args):
             raw = pred[rank]['raw_score']
             norm = round(raw / score_max_per_rank[rank], 4) if score_max_per_rank[rank] else raw
             pred[rank]['batch_relative_score'] = norm
+            pred[rank]['score'] = norm  # deprecated alias for batch_relative_score; kept so existing consumers do not break
 
     total_sequences = len(dataset)
     end_timestamp = datetime.fromtimestamp(time.time()).isoformat()

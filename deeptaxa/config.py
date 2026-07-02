@@ -47,7 +47,7 @@ DEFAULT_CONFIG = {
     "num_filters": 256,                              # Filters per kernel size (compact)
     "kernel_sizes": [3, 5, 7],                       # CNN kernel sizes (compact)
     "num_conv_layers": 1,                            # Number of convolutional layers
-    "mask_padding": True,                            # Ignore padded positions in CNN max pooling
+    "mask_padding": False,                           # Opt-in masking of padded positions in CNN/hybrid pooling
 
     # BERT-specific parameters (used by BERTClassifier and HybridCNNBERTClassifier)
     "hidden_size": 896,                              # Hidden layer size (compact)
