@@ -62,7 +62,8 @@ Clone the DeepTaxa repository and install it along with optional libraries for e
 %%bash
 mkdir -p ~/deeptaxa-workspace && cd ~/deeptaxa-workspace
 test -d deeptaxa || git clone https://github.com/systems-genomics-lab/deeptaxa.git
-cd deeptaxa && pip install -q .
+cd deeptaxa && git checkout --quiet "$(git describe --tags --abbrev=0)"
+pip install -q .
 pip install -q matplotlib scikit-learn
 ```
 
