@@ -98,8 +98,13 @@ def setup_optimizer(model, args):
     logger.info("Optimizer initialized with config: %s", optimizer_config)
     return optimizer
 
-def evaluate_model(model, val_loader, criterion, device, taxonomic_ranks, criteria=None):
-    """Evaluate model performance on the validation set."""
+def evaluate_model(model, val_loader, criterion, device, taxonomic_ranks, criteria=None, level_weights=None):
+    """Evaluate model performance on the validation set.
+
+    When level_weights is given, the validation loss weights each rank the same
+    way the training loss does, so early stopping and checkpoint selection track
+    the objective the model is actually trained on.
+    """
     model.eval()
     total_loss = 0
     all_preds = {level: [] for level in range(len(taxonomic_ranks))}
@@ -114,7 +119,11 @@ def evaluate_model(model, val_loader, criterion, device, taxonomic_ranks, criter
             with autocast('cuda', enabled=torch.cuda.is_available()):
                 output = model(input_ids, attention_mask)
                 logits = output[0] if isinstance(output, tuple) else output
-                loss = sum((criteria[level] if criteria else criterion)(logits[str(level)], labels[:, level]) for level in range(len(taxonomic_ranks)))
+                loss = sum(
+                    (level_weights[level] if level_weights is not None else 1.0)
+                    * (criteria[level] if criteria else criterion)(logits[str(level)], labels[:, level])
+                    for level in range(len(taxonomic_ranks))
+                )
             total_loss += loss.item()
             
             for level in range(len(taxonomic_ranks)):
@@ -1051,7 +1060,7 @@ def train(args, trial=None):
             logger.info("Starting evaluation for epoch %d%s", epoch, " (fresh evaluation after resume)" if is_resume_eval else "")
             eval_start_time = datetime.now()
             try:
-                metrics, val_loss = evaluate_model(model, val_loader, criterion, device, taxonomic_ranks, criteria=criteria)
+                metrics, val_loss = evaluate_model(model, val_loader, criterion, device, taxonomic_ranks, criteria=criteria, level_weights=level_weights)
                 logger.info("Evaluation completed for epoch %d. Validation loss: %.4f", epoch, val_loss)
                 
                 metrics_output = "Validation Metrics:\n"
