@@ -79,7 +79,7 @@ deeptaxa --version
 
 ## Data and model
 
-DeepTaxa ships a pre-trained checkpoint on [Hugging Face](https://huggingface.co/systems-genomics-lab/deeptaxa). This checkpoint was trained on approximately 277,000 full-length 16S sequences from the [Greengenes 2](https://huggingface.co/datasets/systems-genomics-lab/greengenes) reference database (release 2024.09), covering over 16,000 species across all known bacterial and archaeal phyla.
+DeepTaxa ships a pre-trained checkpoint on [Hugging Face](https://huggingface.co/systems-genomics-lab/deeptaxa). This checkpoint was trained on approximately 277,000 full-length 16S sequences from the [Greengenes 2](https://huggingface.co/datasets/systems-genomics-lab/greengenes) reference database (release 2024.09), covering over 16,000 species across 129 bacterial and archaeal phyla.
 
 The test set contains 69,335 sequences held out from training. Each sequence carries a known ground-truth taxonomy, enabling direct measurement of classification accuracy. The commands below place all files under a shared workspace directory:
 
