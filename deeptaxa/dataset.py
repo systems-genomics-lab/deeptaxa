@@ -73,6 +73,15 @@ class TaxonomyDataset(Dataset):
                 logger.error("Taxonomy file %s is empty", taxonomy_file)
                 raise ValueError("Taxonomy file is empty")
             self.taxonomic_ranks = list(self.taxonomy_data.columns[1:])  # Exclude 'sequence_id'
+            # Reference taxonomies often leave the deeper ranks blank when a sequence
+            # is only classified partway down the lineage. Fill those blanks with
+            # 'Unclassified' now so the label vocabulary and the per-sequence lookup
+            # agree; otherwise an empty cell reads back as the string 'nan' and raises
+            # a KeyError during alignment.
+            for rank in self.taxonomic_ranks:
+                values = self.taxonomy_data[rank]
+                filled = values.where(values.notna(), 'Unclassified').astype(str).str.strip()
+                self.taxonomy_data[rank] = filled.mask(filled.eq(''), 'Unclassified')
             self._build_label_mappings()
             self._align_taxonomy_with_sequences()
             logger.info("Loaded taxonomy data with ranks: %s", self.taxonomic_ranks)
