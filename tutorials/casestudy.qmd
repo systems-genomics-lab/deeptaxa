@@ -45,9 +45,9 @@ execute:
 Short-read 16S amplicons are easy to generate but difficult to classify confidently below
 the genus rank, and the common advice is to treat species-level calls as unreliable. This case
 study reanalyzes a published amyotrophic lateral sclerosis (ALS) gut-microbiome dataset with
-DeepTaxa and evaluates whether that caution is warranted for this dataset. Using the DeepTaxa checkpoint,
-mean genus confidence reaches 0.985 and 99 percent of reads are assigned at the genus rank.
-To show that this is accuracy and not merely confidence, the same
+DeepTaxa and evaluates whether that caution is warranted for this dataset. Using the region-matched
+DeepTaxa checkpoint, 99 percent of reads receive a genus-level assignment, with a mean genus
+confidence of 0.985. Because a confidence score is not the same as accuracy, the same
 amplicon sequence variants (ASVs) were independently classified with SILVA: the two methods
 agree on the genus of about 94 percent of reads. On that basis, the reanalysis recovers the
 original study's community-level differences in the same direction and revisits a functional
