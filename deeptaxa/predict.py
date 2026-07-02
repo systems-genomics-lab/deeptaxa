@@ -33,6 +33,22 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+def labels_agree(pred_label, true_label, rank):
+    """Return True when a predicted label matches the reference at a rank.
+
+    At the species rank a model may emit a bare epithet while the reference
+    stores a full binomial or a prefixed label, so a match is also allowed when
+    the epithet lines up on a name boundary (a space or a ``__`` prefix). Every
+    other rank needs an exact match, and an empty prediction never counts. The
+    same rule is used for both exact accuracy and top-k accuracy so the two stay
+    consistent.
+    """
+    if pred_label == true_label:
+        return True
+    if rank == "species" and pred_label != "":
+        return true_label.endswith(" " + pred_label) or true_label.endswith("__" + pred_label)
+    return False
+
 def save_metrics_json(args, checkpoint, performance_stats, prediction_time, post_process_time, total_sequences, run_uuid, taxonomic_ranks, num_labels_per_level, model):
     """
     Save performance metrics to a JSON file in the output directory.
@@ -403,22 +419,14 @@ def predict(args):
                     # Evaluate against ground truth if provided
                     if args.taxonomy_file:
                         true_label = batch['raw_labels'][i][rank]
-                        # At species rank a model may emit a bare epithet while the
-                        # reference stores a full binomial or a prefixed label. Allow
-                        # that only when the epithet lines up on a name boundary, so an
-                        # empty prediction or an arbitrary suffix does not count as a hit.
-                        agreement = pred_label == true_label or (
-                            rank == "species"
-                            and pred_label != ""
-                            and (true_label.endswith(" " + pred_label) or true_label.endswith("__" + pred_label))
-                        )
+                        agreement = labels_agree(pred_label, true_label, rank)
                         pred_dict[rank]["agreement"] = agreement
                         if not agreement:
                             pred_dict[rank]["mismatch_detail"] = {"predicted": pred_label, "true": true_label}
                         if agreement:
                             correct_counts[rank] += 1
                         top_k_labels = [pred["label"] for pred in top_k_predictions]
-                        if true_label in top_k_labels:
+                        if any(labels_agree(lbl, true_label, rank) for lbl in top_k_labels):
                             top_k_correct_counts[rank] += 1
 
                         true_id = level_label2id[lvl_idx].get(true_label, -1)

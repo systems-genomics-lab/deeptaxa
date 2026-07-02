@@ -43,6 +43,7 @@ jobs:
           python -m unittest \
             tests.test_dataset \
             tests.test_gradient_accumulation \
+            tests.test_predict_agreement \
             tests.test_train_predict_smoke -v
 
   qiime2:
