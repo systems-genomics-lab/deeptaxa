@@ -460,7 +460,9 @@ def predict(args):
     prediction_time = time.time() - start_time
     post_process_start_time = time.time()
 
-    # Normalize scores relative to maximum per rank
+    # Divide each raw score by the largest score seen for that rank in this run.
+    # The result depends on the rest of the input, so it is named to make that
+    # clear; raw_score is the stable, interpretable per-sequence confidence.
     score_max_per_rank = {rank: max(scores) for rank, scores in score_distributions.items() if scores}
     for pred in predictions:
         for rank in pred:
@@ -468,7 +470,7 @@ def predict(args):
                 continue
             raw = pred[rank]['raw_score']
             norm = round(raw / score_max_per_rank[rank], 4) if score_max_per_rank[rank] else raw
-            pred[rank]['score'] = norm
+            pred[rank]['batch_relative_score'] = norm
 
     total_sequences = len(dataset)
     end_timestamp = datetime.fromtimestamp(time.time()).isoformat()
