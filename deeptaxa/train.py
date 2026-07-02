@@ -402,7 +402,7 @@ def save_checkpoint(model, optimizer, scheduler, epoch, run_uuid, args, dataset_
             with h5py.File(weights_path, 'w') as f:
                 for name in key_layers:
                     if name in state_dict:
-                        f.create_dataset(name, data=state_dict[name].cpu().numpy(), compression='gzip', compression_opts=9)
+                        f.create_dataset(name, data=state_dict[name].cpu().numpy(), compression='gzip', compression_opts=4)
                     else:
                         logger.warning("Layer %s not found in model state_dict", name)
                 f.attrs['epoch'] = epoch
@@ -964,6 +964,10 @@ def train(args, trial=None):
     best_val_loss = None
     best_epoch = 0
     patience_counter = 0
+    # With --save-best-only, only write a checkpoint on an epoch that improves the
+    # validation loss, so a long run does not leave one full checkpoint per epoch.
+    save_best_only = getattr(args, 'save_best_only', False)
+    best_saved_val_loss = None
 
     for epoch in range(start_epoch, args.epochs + 1):
         epoch_banner = f"""
@@ -1108,17 +1112,24 @@ def train(args, trial=None):
                     logger.error("Pruning failed for trial %d at epoch %d: %s", trial.number, epoch, str(e))
                     raise
             
-            logger.info("Saving checkpoint for epoch %d...", epoch)
-            try:
-                save_checkpoint(
-                    model, optimizer, scheduler, epoch, run_uuid, args, dataset_split, metrics,
-                    val_loss, taxonomic_ranks, session_total_time, checkpoint_total_time,
-                    train_loader, val_loader, device, total_steps, total_parameters, scaler=scaler, trial=trial
-                )
-            except Exception as e:
-                logger.error("Checkpoint saving failed for epoch %d: %s", epoch, str(e))
-                raise
-            logger.info("Checkpoint save completed for epoch %d", epoch)
+            is_best = val_loss is not None and (best_saved_val_loss is None or val_loss < best_saved_val_loss)
+            if is_best:
+                best_saved_val_loss = val_loss
+            if save_best_only and not is_best:
+                logger.info("save-best-only: keeping the previous checkpoint; epoch %d val_loss %.4f did not beat %.4f",
+                            epoch, val_loss, best_saved_val_loss)
+            else:
+                logger.info("Saving checkpoint for epoch %d...", epoch)
+                try:
+                    save_checkpoint(
+                        model, optimizer, scheduler, epoch, run_uuid, args, dataset_split, metrics,
+                        val_loss, taxonomic_ranks, session_total_time, checkpoint_total_time,
+                        train_loader, val_loader, device, total_steps, total_parameters, scaler=scaler, trial=trial
+                    )
+                except Exception as e:
+                    logger.error("Checkpoint saving failed for epoch %d: %s", epoch, str(e))
+                    raise
+                logger.info("Checkpoint save completed for epoch %d", epoch)
 
             if early_stopping_patience > 0 and val_loss is not None:
                 if best_val_loss is None or val_loss < best_val_loss - early_stopping_min_delta:
@@ -1140,19 +1151,24 @@ def train(args, trial=None):
             logger.info("Skipping evaluation for epoch %d (eval_every=%d)", epoch, getattr(args, "eval_every", DEFAULT_CONFIG["eval_every"]))
             checkpoint_total_time = train_time
             session_total_time = (datetime.fromisoformat(checkpoint_end_time := datetime.now().isoformat()) - datetime.fromisoformat(args.session_start_time)).total_seconds()
-            
-            logger.info("Saving checkpoint for epoch %d...", epoch)
-            try:
-                save_checkpoint(
-                    model, optimizer, scheduler, epoch, run_uuid, args, dataset_split, metrics,
-                    val_loss, taxonomic_ranks, session_total_time, checkpoint_total_time,
-                    train_loader, val_loader, device, total_steps, total_parameters, scaler=scaler, trial=trial
-                )
-            except Exception as e:
-                logger.error("Checkpoint saving failed for epoch %d: %s", epoch, str(e))
-                raise
-            logger.info("Checkpoint save completed for epoch %d", epoch)
-            
+
+            # No validation loss on a non-eval epoch, so there is nothing to rank
+            # against; skip the write under --save-best-only.
+            if save_best_only:
+                logger.info("save-best-only: not saving on non-eval epoch %d", epoch)
+            else:
+                logger.info("Saving checkpoint for epoch %d...", epoch)
+                try:
+                    save_checkpoint(
+                        model, optimizer, scheduler, epoch, run_uuid, args, dataset_split, metrics,
+                        val_loss, taxonomic_ranks, session_total_time, checkpoint_total_time,
+                        train_loader, val_loader, device, total_steps, total_parameters, scaler=scaler, trial=trial
+                    )
+                except Exception as e:
+                    logger.error("Checkpoint saving failed for epoch %d: %s", epoch, str(e))
+                    raise
+                logger.info("Checkpoint save completed for epoch %d", epoch)
+
             args.checkpoint_start_time = checkpoint_end_time
 
     logger.info("Training completed successfully.")

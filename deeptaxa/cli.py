@@ -341,6 +341,14 @@ def parse_args():
         help="Use uniform level weights (all 1.0) instead of hierarchical weighting"
     )
     train_parser.add_argument(
+        "--save-best-only", action="store_true",
+        help=(
+            "Only write a checkpoint when an epoch improves the validation loss, "
+            "instead of saving one on every evaluated epoch. Keeps disk usage down "
+            "on long runs at the cost of not having a checkpoint for every epoch."
+        )
+    )
+    train_parser.add_argument(
         "--no-mask-padding", action="store_false", dest="mask_padding",
         default=DEFAULT_CONFIG["mask_padding"],
         help=(
