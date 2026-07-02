@@ -288,6 +288,10 @@ class TaxonomyDataset(Dataset):
                 'seq_ids': seq_id
             }
 
+        # Carry the raw sequence length so downstream code can report it without
+        # having to map a batch position back to the dataset.
+        item['seq_length'] = len(sequence)
+
         # Add labels if taxonomy data is available
         if self.taxonomy_data is not None:
             item['labels'] = torch.tensor(self.labels[idx], dtype=torch.long)
@@ -314,8 +318,9 @@ def custom_collate_fn(batch):
     input_ids = torch.stack([item['input_ids'] for item in batch])
     attention_mask = torch.stack([item['attention_mask'] for item in batch])
     seq_ids = [item['seq_ids'] for item in batch]
-    
-    collated = {'input_ids': input_ids, 'attention_mask': attention_mask, 'seq_ids': seq_ids}
+    seq_lengths = [item['seq_length'] for item in batch]
+
+    collated = {'input_ids': input_ids, 'attention_mask': attention_mask, 'seq_ids': seq_ids, 'seq_lengths': seq_lengths}
     
     if 'labels' in batch[0]:
         collated['labels'] = torch.stack([item['labels'] for item in batch])

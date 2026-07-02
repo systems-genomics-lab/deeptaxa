@@ -81,6 +81,26 @@ class TestTaxonomyDataset(unittest.TestCase):
             self.assertEqual(tuple(batch["input_ids"].shape), (4, 4, 64))
             self.assertEqual(tuple(batch["labels"].shape), (4, len(ds.taxonomic_ranks)))
             self.assertEqual(len(batch["seq_ids"]), 4)
+            self.assertEqual(len(batch["seq_lengths"]), 4)
+
+    def test_batch_ids_and_lengths_stay_aligned_when_shuffled(self):
+        # Prediction reads the id and length from the batch rather than a
+        # recomputed position, so those fields have to track the right sequence
+        # even when the loader hands batches back out of order.
+        from torch.utils.data import DataLoader
+
+        with tempfile.TemporaryDirectory() as d:
+            ds = self._dataset(d, n_seqs=40)
+            true_length = {sid: len(seq) for sid, seq in zip(ds.seq_ids, ds.sequences)}
+            loader = DataLoader(
+                ds, batch_size=8, shuffle=True, collate_fn=custom_collate_fn
+            )
+            seen = 0
+            for batch in loader:
+                for sid, length in zip(batch["seq_ids"], batch["seq_lengths"]):
+                    self.assertEqual(length, true_length[sid])
+                    seen += 1
+            self.assertEqual(seen, len(ds))
 
 
 if __name__ == "__main__":

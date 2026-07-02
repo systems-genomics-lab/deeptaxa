@@ -359,9 +359,11 @@ def predict(args):
             # Process each sequence in the batch
             for i in range(batch_size):
                 pred_dict = {}
-                seq_idx = batch_idx * args.batch_size + i
-                sequence_length = len(dataset.sequences[seq_idx]) if seq_idx < len(dataset) else 0
-                seq_id = dataset.seq_ids[seq_idx] if seq_idx < len(dataset) else f"seq_{seq_idx}"
+                # Read the id and length straight from the batch instead of
+                # recomputing a position, so they stay tied to the right sequence
+                # even if the loader order or batch size ever changes.
+                seq_id = batch['seq_ids'][i]
+                sequence_length = int(batch['seq_lengths'][i])
 
                 # Compute predictions per taxonomic level
                 for lvl_str, level_logits in logits.items():
