@@ -37,6 +37,10 @@ classifiers = [
     "Operating System :: OS Independent"
 ]
 
+[project.optional-dependencies]
+dev = ["pytest", "ruff", "black"]
+plots = ["matplotlib"]
+
 [project.scripts]
 deeptaxa = "deeptaxa.cli:main"
 
