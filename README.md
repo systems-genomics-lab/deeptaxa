@@ -172,7 +172,8 @@ working_directory/
 │   │   └── gg_2024_09_testing.tsv.gz     (taxonomy labels, ~0.8 MB)
 │   └── models/
 │       ├── deeptaxa-full-length-v1.pt
-│       └── deeptaxa-v3v4-v1.pt
+│       ├── deeptaxa-v3v4-v1.pt
+│       └── deeptaxa-v4-v1.pt
 └── deeptaxa-outputs/      # Training and prediction outputs
 ```
 
@@ -192,6 +193,7 @@ done
 mkdir -p ../models && cd ../models
 wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-full-length-v1.pt
 wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-v3v4-v1.pt
+wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-v4-v1.pt
 wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/config.json
 ```
 
@@ -325,7 +327,7 @@ provenance is tracked like any other artifact. Download a published checkpoint
 that matches your amplicon region from the
 [model repository](https://huggingface.co/systems-genomics-lab/deeptaxa)
 (`deeptaxa-full-length-v1.pt` for full-length 16S, `deeptaxa-v3v4-v1.pt` for
-V3-V4), then import it once:
+V3-V4, `deeptaxa-v4-v1.pt` for V4), then import it once:
 
 ```bash
 qiime tools import \
