@@ -466,8 +466,6 @@ def predict(args):
             raw = pred[rank]['raw_score']
             norm = round(raw / score_max_per_rank[rank], 4) if score_max_per_rank[rank] else raw
             pred[rank]['score'] = norm
-            for item in pred[rank].get('top_k', []):
-                item['score'] = round(item['raw_score'] / score_max_per_rank[rank], 4) if score_max_per_rank[rank] else item['raw_score']
 
     total_sequences = len(dataset)
     end_timestamp = datetime.fromtimestamp(time.time()).isoformat()
@@ -502,7 +500,7 @@ def predict(args):
 
     # Compute and log performance metrics if ground truth is available
     performance_stats = {}
-    table_header = f"{'Rank':<10} | {'Mean Score':<12} | {'Std Score':<12} | {'Accuracy':<12} | {'Top-{top_k} Acc':<12} | {'F1':<8} | {'Precision':<12} | {'Recall':<12} | {'AUC':<12}"
+    table_header = f"{'Rank':<10} | {'Mean Score':<12} | {'Std Score':<12} | {'Accuracy':<12} | {f'Top-{top_k} Acc':<12} | {'F1':<8} | {'Precision':<12} | {'Recall':<12} | {'AUC':<12}"
     table_separator = '-' * len(table_header)
     logger.info("Performance Metrics by Taxonomic Rank:")
     logger.info(table_header)
@@ -660,11 +658,6 @@ def predict(args):
                         row[f"{rank}_true"] = true_labels[len(tabular_data)][rank]
                     if 'agreement' in fields:
                         row[f"{rank}_agreement"] = pred[rank]["agreement"]
-                for i, top in enumerate(pred[rank].get("top_k", [])):
-                    if 'predicted' in fields:
-                        row[f"{rank}_top{i+1}_label"] = top["label"]
-                    if 'raw_score' in fields:
-                        row[f"{rank}_top{i+1}_score"] = top["raw_score"]
             row["sequence_length"] = pred["sequence_length"]
             tabular_data.append(row)
 

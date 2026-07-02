@@ -397,9 +397,10 @@ def parse_args():
     predict_parser.add_argument(
         "--top-k", type=int, default=DEFAULT_CONFIG["top_k"],
         help=(
-            f"Number of top-ranked predictions to report per sequence per rank (default: {DEFAULT_CONFIG['top_k']}). "
-            "When set to 1, only the highest-probability class is reported. "
-            "Higher values include additional candidate labels with their scores."
+            f"Number of top-ranked classes counted when scoring top-k accuracy (default: {DEFAULT_CONFIG['top_k']}). "
+            "A prediction counts as correct when the true label is among the k highest-probability classes. "
+            "This only affects the top-k accuracy metric reported when a taxonomy file is provided; "
+            "the per-sequence output always reports the single highest-probability class per rank."
         )
     )
     predict_parser.add_argument(
