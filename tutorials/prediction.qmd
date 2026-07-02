@@ -335,7 +335,7 @@ print('Incorrect: mean confidence =', round(df.loc[~correct, 'species_raw_score'
 print('Incorrect predictions below 0.95:', round((df.loc[~correct, 'species_raw_score'] < 0.95).mean() * 100, 1), '%')
 ```
 
-The histograms show a strong separation: correctly classified sequences cluster near confidence 1.0, while incorrect predictions spread across the full range. The zoomed panel reveals that most incorrect predictions fall below the 0.95 threshold, confirming that confidence filtering is an effective strategy for removing unreliable assignments.
+The histograms show a strong separation: correctly classified sequences cluster near confidence 1.0, while incorrect predictions spread across the full range. The zoomed panel reveals that most incorrect predictions fall below the 0.95 threshold, confirming that confidence filtering is a useful strategy for flagging or removing many unreliable assignments.
 
 ### Examining individual predictions
 
