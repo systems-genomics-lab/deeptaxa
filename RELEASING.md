@@ -9,7 +9,9 @@ tagging is what sets the released version.
 
 ## Before tagging
 
-1. Land all changes for the release on `main` and make sure CI is green.
+1. Land all changes for the release on `main` and make sure CI is green. Rename
+   the `## [Unreleased]` section in `CHANGELOG.md` to the new version with
+   today's date, and start a fresh empty `## [Unreleased]` above it.
 2. If performance numbers, checkpoints, or the checkpoint list changed, update
    the `README.md` tables, the Hugging Face model card, and the QIIME 2 section
    so they tell the same story.
@@ -29,7 +31,8 @@ tagging is what sets the released version.
    git tag -a vX.Y.Z -m "DeepTaxa X.Y.Z"
    git push origin vX.Y.Z
    ```
-6. Create the GitHub release from the tag with short notes on what changed.
+6. Create the GitHub release from the tag, using the new version's section from
+   `CHANGELOG.md` as the notes.
 
 ## PyPI
 
