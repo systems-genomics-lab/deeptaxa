@@ -9,7 +9,7 @@ license-files = ["LICENSE"]
 authors = [
     { name = "Ahmed Moustafa", email = "amoustafa@aucegypt.edu" },
     { name = "Rana Salah", email = "rana_salah@aucegypt.edu" },
-    { name = "Khlood Ramadan", email = "khlood.ramadan@aucegypt.edu" },
+    { name = "Khlood R. AbdElaal", email = "khlood.ramadan@aucegypt.edu" },
     { name = "Lobna Ghonaim", email = "lobnaghonaim@aucegypt.edu" }
 ]
 maintainers = [
