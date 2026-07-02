@@ -58,6 +58,8 @@ def setup_model(args, num_labels_per_level):
     common_args = ["hidden_dropout_prob"]
     for arg in common_args:
         model_args[arg] = getattr(args, arg, DEFAULT_CONFIG[arg])
+    # Every architecture loads the tokenizer, so a pinned revision applies to all.
+    model_args["tokenizer_revision"] = getattr(args, "tokenizer_revision", DEFAULT_CONFIG["tokenizer_revision"])
 
     if args.model_type in ["cnn", "hybridcnnbert"]:
         cnn_args = ["embed_dim", "num_filters", "kernel_sizes", "num_conv_layers"]
@@ -287,6 +289,7 @@ def save_checkpoint(model, optimizer, scheduler, epoch, run_uuid, args, dataset_
         "taxonomy_file": args.taxonomy_file,
         "max_length": args.max_length,
         "tokenizer_name": args.tokenizer_name,
+        "tokenizer_revision": getattr(args, "tokenizer_revision", DEFAULT_CONFIG["tokenizer_revision"]),
         "level_label2id": args.level_label2id,
         "rng_state": {
             "torch": cpu_rng_state,
@@ -561,6 +564,7 @@ def train(args, trial=None):
         args.level_weights = checkpoint.get("level_weights", args.level_weights)
         args.max_length = checkpoint.get("max_length", args.max_length)
         args.tokenizer_name = checkpoint.get("tokenizer_name", args.tokenizer_name)
+        args.tokenizer_revision = checkpoint.get("tokenizer_revision", getattr(args, "tokenizer_revision", DEFAULT_CONFIG["tokenizer_revision"]))
         args.optimizer_betas = checkpoint["optimizer_config"].get("betas", getattr(args, "optimizer_betas", DEFAULT_CONFIG["optimizer_betas"]))
         args.optimizer_eps = checkpoint["optimizer_config"].get("eps", getattr(args, "optimizer_eps", DEFAULT_CONFIG["optimizer_eps"]))
         args.optimizer_weight_decay = checkpoint["optimizer_config"].get("weight_decay", getattr(args, "optimizer_weight_decay", DEFAULT_CONFIG["optimizer_weight_decay"]))
@@ -622,7 +626,8 @@ def train(args, trial=None):
     check_file(args.taxonomy_file)
 
     encoding = getattr(args, 'encoding', DEFAULT_CONFIG['encoding'])
-    dataset = TaxonomyDataset(args.fasta_file, args.taxonomy_file, args.tokenizer_name, args.max_length, encoding=encoding)
+    dataset = TaxonomyDataset(args.fasta_file, args.taxonomy_file, args.tokenizer_name, args.max_length, encoding=encoding,
+                              tokenizer_revision=getattr(args, "tokenizer_revision", DEFAULT_CONFIG["tokenizer_revision"]))
     num_labels_per_level = {level: len(dataset.level_label2id[level]) for level in dataset.level_label2id}
     logger.info("Number of labels per taxonomic level: %s", num_labels_per_level)
 

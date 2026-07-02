@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class BERTClassifier(nn.Module):
     def __init__(self, tokenizer_name: str, num_labels_per_level: dict, hidden_dropout_prob: float,
                  max_length: int, hidden_size: int, num_hidden_layers: int, num_attention_heads: int,
-                 intermediate_size: int) -> None:
+                 intermediate_size: int, tokenizer_revision: str = None) -> None:
         """
         Initialize the BERTClassifier with configurable architecture.
 
@@ -50,7 +50,7 @@ class BERTClassifier(nn.Module):
         # Load tokenizer to align vocab size with embedding layer. Use the full
         # vocabulary length (including any added tokens) so the embedding covers
         # every id the tokenizer can emit, matching the CNN and hybrid models.
-        vocab_size = len(AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True).get_vocab())
+        vocab_size = len(AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True, revision=tokenizer_revision).get_vocab())
         
         # Configure BERT with CLI-driven parameters
         config = BertConfig(

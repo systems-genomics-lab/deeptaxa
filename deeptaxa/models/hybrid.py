@@ -30,7 +30,8 @@ class HybridCNNBERTClassifier(nn.Module):
                  num_hidden_layers: int = DEFAULT_CONFIG["num_hidden_layers"],
                  num_attention_heads: int = DEFAULT_CONFIG["num_attention_heads"],
                  intermediate_size: int = DEFAULT_CONFIG["intermediate_size"],
-                 output_attentions: bool = False, mask_padding: bool = False) -> None:
+                 output_attentions: bool = False, mask_padding: bool = False,
+                 tokenizer_revision: str = None) -> None:
         """
         Initialize the HybridCNNBERTClassifier with configurable parameters.
 
@@ -69,7 +70,7 @@ class HybridCNNBERTClassifier(nn.Module):
         self.mask_padding = mask_padding
         
         # Load tokenizer and set up embedding
-        tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True)
+        tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True, revision=tokenizer_revision)
         vocab_size = len(tokenizer.get_vocab())
         self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=tokenizer.pad_token_id or 0)
         

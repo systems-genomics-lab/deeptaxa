@@ -60,6 +60,7 @@ class TestTrainPredictSmoke(unittest.TestCase):
             "--kernel-sizes", "3",
             "--num-workers", "0",
             "--eval-every", "1",
+            "--tokenizer-revision", "pinned-test-rev",
         ])
         train(train_args)
 
@@ -73,6 +74,13 @@ class TestTrainPredictSmoke(unittest.TestCase):
     def test_training_wrote_a_checkpoint(self):
         self.assertIsNotNone(self.checkpoint, "training did not produce a checkpoint")
         self.assertTrue(os.path.exists(self.checkpoint))
+
+    def test_checkpoint_records_tokenizer_revision(self):
+        # The pinned revision has to survive into the checkpoint so prediction can
+        # reload the exact same tokenizer.
+        self.assertIsNotNone(self.checkpoint)
+        ckpt = torch.load(self.checkpoint, map_location="cpu", weights_only=False)
+        self.assertEqual(ckpt.get("tokenizer_revision"), "pinned-test-rev")
 
     def test_predict_writes_outputs_and_metrics(self):
         self.assertIsNotNone(self.checkpoint, "no checkpoint to predict with")

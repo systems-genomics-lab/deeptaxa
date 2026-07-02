@@ -56,7 +56,8 @@ class ResidualConvBlock(nn.Module):
 class CNNClassifier(nn.Module):
     def __init__(self, tokenizer_name: str, num_labels_per_level: dict, embed_dim: int, num_filters: int,
                  kernel_sizes: list[int], num_conv_layers: int, hidden_dropout_prob: float,
-                 input_mode: str = "dnabert", mask_padding: bool = False) -> None:
+                 input_mode: str = "dnabert", mask_padding: bool = False,
+                 tokenizer_revision: str = None) -> None:
         """
         Initialize the CNNClassifier with configurable architecture.
 
@@ -87,7 +88,7 @@ class CNNClassifier(nn.Module):
             first_in_channels = 4
             vocab_size = 0
         else:
-            tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True)
+            tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True, revision=tokenizer_revision)
             vocab_size = len(tokenizer.get_vocab())
             pad_id = tokenizer.pad_token_id if tokenizer.pad_token_id is not None else 0
             # Embedding layer maps tokens to dense vectors

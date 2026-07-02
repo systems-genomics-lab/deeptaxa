@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 NUCLEOTIDE_MAP = {'A': 0, 'a': 0, 'C': 1, 'c': 1, 'G': 2, 'g': 2, 'T': 3, 't': 3, 'U': 3, 'u': 3}
 
 class TaxonomyDataset(Dataset):
-    def __init__(self, fasta_file, taxonomy_file=None, tokenizer_name=DEFAULT_CONFIG["tokenizer_name"], max_length=512, use_raw_labels_for_true=False, encoding="dnabert"):
+    def __init__(self, fasta_file, taxonomy_file=None, tokenizer_name=DEFAULT_CONFIG["tokenizer_name"], max_length=512, use_raw_labels_for_true=False, encoding="dnabert", tokenizer_revision=None):
         """
         Initialize the TaxonomyDataset for sequence classification tasks.
 
@@ -50,7 +50,7 @@ class TaxonomyDataset(Dataset):
 
         # Initialize tokenizer only for dnabert encoding
         if encoding == "dnabert":
-            self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True)
+            self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True, revision=tokenizer_revision)
         else:
             self.tokenizer = None
             logger.info("Using one-hot nucleotide encoding (no tokenizer loaded)")

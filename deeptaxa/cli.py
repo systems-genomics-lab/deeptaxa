@@ -49,6 +49,15 @@ def parse_args():
             )
         )
         subparser.add_argument(
+            "--tokenizer-revision", type=str, default=DEFAULT_CONFIG["tokenizer_revision"],
+            help=(
+                "Pin the tokenizer to a specific Hugging Face commit hash, tag, or branch "
+                "(default: none, which tracks the repository's default branch). Pinning guards "
+                "against upstream changes to a tokenizer loaded with trust_remote_code. The value "
+                "is recorded in the checkpoint so predict reuses the same revision."
+            )
+        )
+        subparser.add_argument(
             "--max-length", type=int, default=DEFAULT_CONFIG["max_length"],
             help=(
                 f"Maximum number of tokens per sequence (default: {DEFAULT_CONFIG['max_length']}). "

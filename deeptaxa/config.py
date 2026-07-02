@@ -16,6 +16,7 @@ Description:
 DEFAULT_CONFIG = {
     # General parameters (shared across all models)
     "tokenizer_name": "zhihan1996/DNABERT-2-117M",   # Pretrained DNA tokenizer from Hugging Face
+    "tokenizer_revision": None,                      # Pin the tokenizer to a specific Hugging Face commit/tag (None = default)
     "model_type": "hybridcnnbert",                   # Default architecture: cnn, bert, or hybridcnnbert
     "max_length": 512,                               # Maximum sequence length post-tokenization
     "hidden_dropout_prob": 0.20,                     # Dropout probability (compact)

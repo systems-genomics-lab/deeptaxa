@@ -201,6 +201,8 @@ def predict(args):
     tokenizer_name = checkpoint.get('tokenizer_name')
     if tokenizer_name is None:
         raise ValueError("Checkpoint missing required key: 'tokenizer_name'")
+    # Absent in pre-flag checkpoints; None reproduces the default tokenizer.
+    tokenizer_revision = checkpoint.get('tokenizer_revision', None)
 
     # Extract architecture parameters from checkpoint
     hidden_dropout_prob = checkpoint.get('hidden_dropout_prob', 0.2)  # Fallback for legacy checkpoints
@@ -267,7 +269,8 @@ def predict(args):
             intermediate_size=intermediate_size,
             output_attentions=output_attentions,
             # Absent in pre-flag checkpoints, which were trained unmasked.
-            mask_padding=cnn_config.get('mask_padding', False)
+            mask_padding=cnn_config.get('mask_padding', False),
+            tokenizer_revision=tokenizer_revision
         )
     elif model_type == 'cnn':
         cnn_config = model_config if isinstance(model_config, dict) else model_config.__dict__
@@ -289,7 +292,8 @@ def predict(args):
             hidden_dropout_prob=hidden_dropout_prob,
             input_mode=input_mode,
             # Absent in pre-flag checkpoints, which were trained unmasked.
-            mask_padding=cnn_config.get('mask_padding', False)
+            mask_padding=cnn_config.get('mask_padding', False),
+            tokenizer_revision=tokenizer_revision
         )
     elif model_type == 'bert':
         bert_config = model_config.__dict__ if hasattr(model_config, '__dict__') else model_config
@@ -311,7 +315,8 @@ def predict(args):
             hidden_size=hidden_size,
             num_hidden_layers=num_hidden_layers,
             num_attention_heads=num_attention_heads,
-            intermediate_size=intermediate_size
+            intermediate_size=intermediate_size,
+            tokenizer_revision=tokenizer_revision
         )
     else:
         raise ValueError(f"Unknown model type in checkpoint: {model_type}")
@@ -338,7 +343,8 @@ def predict(args):
         tokenizer_name=tokenizer_name,
         max_length=max_length,  # Ensures tokenization matches trained model’s sequence length
         encoding=encoding,  # Must match encoding used during training
-        use_raw_labels_for_true=bool(args.taxonomy_file)  # Always include raw labels when evaluating against ground truth
+        use_raw_labels_for_true=bool(args.taxonomy_file),  # Always include raw labels when evaluating against ground truth
+        tokenizer_revision=tokenizer_revision  # Reproduce the exact tokenizer commit used in training
     )
 
     data_loader = DataLoader(
