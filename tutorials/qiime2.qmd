@@ -40,7 +40,15 @@ Commands:
 
 ## Importing a DeepTaxa model
 
-A trained DeepTaxa model is a QIIME 2 artifact of semantic type `DeepTaxaModel`, so once imported it carries provenance like any other artifact. Download a published checkpoint that matches your amplicon region from the [model repository](https://huggingface.co/systems-genomics-lab/deeptaxa), then import it once. These reads are V4, so this example uses the V4 checkpoint:
+A trained DeepTaxa model is a QIIME 2 artifact of semantic type `DeepTaxaModel`, so once imported it carries provenance like any other artifact. Download a published checkpoint that matches your amplicon region from the [model repository](https://huggingface.co/systems-genomics-lab/deeptaxa):
+
+| Input data | Recommended checkpoint |
+|------------|------------------------|
+| Full-length 16S (~1,500 bp) | `deeptaxa-full-length-v1.pt` |
+| V3-V4 (341F/805R) | `deeptaxa-v3v4-v1.pt` |
+| V4 (515F/806R) | `deeptaxa-v4-v1.pt` |
+
+Using the wrong region's checkpoint lowers species accuracy, so match the checkpoint to how the reads were sequenced. These reads are V4, so this example uses the V4 checkpoint, then imports it once:
 
 ```bash
 curl -L -O https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-v4-v1.pt
