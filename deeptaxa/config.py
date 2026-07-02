@@ -16,6 +16,7 @@ Description:
 DEFAULT_CONFIG = {
     # General parameters (shared across all models)
     "tokenizer_name": "zhihan1996/DNABERT-2-117M",   # Pretrained DNA tokenizer from Hugging Face
+    "tokenizer_revision": None,                      # Pin the tokenizer to a specific Hugging Face commit/tag (None = default)
     "model_type": "hybridcnnbert",                   # Default architecture: cnn, bert, or hybridcnnbert
     "max_length": 512,                               # Maximum sequence length post-tokenization
     "hidden_dropout_prob": 0.20,                     # Dropout probability (compact)
@@ -46,6 +47,7 @@ DEFAULT_CONFIG = {
     "num_filters": 256,                              # Filters per kernel size (compact)
     "kernel_sizes": [3, 5, 7],                       # CNN kernel sizes (compact)
     "num_conv_layers": 1,                            # Number of convolutional layers
+    "mask_padding": False,                           # Opt-in masking of padded positions in CNN/hybrid pooling
 
     # BERT-specific parameters (used by BERTClassifier and HybridCNNBERTClassifier)
     "hidden_size": 896,                              # Hidden layer size (compact)

@@ -30,7 +30,8 @@ class HybridCNNBERTClassifier(nn.Module):
                  num_hidden_layers: int = DEFAULT_CONFIG["num_hidden_layers"],
                  num_attention_heads: int = DEFAULT_CONFIG["num_attention_heads"],
                  intermediate_size: int = DEFAULT_CONFIG["intermediate_size"],
-                 output_attentions: bool = False) -> None:
+                 output_attentions: bool = False, mask_padding: bool = False,
+                 tokenizer_revision: str = None) -> None:
         """
         Initialize the HybridCNNBERTClassifier with configurable parameters.
 
@@ -66,9 +67,10 @@ class HybridCNNBERTClassifier(nn.Module):
         self.num_labels_per_level = num_labels_per_level
         self.hidden_dropout_prob = hidden_dropout_prob
         self.output_attentions = output_attentions
+        self.mask_padding = mask_padding
         
         # Load tokenizer and set up embedding
-        tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True)
+        tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True, revision=tokenizer_revision)
         vocab_size = len(tokenizer.get_vocab())
         self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=tokenizer.pad_token_id or 0)
         
@@ -117,7 +119,8 @@ class HybridCNNBERTClassifier(nn.Module):
             'num_filters': num_filters,
             'kernel_sizes': kernel_sizes,
             'num_conv_layers': num_conv_layers,
-            'dropout_prob': hidden_dropout_prob
+            'dropout_prob': hidden_dropout_prob,
+            'mask_padding': mask_padding
         }
         logger.info("Initialized HybridCNNBERTClassifier with CNN: %s, BERT hidden_size=%d, output_attentions=%s", 
                     self.cnn_params, config.hidden_size, output_attentions)
@@ -147,6 +150,11 @@ class HybridCNNBERTClassifier(nn.Module):
         for branches in self.conv_stacks:
             branch_outputs = [branch(x) for branch in branches]
             x = torch.cat(branch_outputs, dim=1)  # Concatenate multi-scale features
+        if self.mask_padding and attention_mask is not None:
+            # Keep padded positions out of the max so they cannot leak in through
+            # the conv bias; the BERT path already masks through attention.
+            pad = (attention_mask == 0).unsqueeze(1)  # [batch_size, 1, seq_len]
+            x = x.masked_fill(pad, torch.finfo(x.dtype).min)
         cnn_pooled = torch.max(x, dim=2)[0]  # Global max pooling
         cnn_proj = self.cnn_proj(cnn_pooled)  # Project to BERT hidden size
         

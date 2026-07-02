@@ -58,11 +58,14 @@ def setup_model(args, num_labels_per_level):
     common_args = ["hidden_dropout_prob"]
     for arg in common_args:
         model_args[arg] = getattr(args, arg, DEFAULT_CONFIG[arg])
+    # Every architecture loads the tokenizer, so a pinned revision applies to all.
+    model_args["tokenizer_revision"] = getattr(args, "tokenizer_revision", DEFAULT_CONFIG["tokenizer_revision"])
 
     if args.model_type in ["cnn", "hybridcnnbert"]:
         cnn_args = ["embed_dim", "num_filters", "kernel_sizes", "num_conv_layers"]
         for arg in cnn_args:
             model_args[arg] = getattr(args, arg, DEFAULT_CONFIG[arg])
+        model_args["mask_padding"] = getattr(args, "mask_padding", DEFAULT_CONFIG["mask_padding"])
 
     if args.model_type in ["bert", "hybridcnnbert"]:
         bert_args = ["max_length", "hidden_size", "num_hidden_layers", "num_attention_heads", "intermediate_size"]
@@ -98,8 +101,13 @@ def setup_optimizer(model, args):
     logger.info("Optimizer initialized with config: %s", optimizer_config)
     return optimizer
 
-def evaluate_model(model, val_loader, criterion, device, taxonomic_ranks, criteria=None):
-    """Evaluate model performance on the validation set."""
+def evaluate_model(model, val_loader, criterion, device, taxonomic_ranks, criteria=None, level_weights=None):
+    """Evaluate model performance on the validation set.
+
+    When level_weights is given, the validation loss weights each rank the same
+    way the training loss does, so early stopping and checkpoint selection track
+    the objective the model is actually trained on.
+    """
     model.eval()
     total_loss = 0
     all_preds = {level: [] for level in range(len(taxonomic_ranks))}
@@ -114,7 +122,11 @@ def evaluate_model(model, val_loader, criterion, device, taxonomic_ranks, criter
             with autocast('cuda', enabled=torch.cuda.is_available()):
                 output = model(input_ids, attention_mask)
                 logits = output[0] if isinstance(output, tuple) else output
-                loss = sum((criteria[level] if criteria else criterion)(logits[str(level)], labels[:, level]) for level in range(len(taxonomic_ranks)))
+                loss = sum(
+                    (level_weights[level] if level_weights is not None else 1.0)
+                    * (criteria[level] if criteria else criterion)(logits[str(level)], labels[:, level])
+                    for level in range(len(taxonomic_ranks))
+                )
             total_loss += loss.item()
             
             for level in range(len(taxonomic_ranks)):
@@ -277,6 +289,7 @@ def save_checkpoint(model, optimizer, scheduler, epoch, run_uuid, args, dataset_
         "taxonomy_file": args.taxonomy_file,
         "max_length": args.max_length,
         "tokenizer_name": args.tokenizer_name,
+        "tokenizer_revision": getattr(args, "tokenizer_revision", DEFAULT_CONFIG["tokenizer_revision"]),
         "level_label2id": args.level_label2id,
         "rng_state": {
             "torch": cpu_rng_state,
@@ -389,7 +402,7 @@ def save_checkpoint(model, optimizer, scheduler, epoch, run_uuid, args, dataset_
             with h5py.File(weights_path, 'w') as f:
                 for name in key_layers:
                     if name in state_dict:
-                        f.create_dataset(name, data=state_dict[name].cpu().numpy(), compression='gzip', compression_opts=9)
+                        f.create_dataset(name, data=state_dict[name].cpu().numpy(), compression='gzip', compression_opts=4)
                     else:
                         logger.warning("Layer %s not found in model state_dict", name)
                 f.attrs['epoch'] = epoch
@@ -551,6 +564,7 @@ def train(args, trial=None):
         args.level_weights = checkpoint.get("level_weights", args.level_weights)
         args.max_length = checkpoint.get("max_length", args.max_length)
         args.tokenizer_name = checkpoint.get("tokenizer_name", args.tokenizer_name)
+        args.tokenizer_revision = checkpoint.get("tokenizer_revision", getattr(args, "tokenizer_revision", DEFAULT_CONFIG["tokenizer_revision"]))
         args.optimizer_betas = checkpoint["optimizer_config"].get("betas", getattr(args, "optimizer_betas", DEFAULT_CONFIG["optimizer_betas"]))
         args.optimizer_eps = checkpoint["optimizer_config"].get("eps", getattr(args, "optimizer_eps", DEFAULT_CONFIG["optimizer_eps"]))
         args.optimizer_weight_decay = checkpoint["optimizer_config"].get("weight_decay", getattr(args, "optimizer_weight_decay", DEFAULT_CONFIG["optimizer_weight_decay"]))
@@ -565,6 +579,8 @@ def train(args, trial=None):
             args.num_filters = cnn_cfg.get("num_filters", args.num_filters)
             args.kernel_sizes = cnn_cfg.get("kernel_sizes", args.kernel_sizes)
             args.num_conv_layers = cnn_cfg.get("num_conv_layers", args.num_conv_layers)
+            # Legacy checkpoints predate the flag and were trained unmasked.
+            args.mask_padding = cnn_cfg.get("mask_padding", False)
             bert_cfg = model_config.get("bert", {})
             args.hidden_size = bert_cfg.get("hidden_size", args.hidden_size)
             args.num_hidden_layers = bert_cfg.get("num_hidden_layers", args.num_hidden_layers)
@@ -576,6 +592,8 @@ def train(args, trial=None):
             args.num_filters = model_config.get("num_filters", args.num_filters)
             args.kernel_sizes = model_config.get("kernel_sizes", args.kernel_sizes)
             args.num_conv_layers = model_config.get("num_conv_layers", args.num_conv_layers)
+            # Legacy checkpoints predate the flag and were trained unmasked.
+            args.mask_padding = model_config.get("mask_padding", False)
         elif args.model_type == "bert" and isinstance(model_config, dict):
             args.hidden_size = model_config.get("hidden_size", args.hidden_size)
             args.num_hidden_layers = model_config.get("num_hidden_layers", args.num_hidden_layers)
@@ -608,7 +626,8 @@ def train(args, trial=None):
     check_file(args.taxonomy_file)
 
     encoding = getattr(args, 'encoding', DEFAULT_CONFIG['encoding'])
-    dataset = TaxonomyDataset(args.fasta_file, args.taxonomy_file, args.tokenizer_name, args.max_length, encoding=encoding)
+    dataset = TaxonomyDataset(args.fasta_file, args.taxonomy_file, args.tokenizer_name, args.max_length, encoding=encoding,
+                              tokenizer_revision=getattr(args, "tokenizer_revision", DEFAULT_CONFIG["tokenizer_revision"]))
     num_labels_per_level = {level: len(dataset.level_label2id[level]) for level in dataset.level_label2id}
     logger.info("Number of labels per taxonomic level: %s", num_labels_per_level)
 
@@ -810,6 +829,7 @@ def train(args, trial=None):
         raise
 
     optimizer = setup_optimizer(model, args)
+    accum_steps = getattr(args, "accum_steps", DEFAULT_CONFIG["accum_steps"])
 
     if resume:
         # --- Resume path ---
@@ -834,7 +854,10 @@ def train(args, trial=None):
 
         # If extending training beyond the original epoch count, use the
         # new total_steps so the LR decays over the longer schedule.
-        steps_per_epoch = len(train_loader) // getattr(args, "accum_steps", DEFAULT_CONFIG["accum_steps"])
+        # The loop also steps on the final partial window, so a leftover batch
+        # adds one more optimizer step per epoch. Round up so the schedule
+        # covers every step and the LR does not bottom out early.
+        steps_per_epoch = math.ceil(len(train_loader) / accum_steps)
         new_total = steps_per_epoch * args.epochs
         sched_total = max(new_total, old_total)
 
@@ -860,7 +883,7 @@ def train(args, trial=None):
         logger.info("Initialized GradScaler for mixed precision training with init_scale=%.1f", scaler_init_scale)
     else:
         # --- Fresh training path ---
-        total_steps = len(train_loader) * args.epochs // getattr(args, "accum_steps", DEFAULT_CONFIG["accum_steps"])
+        total_steps = math.ceil(len(train_loader) / accum_steps) * args.epochs
         warmup_steps = int(getattr(args, "scheduler_warmup_ratio", DEFAULT_CONFIG["scheduler_warmup_ratio"]) * total_steps)
         logger.info("Initialized scheduler with total_steps=%d, warmup_steps=%d", total_steps, warmup_steps)
         scheduler = get_linear_schedule_with_warmup(
@@ -941,6 +964,10 @@ def train(args, trial=None):
     best_val_loss = None
     best_epoch = 0
     patience_counter = 0
+    # With --save-best-only, only write a checkpoint on an epoch that improves the
+    # validation loss, so a long run does not leave one full checkpoint per epoch.
+    save_best_only = getattr(args, 'save_best_only', False)
+    best_saved_val_loss = None
 
     for epoch in range(start_epoch, args.epochs + 1):
         epoch_banner = f"""
@@ -970,13 +997,17 @@ def train(args, trial=None):
                 attention_mask = batch["attention_mask"].to(device)
                 labels = batch["labels"].to(device)
                                 
-                optimizer.zero_grad(set_to_none=(i % getattr(args, "accum_steps", DEFAULT_CONFIG["accum_steps"]) == 0))
-                
+                # Clear gradients only at the start of an accumulation window.
+                # Everything backward()-ed until the next window boundary adds up,
+                # which is what makes the effective batch size batch_size x accum_steps.
+                if i % accum_steps == 0:
+                    optimizer.zero_grad(set_to_none=True)
+
                 with autocast('cuda', enabled=torch.cuda.is_available()):
                     output = model(input_ids, attention_mask)
                     logits = output[0] if isinstance(output, tuple) else output
                     loss = sum(level_weights[level] * (criteria[level] if criteria else criterion)(logits[str(level)], labels[:, level]) for level in range(len(taxonomic_ranks)))
-                    loss = loss / getattr(args, "accum_steps", DEFAULT_CONFIG["accum_steps"])
+                    loss = loss / accum_steps
 
                     # Skip any batch whose loss is NaN or infinite
                     loss_value = loss.item()
@@ -997,7 +1028,7 @@ def train(args, trial=None):
                     loss.backward()
                 total_loss += loss.item()
 
-                if (i + 1) % getattr(args, "accum_steps", DEFAULT_CONFIG["accum_steps"]) == 0 or (i + 1) == len(train_loader):
+                if (i + 1) % accum_steps == 0 or (i + 1) == len(train_loader):
                     if scaler is not None:
                         scaler.unscale_(optimizer)
                     torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=getattr(args, "max_grad_norm", DEFAULT_CONFIG.get("max_grad_norm", 0.5)))
@@ -1043,7 +1074,7 @@ def train(args, trial=None):
             logger.info("Starting evaluation for epoch %d%s", epoch, " (fresh evaluation after resume)" if is_resume_eval else "")
             eval_start_time = datetime.now()
             try:
-                metrics, val_loss = evaluate_model(model, val_loader, criterion, device, taxonomic_ranks, criteria=criteria)
+                metrics, val_loss = evaluate_model(model, val_loader, criterion, device, taxonomic_ranks, criteria=criteria, level_weights=level_weights)
                 logger.info("Evaluation completed for epoch %d. Validation loss: %.4f", epoch, val_loss)
                 
                 metrics_output = "Validation Metrics:\n"
@@ -1081,17 +1112,24 @@ def train(args, trial=None):
                     logger.error("Pruning failed for trial %d at epoch %d: %s", trial.number, epoch, str(e))
                     raise
             
-            logger.info("Saving checkpoint for epoch %d...", epoch)
-            try:
-                save_checkpoint(
-                    model, optimizer, scheduler, epoch, run_uuid, args, dataset_split, metrics,
-                    val_loss, taxonomic_ranks, session_total_time, checkpoint_total_time,
-                    train_loader, val_loader, device, total_steps, total_parameters, scaler=scaler, trial=trial
-                )
-            except Exception as e:
-                logger.error("Checkpoint saving failed for epoch %d: %s", epoch, str(e))
-                raise
-            logger.info("Checkpoint save completed for epoch %d", epoch)
+            is_best = val_loss is not None and (best_saved_val_loss is None or val_loss < best_saved_val_loss)
+            if is_best:
+                best_saved_val_loss = val_loss
+            if save_best_only and not is_best:
+                logger.info("save-best-only: keeping the previous checkpoint; epoch %d val_loss %.4f did not beat %.4f",
+                            epoch, val_loss, best_saved_val_loss)
+            else:
+                logger.info("Saving checkpoint for epoch %d...", epoch)
+                try:
+                    save_checkpoint(
+                        model, optimizer, scheduler, epoch, run_uuid, args, dataset_split, metrics,
+                        val_loss, taxonomic_ranks, session_total_time, checkpoint_total_time,
+                        train_loader, val_loader, device, total_steps, total_parameters, scaler=scaler, trial=trial
+                    )
+                except Exception as e:
+                    logger.error("Checkpoint saving failed for epoch %d: %s", epoch, str(e))
+                    raise
+                logger.info("Checkpoint save completed for epoch %d", epoch)
 
             if early_stopping_patience > 0 and val_loss is not None:
                 if best_val_loss is None or val_loss < best_val_loss - early_stopping_min_delta:
@@ -1113,19 +1151,24 @@ def train(args, trial=None):
             logger.info("Skipping evaluation for epoch %d (eval_every=%d)", epoch, getattr(args, "eval_every", DEFAULT_CONFIG["eval_every"]))
             checkpoint_total_time = train_time
             session_total_time = (datetime.fromisoformat(checkpoint_end_time := datetime.now().isoformat()) - datetime.fromisoformat(args.session_start_time)).total_seconds()
-            
-            logger.info("Saving checkpoint for epoch %d...", epoch)
-            try:
-                save_checkpoint(
-                    model, optimizer, scheduler, epoch, run_uuid, args, dataset_split, metrics,
-                    val_loss, taxonomic_ranks, session_total_time, checkpoint_total_time,
-                    train_loader, val_loader, device, total_steps, total_parameters, scaler=scaler, trial=trial
-                )
-            except Exception as e:
-                logger.error("Checkpoint saving failed for epoch %d: %s", epoch, str(e))
-                raise
-            logger.info("Checkpoint save completed for epoch %d", epoch)
-            
+
+            # No validation loss on a non-eval epoch, so there is nothing to rank
+            # against; skip the write under --save-best-only.
+            if save_best_only:
+                logger.info("save-best-only: not saving on non-eval epoch %d", epoch)
+            else:
+                logger.info("Saving checkpoint for epoch %d...", epoch)
+                try:
+                    save_checkpoint(
+                        model, optimizer, scheduler, epoch, run_uuid, args, dataset_split, metrics,
+                        val_loss, taxonomic_ranks, session_total_time, checkpoint_total_time,
+                        train_loader, val_loader, device, total_steps, total_parameters, scaler=scaler, trial=trial
+                    )
+                except Exception as e:
+                    logger.error("Checkpoint saving failed for epoch %d: %s", epoch, str(e))
+                    raise
+                logger.info("Checkpoint save completed for epoch %d", epoch)
+
             args.checkpoint_start_time = checkpoint_end_time
 
     logger.info("Training completed successfully.")

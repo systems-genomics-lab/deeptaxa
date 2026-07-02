@@ -26,10 +26,13 @@ Package Structure:
       tunable configurations across experiments.
 """
 
+from importlib.metadata import PackageNotFoundError, version
+
 try:
     # Distribution name is "deeptaxa-rrna" (the bare "deeptaxa" name was already
     # taken on PyPI); the import package and CLI command remain "deeptaxa".
-    from importlib.metadata import version
     __version__ = version("deeptaxa-rrna")
-except ImportError:
-    __version__ = "0.0.0"  # Fallback version for local development
+except PackageNotFoundError:
+    # Raised when running from a source tree that was never installed as a
+    # distribution, e.g. during local development or a checkout-only test run.
+    __version__ = "0.0.0"

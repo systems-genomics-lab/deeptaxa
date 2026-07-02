@@ -117,6 +117,10 @@ qiime deeptaxa classify \
 Saved FeatureData[Taxonomy] to: taxonomy-full.qza
 ```
 
+::: {.callout-note}
+The `confidence` here is not the same knob as the command-line `--confidence-threshold` from the [prediction tutorial](prediction.qmd), and the two use different defaults on purpose. In QIIME 2, `confidence` (default `0.7`) actually trims the lineage, dropping every rank from the first low-confidence one downward, so the result matches how `classify-sklearn` reports taxonomy. The command-line `--confidence-threshold` (default `0.95`) leaves the full lineage in place and only flags each rank as confident or not, which suits the richer per-sequence output of the standalone tool. Pick the threshold that fits the workflow you are in rather than carrying one default over to the other.
+:::
+
 Other parameters control batch size (`--p-batch-size`), the number of data-loading workers (`--p-num-workers`), and the random seed (`--p-seed`); inference is deterministic, so a fixed seed reproduces the same assignments.
 
 ## Inspecting the taxonomy

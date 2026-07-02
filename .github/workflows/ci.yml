@@ -22,6 +22,34 @@ jobs:
             q2_deeptaxa.tests.test_taxonomy \
             q2_deeptaxa.tests.test_checkpoint -v
 
+  core:
+    name: Core tests (CPU torch)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # setuptools_scm needs tags/history for the version
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install the CPU torch wheel
+        # The default wheel is a large CUDA build the runner cannot use, so pull
+        # the CPU index first and let the package install below reuse it.
+        run: pip install "torch>=2.4" --index-url https://download.pytorch.org/whl/cpu
+      - name: Install DeepTaxa
+        run: pip install .
+      - name: Run the core deeptaxa tests
+        run: |
+          python -m unittest \
+            tests.test_dataset \
+            tests.test_gradient_accumulation \
+            tests.test_predict_agreement \
+            tests.test_predict_auc \
+            tests.test_pooling_mask \
+            tests.test_bert_pooling \
+            tests.test_save_best_only \
+            tests.test_train_predict_smoke -v
+
   qiime2:
     name: QIIME 2 plugin tests
     runs-on: ubuntu-latest
@@ -53,7 +81,7 @@ jobs:
           conda run -n qiime2 qiime dev refresh-cache
       - name: Check the plugin is registered
         run: conda run -n qiime2 qiime deeptaxa --help
-      - name: Run the full test suite
+      - name: Run the plugin test suite
         run: |
           conda run -n qiime2 python -m unittest discover \
             -s q2_deeptaxa/tests -p "test_*.py" -v

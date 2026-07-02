@@ -49,6 +49,15 @@ def parse_args():
             )
         )
         subparser.add_argument(
+            "--tokenizer-revision", type=str, default=DEFAULT_CONFIG["tokenizer_revision"],
+            help=(
+                "Pin the tokenizer to a specific Hugging Face commit hash, tag, or branch "
+                "(default: none, which tracks the repository's default branch). Pinning guards "
+                "against upstream changes to a tokenizer loaded with trust_remote_code. The value "
+                "is recorded in the checkpoint so predict reuses the same revision."
+            )
+        )
+        subparser.add_argument(
             "--max-length", type=int, default=DEFAULT_CONFIG["max_length"],
             help=(
                 f"Maximum number of tokens per sequence (default: {DEFAULT_CONFIG['max_length']}). "
@@ -332,6 +341,25 @@ def parse_args():
         help="Use uniform level weights (all 1.0) instead of hierarchical weighting"
     )
     train_parser.add_argument(
+        "--save-best-only", action="store_true",
+        help=(
+            "Only write a checkpoint when an epoch improves the validation loss, "
+            "instead of saving one on every evaluated epoch. Keeps disk usage down "
+            "on long runs at the cost of not having a checkpoint for every epoch."
+        )
+    )
+    train_parser.add_argument(
+        "--mask-padding", action="store_true", dest="mask_padding",
+        default=DEFAULT_CONFIG["mask_padding"],
+        help=(
+            "Mask padded positions out of the CNN and hybrid max pooling so they cannot "
+            "leak into the pooled features. Off by default, which matches the unmasked "
+            "pooling of the published checkpoints; enable it to remove the leakage in new "
+            "models. The setting is recorded in the checkpoint so prediction reproduces "
+            "how the model was trained."
+        )
+    )
+    train_parser.add_argument(
         "--early-stopping-patience", type=int, default=DEFAULT_CONFIG["early_stopping_patience"],
         help=f"Epochs without improvement before early stopping (0 = disabled, default: {DEFAULT_CONFIG['early_stopping_patience']})"
     )
@@ -397,9 +425,10 @@ def parse_args():
     predict_parser.add_argument(
         "--top-k", type=int, default=DEFAULT_CONFIG["top_k"],
         help=(
-            f"Number of top-ranked predictions to report per sequence per rank (default: {DEFAULT_CONFIG['top_k']}). "
-            "When set to 1, only the highest-probability class is reported. "
-            "Higher values include additional candidate labels with their scores."
+            f"Number of top-ranked classes counted when scoring top-k accuracy (default: {DEFAULT_CONFIG['top_k']}). "
+            "A prediction counts as correct when the true label is among the k highest-probability classes. "
+            "This only affects the top-k accuracy metric reported when a taxonomy file is provided; "
+            "the per-sequence output always reports the single highest-probability class per rank."
         )
     )
     predict_parser.add_argument(

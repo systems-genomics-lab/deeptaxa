@@ -33,6 +33,47 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+def labels_agree(pred_label, true_label, rank):
+    """Return True when a predicted label matches the reference at a rank.
+
+    At the species rank a model may emit a bare epithet while the reference
+    stores a full binomial or a prefixed label, so a match is also allowed when
+    the epithet lines up on a name boundary (a space or a ``__`` prefix). Every
+    other rank needs an exact match, and an empty prediction never counts. The
+    same rule is used for both exact accuracy and top-k accuracy so the two stay
+    consistent.
+    """
+    if pred_label == true_label:
+        return True
+    if rank == "species" and pred_label != "":
+        return true_label.endswith(" " + pred_label) or true_label.endswith("__" + pred_label)
+    return False
+
+def rank_auc(y_true, prob_rows, max_classes):
+    """Weighted one-vs-rest AUC for a single rank, or None when it cannot be computed.
+
+    ``y_true`` may carry the -1 novel-label sentinel. Probability rows are only
+    stored for known-label samples, so the true labels are trimmed to those same
+    rows before scoring, which keeps the two arrays aligned. Returns None when
+    there are fewer than two classes, too many classes to be tractable, no stored
+    probabilities, or scikit-learn rejects the inputs.
+    """
+    y_true = np.asarray(y_true, dtype=int).flatten()
+    known = y_true[y_true >= 0]
+    unique = np.unique(known)
+    if len(unique) <= 1 or not len(prob_rows) or len(unique) > max_classes:
+        return None
+    label_ids = sorted(int(u) for u in unique)
+    y_score = np.stack(prob_rows)[:, label_ids]
+    row_sums = y_score.sum(axis=1, keepdims=True)
+    y_score = y_score / np.where(row_sums == 0, 1, row_sums)
+    try:
+        if len(unique) == 2:
+            return float(roc_auc_score(known, y_score[:, 1]))
+        return float(roc_auc_score(known, y_score, multi_class='ovr', average='weighted', labels=label_ids))
+    except ValueError:
+        return None
+
 def save_metrics_json(args, checkpoint, performance_stats, prediction_time, post_process_time, total_sequences, run_uuid, taxonomic_ranks, num_labels_per_level, model):
     """
     Save performance metrics to a JSON file in the output directory.
@@ -185,6 +226,8 @@ def predict(args):
     tokenizer_name = checkpoint.get('tokenizer_name')
     if tokenizer_name is None:
         raise ValueError("Checkpoint missing required key: 'tokenizer_name'")
+    # Absent in pre-flag checkpoints; None reproduces the default tokenizer.
+    tokenizer_revision = checkpoint.get('tokenizer_revision', None)
 
     # Extract architecture parameters from checkpoint
     hidden_dropout_prob = checkpoint.get('hidden_dropout_prob', 0.2)  # Fallback for legacy checkpoints
@@ -249,7 +292,10 @@ def predict(args):
             num_hidden_layers=num_hidden_layers,
             num_attention_heads=num_attention_heads,
             intermediate_size=intermediate_size,
-            output_attentions=output_attentions
+            output_attentions=output_attentions,
+            # Absent in pre-flag checkpoints, which were trained unmasked.
+            mask_padding=cnn_config.get('mask_padding', False),
+            tokenizer_revision=tokenizer_revision
         )
     elif model_type == 'cnn':
         cnn_config = model_config if isinstance(model_config, dict) else model_config.__dict__
@@ -269,7 +315,10 @@ def predict(args):
             kernel_sizes=kernel_sizes,
             num_conv_layers=num_conv_layers,
             hidden_dropout_prob=hidden_dropout_prob,
-            input_mode=input_mode
+            input_mode=input_mode,
+            # Absent in pre-flag checkpoints, which were trained unmasked.
+            mask_padding=cnn_config.get('mask_padding', False),
+            tokenizer_revision=tokenizer_revision
         )
     elif model_type == 'bert':
         bert_config = model_config.__dict__ if hasattr(model_config, '__dict__') else model_config
@@ -291,7 +340,8 @@ def predict(args):
             hidden_size=hidden_size,
             num_hidden_layers=num_hidden_layers,
             num_attention_heads=num_attention_heads,
-            intermediate_size=intermediate_size
+            intermediate_size=intermediate_size,
+            tokenizer_revision=tokenizer_revision
         )
     else:
         raise ValueError(f"Unknown model type in checkpoint: {model_type}")
@@ -318,7 +368,8 @@ def predict(args):
         tokenizer_name=tokenizer_name,
         max_length=max_length,  # Ensures tokenization matches trained model’s sequence length
         encoding=encoding,  # Must match encoding used during training
-        use_raw_labels_for_true=bool(args.taxonomy_file)  # Always include raw labels when evaluating against ground truth
+        use_raw_labels_for_true=bool(args.taxonomy_file),  # Always include raw labels when evaluating against ground truth
+        tokenizer_revision=tokenizer_revision  # Reproduce the exact tokenizer commit used in training
     )
 
     data_loader = DataLoader(
@@ -346,7 +397,6 @@ def predict(args):
     # Inference loop: process batches without gradient computation
     with torch.no_grad():  # Disables gradient tracking, reducing memory footprint
         for batch_idx, batch in enumerate(tqdm(data_loader, desc="Predicting")):
-            batch_start_time = time.time()
             input_ids = batch['input_ids'].to(device)  # Tokenized sequences
             attention_mask = batch.get('attention_mask')  # Padding mask, optional for CNN
             if attention_mask is not None:
@@ -357,14 +407,14 @@ def predict(args):
             logits = outputs[0] if isinstance(outputs, tuple) else outputs  # Handle Hybrid’s (logits, attentions) tuple
             batch_size = len(batch['input_ids'])
 
-            batch_scores = {rank: [] for rank in taxonomic_ranks}  # Per-rank scores for logging
-            
             # Process each sequence in the batch
             for i in range(batch_size):
                 pred_dict = {}
-                seq_idx = batch_idx * args.batch_size + i
-                sequence_length = len(dataset.sequences[seq_idx]) if seq_idx < len(dataset) else 0
-                seq_id = dataset.seq_ids[seq_idx] if seq_idx < len(dataset) else f"seq_{seq_idx}"
+                # Read the id and length straight from the batch instead of
+                # recomputing a position, so they stay tied to the right sequence
+                # even if the loader order or batch size ever changes.
+                seq_id = batch['seq_ids'][i]
+                sequence_length = int(batch['seq_lengths'][i])
 
                 # Compute predictions per taxonomic level
                 for lvl_str, level_logits in logits.items():
@@ -376,7 +426,6 @@ def predict(args):
                     pred_label = id2label[lvl_idx][pred_id]
                     pred_score = probs[pred_id].item()
                     score_distributions[rank].append(pred_score)
-                    batch_scores[rank].append(pred_score)
 
                     # Compute entropy as an uncertainty metric
                     entropy = max(0, -torch.sum(probs * torch.log(probs + 1e-10)).item())
@@ -405,14 +454,14 @@ def predict(args):
                     # Evaluate against ground truth if provided
                     if args.taxonomy_file:
                         true_label = batch['raw_labels'][i][rank]
-                        agreement = pred_label == true_label or (rank == "species" and true_label.endswith(pred_label))
+                        agreement = labels_agree(pred_label, true_label, rank)
                         pred_dict[rank]["agreement"] = agreement
                         if not agreement:
                             pred_dict[rank]["mismatch_detail"] = {"predicted": pred_label, "true": true_label}
                         if agreement:
                             correct_counts[rank] += 1
                         top_k_labels = [pred["label"] for pred in top_k_predictions]
-                        if true_label in top_k_labels:
+                        if any(labels_agree(lbl, true_label, rank) for lbl in top_k_labels):
                             top_k_correct_counts[rank] += 1
 
                         true_id = level_label2id[lvl_idx].get(true_label, -1)
@@ -438,18 +487,13 @@ def predict(args):
                 if args.taxonomy_file:
                     true_labels.append(batch['raw_labels'][i])
 
-            # Log batch-level diagnostics for performance profiling
-            batch_time = time.time() - batch_start_time
-            for rank, scores in batch_scores.items():
-                avg_score = sum(scores) / len(scores) if scores else 0
-                # logger.debug("Batch %d, Rank %s: Average raw_score=%.4f", batch_idx + 1, rank, avg_score)
-            # logger.debug("Batch %d: Processed %d sequences in %.2f seconds", batch_idx + 1, batch_size, batch_time)
-
     # Post-process predictions for output consistency
     prediction_time = time.time() - start_time
     post_process_start_time = time.time()
 
-    # Normalize scores relative to maximum per rank
+    # Divide each raw score by the largest score seen for that rank in this run.
+    # The result depends on the rest of the input, so it is named to make that
+    # clear; raw_score is the stable, interpretable per-sequence confidence.
     score_max_per_rank = {rank: max(scores) for rank, scores in score_distributions.items() if scores}
     for pred in predictions:
         for rank in pred:
@@ -457,9 +501,8 @@ def predict(args):
                 continue
             raw = pred[rank]['raw_score']
             norm = round(raw / score_max_per_rank[rank], 4) if score_max_per_rank[rank] else raw
-            pred[rank]['score'] = norm
-            for item in pred[rank].get('top_k', []):
-                item['score'] = round(item['raw_score'] / score_max_per_rank[rank], 4) if score_max_per_rank[rank] else item['raw_score']
+            pred[rank]['batch_relative_score'] = norm
+            pred[rank]['score'] = norm  # deprecated alias for batch_relative_score; kept so existing consumers do not break
 
     total_sequences = len(dataset)
     end_timestamp = datetime.fromtimestamp(time.time()).isoformat()
@@ -494,7 +537,7 @@ def predict(args):
 
     # Compute and log performance metrics if ground truth is available
     performance_stats = {}
-    table_header = f"{'Rank':<10} | {'Mean Score':<12} | {'Std Score':<12} | {'Accuracy':<12} | {'Top-{top_k} Acc':<12} | {'F1':<8} | {'Precision':<12} | {'Recall':<12} | {'AUC':<12}"
+    table_header = f"{'Rank':<10} | {'Mean Score':<12} | {'Std Score':<12} | {'Accuracy':<12} | {f'Top-{top_k} Acc':<12} | {'F1':<8} | {'Precision':<12} | {'Recall':<12} | {'AUC':<12}"
     table_separator = '-' * len(table_header)
     logger.info("Performance Metrics by Taxonomic Rank:")
     logger.info(table_header)
@@ -516,25 +559,14 @@ def predict(args):
             precision = precision_score(y_true, y_pred, average='weighted', zero_division=0)
             recall = recall_score(y_true, y_pred, average='weighted', zero_division=0)
 
-            # Compute AUC with class count limitation for scalability
             # Exclude the novel-label sentinel (-1) from AUC; F1 uses the full arrays.
             unique_true_labels = np.unique(y_true[y_true >= 0])
             auc = None
             if len(unique_true_labels) > 1:
                 if all_pred_probs[rank] and len(unique_true_labels) <= MAX_CLASSES_FOR_AUC:
-                    y_score = np.stack(all_pred_probs[rank])
-                    label_ids = sorted(unique_true_labels)
-                    y_score_filtered = y_score[:, label_ids]
-                    row_sums = y_score_filtered.sum(axis=1, keepdims=True)
-                    y_score_filtered = y_score_filtered / np.where(row_sums == 0, 1, row_sums)
-
-                    try:
-                        if len(unique_true_labels) == 2:
-                            auc = roc_auc_score(y_true, y_score_filtered[:, 1])
-                        else:
-                            auc = roc_auc_score(y_true, y_score_filtered, multi_class='ovr', average='weighted', labels=label_ids)
-                    except ValueError as e:
-                        logger.warning(f"Rank {rank}: AUC calculation failed: {str(e)}")
+                    auc = rank_auc(y_true, all_pred_probs[rank], MAX_CLASSES_FOR_AUC)
+                    if auc is None:
+                        logger.warning(f"Rank {rank}: AUC calculation failed")
                 else:
                     logger.info(f"Rank {rank}: Skipping AUC (too many classes: {len(unique_true_labels)} > {MAX_CLASSES_FOR_AUC})")
             auc_value = f"{auc:.4f}" if auc is not None else "N/A"
@@ -649,11 +681,6 @@ def predict(args):
                         row[f"{rank}_true"] = true_labels[len(tabular_data)][rank]
                     if 'agreement' in fields:
                         row[f"{rank}_agreement"] = pred[rank]["agreement"]
-                for i, top in enumerate(pred[rank].get("top_k", [])):
-                    if 'predicted' in fields:
-                        row[f"{rank}_top{i+1}_label"] = top["label"]
-                    if 'raw_score' in fields:
-                        row[f"{rank}_top{i+1}_score"] = top["raw_score"]
             row["sequence_length"] = pred["sequence_length"]
             tabular_data.append(row)
 
@@ -662,7 +689,7 @@ def predict(args):
         df.to_csv(tabular_file, sep='\t', index=False)
         logger.info("Saved tabular prediction results to: %s", tabular_file)
     
-    logger.info(f"\n{'=' * 70}\nThank you for using DeepTaxa 🤗\n{'=' * 70}")
+    logger.info(f"\n{'=' * 70}\nThank you for using DeepTaxa\n{'=' * 70}")
 
 if __name__ == "__main__":
     pass
