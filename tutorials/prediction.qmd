@@ -283,7 +283,7 @@ The confidence is $\max_c \, p_c$. A value near 1.0 means the model assigns almo
 In practice, confidence supports quality filtering: predictions above a threshold are retained while low-confidence predictions are flagged for manual review or excluded from downstream analysis.
 
 :::{.callout-note}
-DeepTaxa uses a default confidence threshold of 0.95, chosen because the vast majority of misclassifications fall below this value (see the confidence analysis below). For applications that prioritize recall over precision, the threshold can be lowered; for applications where every retained prediction must be reliable, it should be raised.
+DeepTaxa uses a default confidence threshold of 0.95, chosen because the vast majority of misclassifications fall below this value (see the confidence analysis below). For applications that prioritize recall over precision, the threshold can be lowered; for applications where every retained prediction must be reliable, it should be raised. The best threshold is not universal: it can shift with the amplicon region, the read length, how well the reference database covers your taxa, and how much a given analysis weighs precision against recall, so treat 0.95 as a starting point rather than a fixed rule.
 :::
 
 :::{.callout-tip}
