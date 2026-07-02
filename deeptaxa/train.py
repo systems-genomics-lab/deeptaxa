@@ -810,6 +810,7 @@ def train(args, trial=None):
         raise
 
     optimizer = setup_optimizer(model, args)
+    accum_steps = getattr(args, "accum_steps", DEFAULT_CONFIG["accum_steps"])
 
     if resume:
         # --- Resume path ---
@@ -834,7 +835,10 @@ def train(args, trial=None):
 
         # If extending training beyond the original epoch count, use the
         # new total_steps so the LR decays over the longer schedule.
-        steps_per_epoch = len(train_loader) // getattr(args, "accum_steps", DEFAULT_CONFIG["accum_steps"])
+        # The loop also steps on the final partial window, so a leftover batch
+        # adds one more optimizer step per epoch. Round up so the schedule
+        # covers every step and the LR does not bottom out early.
+        steps_per_epoch = math.ceil(len(train_loader) / accum_steps)
         new_total = steps_per_epoch * args.epochs
         sched_total = max(new_total, old_total)
 
@@ -860,7 +864,7 @@ def train(args, trial=None):
         logger.info("Initialized GradScaler for mixed precision training with init_scale=%.1f", scaler_init_scale)
     else:
         # --- Fresh training path ---
-        total_steps = len(train_loader) * args.epochs // getattr(args, "accum_steps", DEFAULT_CONFIG["accum_steps"])
+        total_steps = math.ceil(len(train_loader) / accum_steps) * args.epochs
         warmup_steps = int(getattr(args, "scheduler_warmup_ratio", DEFAULT_CONFIG["scheduler_warmup_ratio"]) * total_steps)
         logger.info("Initialized scheduler with total_steps=%d, warmup_steps=%d", total_steps, warmup_steps)
         scheduler = get_linear_schedule_with_warmup(
@@ -970,13 +974,17 @@ def train(args, trial=None):
                 attention_mask = batch["attention_mask"].to(device)
                 labels = batch["labels"].to(device)
                                 
-                optimizer.zero_grad(set_to_none=(i % getattr(args, "accum_steps", DEFAULT_CONFIG["accum_steps"]) == 0))
-                
+                # Clear gradients only at the start of an accumulation window.
+                # Everything backward()-ed until the next window boundary adds up,
+                # which is what makes the effective batch size batch_size x accum_steps.
+                if i % accum_steps == 0:
+                    optimizer.zero_grad(set_to_none=True)
+
                 with autocast('cuda', enabled=torch.cuda.is_available()):
                     output = model(input_ids, attention_mask)
                     logits = output[0] if isinstance(output, tuple) else output
                     loss = sum(level_weights[level] * (criteria[level] if criteria else criterion)(logits[str(level)], labels[:, level]) for level in range(len(taxonomic_ranks)))
-                    loss = loss / getattr(args, "accum_steps", DEFAULT_CONFIG["accum_steps"])
+                    loss = loss / accum_steps
 
                     # Skip any batch whose loss is NaN or infinite
                     loss_value = loss.item()
@@ -997,7 +1005,7 @@ def train(args, trial=None):
                     loss.backward()
                 total_loss += loss.item()
 
-                if (i + 1) % getattr(args, "accum_steps", DEFAULT_CONFIG["accum_steps"]) == 0 or (i + 1) == len(train_loader):
+                if (i + 1) % accum_steps == 0 or (i + 1) == len(train_loader):
                     if scaler is not None:
                         scaler.unscale_(optimizer)
                     torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=getattr(args, "max_grad_norm", DEFAULT_CONFIG.get("max_grad_norm", 0.5)))
