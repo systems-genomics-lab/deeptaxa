@@ -207,7 +207,7 @@ wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/config.js
 
 ## Training
 
-All architecture hyperparameters default to the published (compact) configuration, so a minimal training command reproduces the published checkpoint:
+All architecture hyperparameters default to the published (compact) configuration, so a minimal training command uses the same architecture and hyperparameters as the published checkpoint (exact numbers still depend on the seed, hardware, and package versions):
 
 ```bash
 deeptaxa train \
