@@ -46,6 +46,7 @@ jobs:
             tests.test_predict_agreement \
             tests.test_predict_auc \
             tests.test_pooling_mask \
+            tests.test_bert_pooling \
             tests.test_save_best_only \
             tests.test_train_predict_smoke -v
 

@@ -14,6 +14,16 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+def masked_mean_pool(sequence_output, attention_mask):
+    """Mean-pool a sequence over its non-padded positions.
+
+    The valid-token count is floored at one, so a row that is entirely padding
+    averages to zero instead of dividing by zero and producing NaN.
+    """
+    masked = sequence_output * attention_mask.unsqueeze(-1)  # Zero out padding
+    valid = attention_mask.sum(dim=1).clamp(min=1).unsqueeze(-1)
+    return masked.sum(dim=1) / valid
+
 class BERTClassifier(nn.Module):
     def __init__(self, tokenizer_name: str, num_labels_per_level: dict, hidden_dropout_prob: float,
                  max_length: int, hidden_size: int, num_hidden_layers: int, num_attention_heads: int,
@@ -97,11 +107,9 @@ class BERTClassifier(nn.Module):
         outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
         sequence_output = outputs.last_hidden_state
         
-        # Mask padded tokens and compute mean pooling
-        masked_output = sequence_output * attention_mask.unsqueeze(-1)  # Zero out padding
-        valid_tokens = attention_mask.sum(dim=1).clamp(min=1).unsqueeze(-1)  # Guard against an all-padding row
-        pooled = masked_output.sum(dim=1) / valid_tokens  # Average over valid tokens
-        
+        # Mean-pool over valid (non-padded) tokens
+        pooled = masked_mean_pool(sequence_output, attention_mask)
+
         # Apply dropout to pooled representation
         pooled = self.dropout(pooled)
         
