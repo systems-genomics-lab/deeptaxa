@@ -53,7 +53,13 @@ jobs:
           conda run -n qiime2 qiime dev refresh-cache
       - name: Check the plugin is registered
         run: conda run -n qiime2 qiime deeptaxa --help
-      - name: Run the full test suite
+      - name: Run the plugin test suite
         run: |
           conda run -n qiime2 python -m unittest discover \
             -s q2_deeptaxa/tests -p "test_*.py" -v
+      - name: Run the core deeptaxa tests
+        run: |
+          conda run -n qiime2 python -m unittest \
+            tests.test_dataset \
+            tests.test_gradient_accumulation \
+            tests.test_train_predict_smoke -v
