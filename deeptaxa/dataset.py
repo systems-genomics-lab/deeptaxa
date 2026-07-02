@@ -22,6 +22,13 @@ logger = logging.getLogger(__name__)
 
 NUCLEOTIDE_MAP = {'A': 0, 'a': 0, 'C': 1, 'c': 1, 'G': 2, 'g': 2, 'T': 3, 't': 3, 'U': 3, 'u': 3}
 
+# Byte-indexed lookup table for one-hot encoding: maps each ASCII code to its
+# channel (0-3) or -1 for anything else (N and the other ambiguity codes), so a
+# whole sequence can be encoded with tensor indexing instead of a Python loop.
+_NUCLEOTIDE_LUT = torch.full((256,), -1, dtype=torch.long)
+for _nt, _channel in NUCLEOTIDE_MAP.items():
+    _NUCLEOTIDE_LUT[ord(_nt)] = _channel
+
 class TaxonomyDataset(Dataset):
     def __init__(self, fasta_file, taxonomy_file=None, tokenizer_name=DEFAULT_CONFIG["tokenizer_name"], max_length=512, use_raw_labels_for_true=False, encoding="dnabert", tokenizer_revision=None):
         """
@@ -198,8 +205,11 @@ class TaxonomyDataset(Dataset):
             Handles missing taxonomy data by defaulting to 'Unclassified', ensuring all sequences
             have labels. This is critical for consistent batching and training stability.
         """
-        taxonomy_dict = {row['sequence_id']: row for _, row in self.taxonomy_data.iterrows()}
-        
+        # set_index + to_dict('index') builds a plain {sequence_id: {rank: value}}
+        # map in one pass, which is much faster than iterrows on large tables since
+        # it avoids constructing a pandas Series per row.
+        taxonomy_dict = self.taxonomy_data.set_index('sequence_id').to_dict('index')
+
         self.labels = []
         self.raw_labels = []
         for seq_id in self.seq_ids:
@@ -260,10 +270,13 @@ class TaxonomyDataset(Dataset):
             # Build one-hot encoded tensor directly from nucleotide sequence
             onehot = torch.zeros(self.max_length, 4, dtype=torch.float32)
             seq_len = min(len(sequence), self.max_length)
-            for pos in range(seq_len):
-                nt_idx = NUCLEOTIDE_MAP.get(sequence[pos])
-                if nt_idx is not None:
-                    onehot[pos, nt_idx] = 1.0
+            if seq_len > 0:
+                # Map each base to its channel through the byte lookup table;
+                # ambiguous bases map to -1 and are left as an all-zero column.
+                raw = bytearray(sequence[:seq_len].encode('ascii', 'replace'))
+                codes = _NUCLEOTIDE_LUT[torch.frombuffer(raw, dtype=torch.uint8).long()]
+                valid = codes >= 0
+                onehot[torch.arange(seq_len)[valid], codes[valid]] = 1.0
             attention_mask = torch.zeros(self.max_length, dtype=torch.long)
             attention_mask[:seq_len] = 1
             item = {
