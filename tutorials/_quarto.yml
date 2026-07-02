@@ -24,6 +24,7 @@ website:
         href: qiime2.qmd
     right:
       - icon: github
+        text: GitHub
         href: https://github.com/systems-genomics-lab/deeptaxa
   page-footer:
     center: "[DeepTaxa](https://github.com/systems-genomics-lab/deeptaxa) — Systems Genomics Lab"
