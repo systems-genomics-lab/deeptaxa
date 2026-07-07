@@ -423,3 +423,7 @@ For prediction with the published pre-trained model, see the [prediction tutoria
 ## Concepts used in this tutorial
 
 This tutorial uses several standard terms: the epoch, overfitting, cross-entropy loss, and the learning-rate schedule. See the [Glossary](glossary.qmd) for short definitions.
+
+## Key references
+
+This tutorial trains on the Greengenes 2 database [@mcdonald2024greengenes] with the AdamW optimizer [@loshchilov2019adamw]. See the [References](references.qmd) page for the complete bibliography.

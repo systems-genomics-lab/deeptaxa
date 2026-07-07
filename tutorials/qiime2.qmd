@@ -274,6 +274,12 @@ For the command-line equivalent of the classification path, see the [prediction 
 
 ---
 
+## Key references
+
+This tutorial builds on the DeepTaxa method [@salah2026deeptaxa]. See the [References](references.qmd) page for the complete bibliography.
+
+---
+
 ::: {.d-flex .justify-content-between}
 [← Previous: Architecture](architecture.qmd)
 

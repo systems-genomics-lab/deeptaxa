@@ -422,3 +422,7 @@ For running predictions, see the [prediction tutorial](prediction.qmd). For trai
 ## Concepts used in this tutorial
 
 This tutorial uses several standard terms: base pairs, convolutional filters and kernel sizes, ReLU, dropout, residual connections, self-attention, byte-pair encoding, focal loss, mixed-precision training, and gradient accumulation. See the [Glossary](glossary.qmd) for short definitions.
+
+## Key references
+
+This tutorial references the DNABERT-2 tokenizer [@zhou2024dnabert2], the AdamW optimizer [@loshchilov2019adamw], and focal loss [@lin2017focal]. See the [References](references.qmd) page for the complete bibliography.

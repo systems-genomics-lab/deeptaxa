@@ -936,3 +936,7 @@ For running predictions with the pre-trained model, see the [prediction tutorial
 ## Concepts used in this tutorial
 
 This tutorial uses several standard terms: accuracy, precision and recall, F1, the confusion matrix, calibration and ECE, embeddings, cosine similarity, the Jaccard index, t-SNE, and open-set classification. See the [Glossary](glossary.qmd) for short definitions.
+
+## Key references
+
+This tutorial uses standard evaluation metrics [@sokolova2009f1] and calibration analysis [@guo2017calibration]. See the [References](references.qmd) page for the complete bibliography.

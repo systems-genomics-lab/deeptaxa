@@ -321,3 +321,7 @@ For the per-rank release numbers and the model card, see the [Hugging Face repos
 ## Concepts used in this tutorial
 
 This tutorial uses several standard terms: the ensemble, softmax, soft and hard voting, bias and variance, calibration and ECE, and weighted F1. See the [Glossary](glossary.qmd) for short definitions.
+
+## Key references
+
+This tutorial builds on the DeepTaxa method [@salah2026deeptaxa]. See the [References](references.qmd) page for the complete bibliography.

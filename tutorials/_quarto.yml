@@ -26,6 +26,8 @@ website:
         href: qiime2.qmd
       - text: Glossary
         href: glossary.qmd
+      - text: References
+        href: references.qmd
     right:
       - icon: github
         text: GitHub
@@ -53,6 +55,7 @@ format:
 
 bibliography: references.bib
 csl: apa.csl
+suppress-bibliography: true
 
 execute:
   freeze: auto

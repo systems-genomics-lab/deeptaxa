@@ -252,14 +252,9 @@ DeepTaxa recovers all eight expected genera in both regions, matching the refere
 
 For background on the 16S rRNA gene, mock communities, ASVs, taxonomic ranks, confidence scores, DADA2, SILVA, and species-level ambiguity, see the [Glossary](glossary.qmd).
 
-## References
+## Key references
 
-The source code and the trained checkpoints are on
-[GitHub](https://github.com/systems-genomics-lab/deeptaxa) and
-[Hugging Face](https://huggingface.co/systems-genomics-lab/deeptaxa).
-
-::: {#refs}
-:::
+This tutorial uses the DeepTaxa method [@salah2026deeptaxa] and the Greengenes 2 database [@mcdonald2024greengenes], and compares against DADA2 [@callahan2016dada2] with SILVA [@quast2013silva]. See the [References](references.qmd) page for the complete bibliography.
 
 ---
 

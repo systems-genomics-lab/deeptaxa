@@ -216,10 +216,9 @@ step zero; the committed data lets readers skip straight to the analysis. The De
 checkpoints are published at
 [huggingface.co/systems-genomics-lab/deeptaxa](https://huggingface.co/systems-genomics-lab/deeptaxa).
 
-## References
+## Key references
 
-::: {#refs}
-:::
+This tutorial reanalyzes an ALS gut-microbiome dataset [@hertzberg2021als] with DeepTaxa [@salah2026deeptaxa], cross-checks against SILVA [@quast2013silva], and revisits a PICRUSt2 functional claim [@douglas2020picrust2]. See the [References](references.qmd) page for the complete bibliography.
 
 ---
 

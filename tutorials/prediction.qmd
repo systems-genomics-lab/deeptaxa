@@ -382,3 +382,7 @@ For training a model on custom reference data, see the [training tutorial](train
 ## Concepts used in this tutorial
 
 This tutorial uses several standard terms: accuracy, the 16S rRNA gene, the taxonomic hierarchy, softmax, and byte-pair encoding. See the [Glossary](glossary.qmd) for short definitions.
+
+## Key references
+
+This tutorial uses the Greengenes 2 reference database [@mcdonald2024greengenes] and the DNABERT-2 tokenizer [@zhou2024dnabert2]. See the [References](references.qmd) page for the complete bibliography.
