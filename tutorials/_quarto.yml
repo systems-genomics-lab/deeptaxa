@@ -67,12 +67,24 @@ format:
     include-in-header:
       text: |
         <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "814105493de84c40bfe298120ac18d08"}'></script><!-- End Cloudflare Web Analytics -->
+        <script>
+        // Point inline citation links at the central References page while keeping
+        // the on-page (hidden) bibliography that feeds the hover popups.
+        window.addEventListener('load', function () {
+          var probe = document.querySelector('link[href*="site_libs/"], script[src*="site_libs/"]');
+          var prefix = '';
+          if (probe) { var u = probe.getAttribute('href') || probe.getAttribute('src'); prefix = u.substring(0, u.indexOf('site_libs/')); }
+          document.querySelectorAll('a[role="doc-biblioref"]').forEach(function (a) {
+            var frag = a.hash;
+            if (frag && frag.indexOf('#ref-') === 0) a.setAttribute('href', prefix + 'references.html' + frag);
+          });
+        });
+        </script>
 
 bibliography: references.bib
 csl: apa.csl
-suppress-bibliography: true
-filters:
-  - link-citations.lua
+suppress-bibliography: false
+link-citations: true
 
 execute:
   freeze: auto

@@ -26,3 +26,10 @@
 .navbar .nav-link.active {
   color: #158cba;
 }
+
+// The full bibliography lives on the central References page. Hide the
+// auto-generated per-page reference appendix, but keep its entries in the DOM
+// (display:none) so the citation hover popups still have their source.
+#quarto-appendix {
+  display: none;
+}
