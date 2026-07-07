@@ -369,7 +369,7 @@ window.Quarto = {
 </div>
 </div>
 <p>The 16S ribosomal RNA gene is a roughly 1,500-nucleotide region present in all bacteria and archaea. Because portions of this gene evolve slowly while others accumulate mutations rapidly, it serves as a molecular clock for placing organisms within the tree of life. Sequencing the 16S gene from an environmental sample and assigning each read to a taxonomic lineage is one of the foundational tasks in microbial ecology and clinical microbiome research <span class="citation" data-cites="mcdonald2024greengenes">(<span class="nocase">McDonald et al.</span>, 2024)</span>.</p>
-<p>DeepTaxa is a hybrid deep learning model that classifies 16S sequences into a seven-rank taxonomic hierarchy: Domain, Phylum, Class, Order, Family, Genus, and Species. It combines convolutional neural networks (for detecting local sequence motifs) with a Transformer encoder (for capturing long-range dependencies across the full gene), and produces independent predictions at each rank along with calibrated confidence scores.</p>
+<p>DeepTaxa is a hybrid deep learning model that classifies 16S sequences into a seven-rank taxonomic hierarchy: Domain, Phylum, Class, Order, Family, Genus, and Species. It combines convolutional neural networks (for detecting local sequence motifs) with a Transformer encoder (for capturing long-range dependencies across the full gene), and produces independent predictions at each rank along with confidence scores.</p>
 <p>This tutorial walks through the prediction workflow: loading a pre-trained model, classifying a set of test sequences, and interpreting the results. The companion tutorials cover <a href="./training.html">model training</a> and <a href="./analysis.html">in-depth performance analysis</a>.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -599,44 +599,44 @@ Listing&nbsp;7: Classify a single test sequence.
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>zcat data<span class="op">/</span>greengenes<span class="op">/</span>gg_2024_09_testing.fna.gz <span class="op">|</span> awk <span class="st">'BEGIN{RS="&gt;"; ORS=""} NR==2 {print "&gt;"$0; exit}'</span> <span class="op">&gt;</span> outputs<span class="op">/</span>single_sequence<span class="op">/</span>single_sequence.fna</span>
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>deeptaxa predict <span class="op">--</span>fasta<span class="op">-</span><span class="bu">file</span> outputs<span class="op">/</span>single_sequence<span class="op">/</span>single_sequence.fna <span class="op">--</span>checkpoint data<span class="op">/</span>models<span class="op">/</span>deeptaxa<span class="op">-</span>full<span class="op">-</span>length<span class="op">-</span>v2.pt <span class="op">--</span>tabular <span class="op">--</span>output<span class="op">-</span><span class="bu">dir</span> outputs<span class="op">/</span>single_sequence</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>2026-07-07 17:14:58,841 - INFO - 
+<pre><code>2026-07-07 18:17:12,687 - INFO - 
 ======================================================================
           DeepTaxa Prediction Session (v1.2.0)
 --------------------------------------------------
-          Started: 2026-07-07T17:14:58.841821
+          Started: 2026-07-07T18:17:12.687545
 ======================================================================
     
-2026-07-07 17:15:00,695 - INFO - Initialized HybridCNNBERTClassifier with CNN: {'embed_dim': 896, 'num_filters': 256, 'kernel_sizes': [3, 5, 7], 'num_conv_layers': 1, 'dropout_prob': 0.2}, BERT hidden_size=896, output_attentions=False
-2026-07-07 17:15:00,761 - INFO - Model loaded from checkpoint: data/models/deeptaxa-full-length-v2.pt with type: hybridcnnbert
-2026-07-07 17:15:00,957 - INFO - Loaded 1 sequences from outputs/single_sequence/single_sequence.fna
+2026-07-07 18:17:14,193 - INFO - Initialized HybridCNNBERTClassifier with CNN: {'embed_dim': 896, 'num_filters': 256, 'kernel_sizes': [3, 5, 7], 'num_conv_layers': 1, 'dropout_prob': 0.2}, BERT hidden_size=896, output_attentions=False
+2026-07-07 18:17:14,260 - INFO - Model loaded from checkpoint: data/models/deeptaxa-full-length-v2.pt with type: hybridcnnbert
+2026-07-07 18:17:14,455 - INFO - Loaded 1 sequences from outputs/single_sequence/single_sequence.fna
 
 Predicting:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Predicting: 100%|██████████| 1/1 [00:00&lt;00:00,  1.08it/s]
-Predicting: 100%|██████████| 1/1 [00:00&lt;00:00,  1.02it/s]
-2026-07-07 17:15:01,945 - INFO - Saved run UUID to outputs/single_sequence/deeptaxa_uuid.txt
-2026-07-07 17:15:01,946 - INFO - 
+Predicting: 100%|██████████| 1/1 [00:00&lt;00:00,  1.07it/s]
+Predicting: 100%|██████████| 1/1 [00:00&lt;00:00,  1.01it/s]
+2026-07-07 18:17:15,472 - INFO - Saved run UUID to outputs/single_sequence/deeptaxa_uuid.txt
+2026-07-07 18:17:15,473 - INFO - 
 ======================================================================
           DeepTaxa Prediction Summary (v1.2.0)
 --------------------------------------------------
           Here's a summary of your prediction results:
           - Total Sequences Processed: 1
-          - Prediction Time: 3.10 seconds
-          - Completed At: 2026-07-07T17:15:01.944421
+          - Prediction Time: 2.78 seconds
+          - Completed At: 2026-07-07T18:17:15.471984
 ======================================================================
     
-2026-07-07 17:15:01,946 - INFO - Performance Metrics by Taxonomic Rank:
-2026-07-07 17:15:01,946 - INFO - Rank       | Mean Score   | Std Score    | Accuracy     | Top-{top_k} Acc | F1       | Precision    | Recall       | AUC         
-2026-07-07 17:15:01,946 - INFO - ---------------------------------------------------------------------------------------------------------------------------------
-2026-07-07 17:15:01,946 - INFO - domain     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 17:15:01,946 - INFO - phylum     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 17:15:01,946 - INFO - class      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 17:15:01,946 - INFO - order      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 17:15:01,946 - INFO - family     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 17:15:01,946 - INFO - genus      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 17:15:01,946 - INFO - species    | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 17:15:02,131 - INFO - Saved prediction results to: outputs/single_sequence/single_sequence_deeptaxa_predictions.json
-2026-07-07 17:15:02,136 - INFO - Saved tabular prediction results to: outputs/single_sequence/single_sequence_deeptaxa_predictions.tsv
-2026-07-07 17:15:02,137 - INFO - 
+2026-07-07 18:17:15,473 - INFO - Performance Metrics by Taxonomic Rank:
+2026-07-07 18:17:15,473 - INFO - Rank       | Mean Score   | Std Score    | Accuracy     | Top-{top_k} Acc | F1       | Precision    | Recall       | AUC         
+2026-07-07 18:17:15,473 - INFO - ---------------------------------------------------------------------------------------------------------------------------------
+2026-07-07 18:17:15,473 - INFO - domain     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 18:17:15,473 - INFO - phylum     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 18:17:15,473 - INFO - class      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 18:17:15,473 - INFO - order      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 18:17:15,473 - INFO - family     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 18:17:15,474 - INFO - genus      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 18:17:15,474 - INFO - species    | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 18:17:15,808 - INFO - Saved prediction results to: outputs/single_sequence/single_sequence_deeptaxa_predictions.json
+2026-07-07 18:17:15,812 - INFO - Saved tabular prediction results to: outputs/single_sequence/single_sequence_deeptaxa_predictions.tsv
+2026-07-07 18:17:15,812 - INFO - 
 ======================================================================
 Thank you for using DeepTaxa 🤗
 ======================================================================</code></pre>

@@ -93,7 +93,7 @@ ul.task-list li input[type="checkbox"] {
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
-<body class="nav-sidebar floating nav-fixed fullcontent quarto-light">
+<body class="nav-sidebar floating nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -255,7 +255,23 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul>
+  <li><a href="#summary" id="toc-summary" class="nav-link active" data-scroll-target="#summary"><span class="header-section-number">1</span> Summary</a></li>
+  <li><a href="#the-dataset-and-the-question" id="toc-the-dataset-and-the-question" class="nav-link" data-scroll-target="#the-dataset-and-the-question"><span class="header-section-number">2</span> The dataset and the question</a></li>
+  <li><a href="#classifying-with-deeptaxa" id="toc-classifying-with-deeptaxa" class="nav-link" data-scroll-target="#classifying-with-deeptaxa"><span class="header-section-number">3</span> Classifying with DeepTaxa</a></li>
+  <li><a href="#confirming-the-calls-against-silva" id="toc-confirming-the-calls-against-silva" class="nav-link" data-scroll-target="#confirming-the-calls-against-silva"><span class="header-section-number">4</span> Confirming the calls against SILVA</a></li>
+  <li><a href="#what-the-data-show" id="toc-what-the-data-show" class="nav-link" data-scroll-target="#what-the-data-show"><span class="header-section-number">5</span> What the data show</a></li>
+  <li><a href="#comparison-with-the-original-study" id="toc-comparison-with-the-original-study" class="nav-link" data-scroll-target="#comparison-with-the-original-study"><span class="header-section-number">6</span> Comparison with the original study</a></li>
+  <li><a href="#takeaway" id="toc-takeaway" class="nav-link" data-scroll-target="#takeaway"><span class="header-section-number">7</span> Takeaway</a></li>
+  <li><a href="#reproducing-this-analysis" id="toc-reproducing-this-analysis" class="nav-link" data-scroll-target="#reproducing-this-analysis"><span class="header-section-number">8</span> Reproducing this analysis</a></li>
+  <li><a href="#key-references" id="toc-key-references" class="nav-link" data-scroll-target="#key-references"><span class="header-section-number">9</span> Key references</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -307,8 +323,8 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 <p>This case study is a methodological demonstration of taxonomic classification and reproducibility. It is not intended for diagnosis, prognosis, treatment selection, or patient-level interpretation.</p>
-<section id="summary" class="level2">
-<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<section id="summary" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="summary"><span class="header-section-number">1</span> Summary</h2>
 <p>Short-read 16S amplicons are easy to generate but difficult to classify confidently below the genus rank, and the common advice is to treat species-level calls as unreliable. This case study reanalyzes a published amyotrophic lateral sclerosis (ALS) gut-microbiome dataset with DeepTaxa and evaluates whether that caution is warranted for this dataset. Using the region-matched DeepTaxa checkpoint, 99 percent of reads receive a genus-level assignment, with a mean genus confidence of 0.985. Because a confidence score is not the same as accuracy, the same amplicon sequence variants (ASVs) were independently classified with SILVA: the two methods agree on the genus of about 94 percent of reads. On that basis, the reanalysis recovers the original study’s community-level differences in the same direction and revisits a functional claim that does not hold here. With only nine pairs, these observations are consistent rather than conclusive.</p>
 <p>The full pipeline, code, statistics, and figures are in the companion <a href="casestudy/analysis.html">analysis notebook</a>.</p>
 <p>The reanalysis follows the pipeline in <a href="#fig-cs-pipeline" class="quarto-xref">Figure&nbsp;1</a>, from the raw reads to a comparison with the original study.</p>
@@ -350,21 +366,21 @@ Figure&nbsp;1: The reanalysis pipeline. DADA2 denoises the raw V4 reads into amp
 </div>
 </div>
 </section>
-<section id="the-dataset-and-the-question" class="level2">
-<h2 class="anchored" data-anchor-id="the-dataset-and-the-question">The dataset and the question</h2>
+<section id="the-dataset-and-the-question" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="the-dataset-and-the-question"><span class="header-section-number">2</span> The dataset and the question</h2>
 <p>The data come from a study in which each ALS patient was paired with their spouse as a control, so that cases and controls share diet, household, and environment. The deposited runs cover 9 of the 10 matched pairs, sequenced as 16S rRNA V4 amplicons (515F/806R) on an Illumina MiSeq. The paired design suits a within-subject comparison, and the prior characterization of the cohort makes it a useful test of whether a neural 16S classifier can deliver reliable calls on short reads.</p>
 <p>The dataset was published by <span class="citation" data-cites="hertzberg2021als">Hertzberg et al. (2021)</span> and is openly deposited under BioProject <a href="https://www.ncbi.nlm.nih.gov/bioproject/PRJNA566436">PRJNA566436</a>, which holds de-identified 16S sequencing data with no personal health information. The reanalysis below is a methodological demonstration and is not intended as clinical guidance.</p>
 </section>
-<section id="classifying-with-deeptaxa" class="level2">
-<h2 class="anchored" data-anchor-id="classifying-with-deeptaxa">Classifying with DeepTaxa</h2>
+<section id="classifying-with-deeptaxa" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="classifying-with-deeptaxa"><span class="header-section-number">3</span> Classifying with DeepTaxa</h2>
 <p>These reads are V4, so the analysis uses the DeepTaxa checkpoint <span class="citation" data-cites="salah2026deeptaxa">(Salah et al., 2026)</span>. It assigns a genus to 99 percent of reads at high confidence (mean 0.985). High confidence is not the same as accuracy, however, because it reflects how well the input matches the model’s training regime. The next section checks the calls against an independent reference.</p>
 </section>
-<section id="confirming-the-calls-against-silva" class="level2">
-<h2 class="anchored" data-anchor-id="confirming-the-calls-against-silva">Confirming the calls against SILVA</h2>
+<section id="confirming-the-calls-against-silva" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="confirming-the-calls-against-silva"><span class="header-section-number">4</span> Confirming the calls against SILVA</h2>
 <p>To test correctness rather than confidence, the 276 ASVs were independently classified with the SILVA v138 reference <span class="citation" data-cites="quast2013silva">(Quast et al., 2013)</span>. After harmonizing GTDB and NCBI names, DeepTaxa and SILVA agree on the genus of about 94 percent of reads, and DeepTaxa assigns a genus name to a further 17.5 percent of reads that SILVA leaves at a higher rank. The genera underlying the findings below are confirmed individually: <em>Prevotella</em>, <em>Blautia</em>, <em>Agathobacter</em>, <em>Parasutterella</em>, and <em>Dorea</em> match directly, while <em>Phocaeicola</em> and <em>Mediterraneibacter</em> match SILVA through documented synonyms (<em>Bacteroides</em> and the <em>[Ruminococcus] torques</em> group, respectively). Two genera, <em>Acetatifactor</em> and <em>Hominicoprocola</em>, fall where SILVA stops at uncultured placeholders and are therefore not independently confirmed.</p>
 </section>
-<section id="what-the-data-show" class="level2">
-<h2 class="anchored" data-anchor-id="what-the-data-show">What the data show</h2>
+<section id="what-the-data-show" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="what-the-data-show"><span class="header-section-number">5</span> What the data show</h2>
 <p>Two of the findings are independent of the classifier because they are computed directly from the ASV count table:</p>
 <ul>
 <li><strong>ALS gut communities are more diverse</strong> (<a href="#fig-cs-alpha" class="quarto-xref">Figure&nbsp;2</a>). Observed richness and Shannon diversity are higher in ALS than in matched controls (p = 0.020), as is Simpson diversity (p = 0.027).</li>
@@ -392,20 +408,20 @@ Figure&nbsp;2: Within-sample (alpha) diversity, ALS versus matched spouse contro
 </ul>
 <p>The genus-level differences are nominally significant but do not survive multiple-testing correction at nine pairs, so they are best read as hypothesis-generating.</p>
 </section>
-<section id="comparison-with-the-original-study" class="level2">
-<h2 class="anchored" data-anchor-id="comparison-with-the-original-study">Comparison with the original study</h2>
+<section id="comparison-with-the-original-study" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="comparison-with-the-original-study"><span class="header-section-number">6</span> Comparison with the original study</h2>
 <p>The reanalysis is consistent with the original study’s community-level observations, now resting on a classification that an independent reference confirms: ALS communities are more diverse and structurally distinct from their matched controls. The depletion of <em>Prevotella</em> runs in the same direction but does not reach significance here. The strongest functional claim of the original study, that ALS patients lacked butyrate-metabolism genes, is not recovered here. A PICRUSt2 prediction <span class="citation" data-cites="douglas2020picrust2">(Douglas et al., 2020)</span> finds those genes present in every sample, with only a weak, non-significant trend toward lower butyrate-kinase-route capacity in ALS. That comparison is the most fragile on either side, since it is a taxonomy-to-genome inference, and would require shotgun metagenomics to settle.</p>
 </section>
-<section id="takeaway" class="level2">
-<h2 class="anchored" data-anchor-id="takeaway">Takeaway</h2>
+<section id="takeaway" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="takeaway"><span class="header-section-number">7</span> Takeaway</h2>
 <p>The reliability of short-read 16S taxonomy depends on the choice of classifier and reference, and it can be checked rather than assumed. With the appropriate DeepTaxa checkpoint, a V4 dataset that would normally be limited to phylum and class becomes classifiable to genus, and an independent SILVA classification confirms those calls for the relevant taxa. On that basis the reanalysis re-examines a published result and adds genus-level resolution to it. The diversity and community-level signals are consistent across methods, though the nine-pair cohort keeps them tentative; the genus and functional layers are exploratory and await a larger cohort.</p>
 </section>
-<section id="reproducing-this-analysis" class="level2">
-<h2 class="anchored" data-anchor-id="reproducing-this-analysis">Reproducing this analysis</h2>
+<section id="reproducing-this-analysis" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="reproducing-this-analysis"><span class="header-section-number">8</span> Reproducing this analysis</h2>
 <p>The companion <a href="casestudy/analysis.html">analysis notebook</a> runs the ALS versus control analysis from the committed ASV table and taxonomy tables, including the SILVA cross-check. For full reproducibility from the raw reads, the scripts in <a href="https://github.com/systems-genomics-lab/deeptaxa/tree/main/tutorials/casestudy/pipeline"><code>casestudy/pipeline/</code></a> download the 18 runs from the Sequence Read Archive and regenerate every table (ASV inference with DADA2, classification with DeepTaxa and SILVA), so the case study can be reproduced from step zero; the committed data lets readers skip straight to the analysis. The DeepTaxa checkpoints are published at <a href="https://huggingface.co/systems-genomics-lab/deeptaxa">huggingface.co/systems-genomics-lab/deeptaxa</a>.</p>
 </section>
-<section id="key-references" class="level2">
-<h2 class="anchored" data-anchor-id="key-references">Key references</h2>
+<section id="key-references" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="key-references"><span class="header-section-number">9</span> Key references</h2>
 <p>This tutorial reanalyzes an ALS gut-microbiome dataset <span class="citation" data-cites="hertzberg2021als">(Hertzberg et al., 2021)</span> with DeepTaxa <span class="citation" data-cites="salah2026deeptaxa">(Salah et al., 2026)</span>, cross-checks against SILVA <span class="citation" data-cites="quast2013silva">(Quast et al., 2013)</span>, and revisits a PICRUSt2 functional claim <span class="citation" data-cites="douglas2020picrust2">(Douglas et al., 2020)</span>. See the <a href="./references.html">References</a> page for the complete bibliography.</p>
 <hr>
 <div class="d-flex justify-content-between">
