@@ -15,7 +15,7 @@ subtitle: "Running the pre-trained model and interpreting per-rank predictions a
 
 The 16S ribosomal RNA gene is a roughly 1,500-nucleotide region present in all bacteria and archaea. Because portions of this gene evolve slowly while others accumulate mutations rapidly, it serves as a molecular clock for placing organisms within the tree of life. Sequencing the 16S gene from an environmental sample and assigning each read to a taxonomic lineage is one of the foundational tasks in microbial ecology and clinical microbiome research [@mcdonald2024greengenes].
 
-DeepTaxa is a hybrid deep learning model that classifies 16S sequences into a seven-rank taxonomic hierarchy: Domain, Phylum, Class, Order, Family, Genus, and Species. It combines convolutional neural networks (for detecting local sequence motifs) with a Transformer encoder (for capturing long-range dependencies across the full gene), and produces independent predictions at each rank along with calibrated confidence scores.
+DeepTaxa is a hybrid deep learning model that classifies 16S sequences into a seven-rank taxonomic hierarchy: Domain, Phylum, Class, Order, Family, Genus, and Species. It combines convolutional neural networks (for detecting local sequence motifs) with a Transformer encoder (for capturing long-range dependencies across the full gene), and produces independent predictions at each rank along with confidence scores.
 
 This tutorial walks through the prediction workflow: loading a pre-trained model, classifying a set of test sequences, and interpreting the results. The companion tutorials cover [model training](training.qmd) and [in-depth performance analysis](analysis.qmd).
 

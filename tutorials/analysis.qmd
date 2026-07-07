@@ -19,7 +19,7 @@ The analysis covers six areas:
 
 1. **Per-rank classification metrics** (accuracy, precision, recall, F1, macro vs. weighted averaging)
 2. **Confusion patterns** (which taxa are most frequently misclassified, and whether errors are biologically reasonable)
-3. **Sequence and embedding similarity** (why confused taxa are confused, examined through sequence identity and learned representations)
+3. **Sequence and embedding similarity** (why confused taxa are confused, examined through sequence similarity and learned representations)
 4. **Prediction confidence and calibration** (whether the model's reported probabilities match its actual accuracy)
 5. **Hierarchical error propagation** (when species classification fails, how far up the taxonomy tree does the error extend)
 6. **Novel taxa detection** (how the model handles species absent from the training data)
@@ -357,7 +357,7 @@ This section examines both perspectives: raw sequence similarity between confuse
 
 ### Sequence similarity of confused pairs
 
-For each of the top confused species pairs identified above, we retrieve representative sequences from the test set and measure their similarity using k-mer overlap. The Jaccard index over the set of 6-mers in two sequences provides an alignment-free estimate of sequence identity that is fast to compute and correlates well with full alignment-based measures for closely related organisms.
+For each of the top confused species pairs identified above, we retrieve representative sequences from the test set and measure their similarity using k-mer overlap. The Jaccard index over the set of 6-mers in two sequences provides a fast, alignment-free proxy for sequence similarity that correlates well with alignment-based measures for closely related organisms. It should not be read as percent identity, but it is sufficient for testing whether confused species pairs are more similar than randomly chosen pairs.
 
 Compute the 6-mer Jaccard similarity for the top confused pairs and compare against randomly sampled non-confused pairs.
 
