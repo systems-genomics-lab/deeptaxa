@@ -49,10 +49,7 @@ and DADA2 is the classifier, which uses a
 naive Bayes model for the genus and exact matching for the species.
 
 The methods differ at the species rank, and the difference is not the same in the two
-regions. DADA2 + SILVA assigns a species only on an exact, unambiguous match: every
-species it assigns is correct, so its precision is perfect, but it resolves few reads to
-the species level and otherwise stays at the genus, declining to name a species rather
-than naming one incorrectly. On the short V3-V4 region this caution is severe, and
+regions. DADA2 + SILVA assigns a species only on an exact, unambiguous match. In this mock-community benchmark that gives the reference method very high precision, but it also leaves many reads unresolved at the species level: it otherwise stays at the genus, declining to name a species rather than naming one incorrectly. On the short V3-V4 region this caution is severe, and
 DeepTaxa resolves far more reads to an exact species than the reference does. On the
 full-length gene the two are close on exact matches, and DeepTaxa's advantage there is
 coverage, not exactness.
