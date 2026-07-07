@@ -6,7 +6,7 @@ subtitle: "Why averaging five independently trained checkpoints improves accurac
 ::: {.callout-note appearance="simple"}
 **Objective.** Understand why an ensemble of seed checkpoints classifies better than any single one, then build a soft-vote ensemble of the five v2 checkpoints and measure the gain rank by rank.
 
-**Prerequisites.** DeepTaxa installed from source (the ensemble tooling postdates the latest release tag), Python 3.10 or later, and PyTorch 2.4 or later. A CUDA-capable GPU is recommended.
+**Prerequisites.** DeepTaxa (`pip install deeptaxa-rrna`), Python 3.10 or later, and PyTorch 2.4 or later. A CUDA-capable GPU is recommended.
 
 **Inputs.** The five full-length seed checkpoints (about 306 MB each) and the held-out test set. **Outputs.** A worked example on a single sequence and a per-rank comparison of accuracy and calibration (ECE). **Runtime.** About 30 minutes on an NVIDIA A40 GPU, most of it the five forward passes over the test set.
 
@@ -48,24 +48,18 @@ print(torch.cuda.is_available())
 print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'No GPU')
 ```
 
-Install DeepTaxa from source. The soft-vote below reuses prediction internals (the dataset loader) that postdate the latest release tag, so this tutorial installs from the main branch rather than from the tag as the other tutorials do.
+Install DeepTaxa from PyPI, along with scikit-learn for the metrics. DeepTaxa is distributed as `deeptaxa-rrna`.
 
 ```{python}
 #| eval: true
 #| label: lst-install-deeptaxa
-#| lst-cap: "Install DeepTaxa from source."
+#| lst-cap: "Install DeepTaxa from PyPI."
 #| output: false
 %%bash
-mkdir -p ~/deeptaxa-workspace && cd ~/deeptaxa-workspace
-test -d deeptaxa || git clone https://github.com/systems-genomics-lab/deeptaxa.git
-cd deeptaxa && git checkout --quiet main && git pull --quiet
-pip install -q .
-pip install -q scikit-learn
+mkdir -p ~/deeptaxa-workspace
+python -m pip install -q deeptaxa-rrna
+python -m pip install -q scikit-learn
 ```
-
-:::{.callout-note}
-Because this tutorial installs from the `main` branch, the exact code can change over time. For a reproducible run, record the commit you installed with `git -C ~/deeptaxa-workspace/deeptaxa rev-parse HEAD`, or install a tagged release once the ensemble tools are part of one.
-:::
 
 ## Download the five seed checkpoints
 
@@ -162,7 +156,7 @@ def build(ckpt):
         num_conv_layers=cnn["num_conv_layers"], embed_dim=cnn["embed_dim"],
         max_length=bert["max_position_embeddings"], hidden_size=bert["hidden_size"],
         num_hidden_layers=bert["num_hidden_layers"], num_attention_heads=bert["num_attention_heads"],
-        intermediate_size=bert["intermediate_size"], mask_padding=cnn.get("mask_padding", False))
+        intermediate_size=bert["intermediate_size"])
     model.load_state_dict(ckpt["state_dict"])
     return model.to(device).eval()
 
