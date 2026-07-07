@@ -528,7 +528,6 @@ def predict(args):
 {'=' * 70}
           DeepTaxa Prediction Summary (v{__version__})
 {'-' * 50}
-          Here's a summary of your prediction results:
           - Total Sequences Processed: {total_sequences:,}
           - Prediction Time: {prediction_time:.2f} seconds
           - Completed At: {end_timestamp}
