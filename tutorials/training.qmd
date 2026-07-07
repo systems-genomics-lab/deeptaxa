@@ -96,7 +96,7 @@ List the downloaded files.
 #| label: lst-list-training-data
 #| lst-cap: "Verify training data files."
 %%bash
-cd ~/deeptaxa-workspace && ls -lh data/greengenes/
+cd ~/deeptaxa-workspace && du -h data/greengenes/*
 ```
 
 To confirm that the downloads are intact, compare each file against its published
@@ -163,17 +163,30 @@ Training time depends on GPU model, batch size, and data loading speed. On an NV
 During training, DeepTaxa logs per-batch progress, loss values, and validation metrics to the console. NaN gradient warnings (if they appear) are handled automatically by skipping the affected batch.
 :::
 
-Launch the training run.
+Launch the training run. The full hybrid CNN-BERT run takes about 2.5 hours, so it is shown here for reproducibility but is not executed while this page renders; the metrics and figures below come from a saved run of exactly this command.
 
-```{python}
-#| eval: true
-#| label: lst-train-run
-#| lst-cap: "Launch the 10-epoch training run."
-#| output: false
-%%bash
+```bash
 cd ~/deeptaxa-workspace
-deeptaxa train --fasta-file data/greengenes/gg_2024_09_training.fna.gz --taxonomy-file data/greengenes/gg_2024_09_training.tsv.gz --model-type hybridcnnbert --output-dir outputs/training
+deeptaxa train \
+  --fasta-file data/greengenes/gg_2024_09_training.fna.gz \
+  --taxonomy-file data/greengenes/gg_2024_09_training.tsv.gz \
+  --model-type hybridcnnbert \
+  --output-dir outputs/training
 ```
+
+:::{.callout-tip}
+## Optional quick smoke test
+
+To confirm the command works without waiting for the full run, train a CNN-only model for a single epoch on the same data. This exercises the whole pipeline in a few minutes; it does not reproduce the published model or its reported accuracy.
+
+```bash
+deeptaxa train \
+  --fasta-file data/greengenes/gg_2024_09_training.fna.gz \
+  --taxonomy-file data/greengenes/gg_2024_09_training.tsv.gz \
+  --model-type cnn --epochs 1 \
+  --output-dir outputs/smoke_test
+```
+:::
 
 ## Understanding training metrics
 
