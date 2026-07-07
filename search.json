@@ -250,7 +250,7 @@
     "href": "validation.html#key-references",
     "title": "Validation Against Known Communities",
     "section": "15 Key references",
-    "text": "15 Key references\nThis tutorial uses the DeepTaxa method (Salah et al., 2026) and the Greengenes 2 database (McDonald et al., 2024), and compares against DADA2 (Callahan et al., 2016) with SILVA (Quast et al., 2013). See the References page for the complete bibliography.\n\n\n← Previous: Prediction\nNext: Case study →",
+    "text": "15 Key references\nThis tutorial uses the DeepTaxa method (Salah et al., 2026) and the Greengenes 2 database (McDonald et al., 2024), and compares against DADA2 (Callahan et al., 2016) with SILVA (Quast et al., 2013). See the References page for the complete bibliography.",
     "crumbs": [
       "Home",
       "Validation Against Known Communities"
@@ -371,7 +371,7 @@
     "href": "qiime2.html#key-references",
     "title": "Classifying Sequences with DeepTaxa inside QIIME 2",
     "section": "10 Key references",
-    "text": "10 Key references\nThis tutorial builds on the DeepTaxa method (Salah et al., 2026). See the References page for the complete bibliography.\n\n\n← Previous: Architecture",
+    "text": "10 Key references\nThis tutorial builds on the DeepTaxa method (Salah et al., 2026). See the References page for the complete bibliography.",
     "crumbs": [
       "Home",
       "Classifying Sequences with DeepTaxa inside QIIME 2"
@@ -879,7 +879,7 @@
     "href": "casestudy.html#key-references",
     "title": "Reanalysis of an ALS Gut Microbiome with DeepTaxa: A Case Study",
     "section": "9 Key references",
-    "text": "9 Key references\nThis tutorial reanalyzes an ALS gut-microbiome dataset (Hertzberg et al., 2021) with DeepTaxa (Salah et al., 2026), cross-checks against SILVA (Quast et al., 2013), and revisits a PICRUSt2 functional claim (Douglas et al., 2020). See the References page for the complete bibliography.\n\n\n← Previous: Validation\nNext: Training →",
+    "text": "9 Key references\nThis tutorial reanalyzes an ALS gut-microbiome dataset (Hertzberg et al., 2021) with DeepTaxa (Salah et al., 2026), cross-checks against SILVA (Quast et al., 2013), and revisits a PICRUSt2 functional claim (Douglas et al., 2020). See the References page for the complete bibliography.",
     "crumbs": [
       "Home",
       "Reanalysis of an ALS Gut Microbiome with DeepTaxa: A Case Study"
