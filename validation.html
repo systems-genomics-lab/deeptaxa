@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Validation Against Known Communities – DeepTaxa Tutorials</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-717509a77493095b47d39ac7ef6fe000.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<!-- Cloudflare Web Analytics --><script defer="" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;814105493de84c40bfe298120ac18d08&quot;}"></script><!-- End Cloudflare Web Analytics -->
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">DeepTaxa Tutorials</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./prediction.html"> 
+<span class="menu-text">Prediction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./ensemble.html"> 
+<span class="menu-text">Ensemble</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./validation.html" aria-current="page"> 
+<span class="menu-text">Validation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./casestudy.html"> 
+<span class="menu-text">Case study</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./training.html"> 
+<span class="menu-text">Training</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./analysis.html"> 
+<span class="menu-text">Analysis</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./architecture.html"> 
+<span class="menu-text">Architecture</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./qiime2.html"> 
+<span class="menu-text">QIIME 2</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./glossary.html"> 
+<span class="menu-text">Glossary</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./references.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/systems-genomics-lab/deeptaxa"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text">GitHub</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul>
+  <li><a href="#when-to-use-this-tutorial" id="toc-when-to-use-this-tutorial" class="nav-link active" data-scroll-target="#when-to-use-this-tutorial"><span class="header-section-number">1</span> When to use this tutorial</a></li>
+  <li><a href="#required-inputs" id="toc-required-inputs" class="nav-link" data-scroll-target="#required-inputs"><span class="header-section-number">2</span> Required inputs</a></li>
+  <li><a href="#expected-outputs" id="toc-expected-outputs" class="nav-link" data-scroll-target="#expected-outputs"><span class="header-section-number">3</span> Expected outputs</a></li>
+  <li><a href="#runtime-and-hardware" id="toc-runtime-and-hardware" class="nav-link" data-scroll-target="#runtime-and-hardware"><span class="header-section-number">4</span> Runtime and hardware</a></li>
+  <li><a href="#validation-design" id="toc-validation-design" class="nav-link" data-scroll-target="#validation-design"><span class="header-section-number">5</span> Validation design</a></li>
+  <li><a href="#workflow-overview" id="toc-workflow-overview" class="nav-link" data-scroll-target="#workflow-overview"><span class="header-section-number">6</span> Workflow overview</a></li>
+  <li><a href="#how-each-region-is-checked" id="toc-how-each-region-is-checked" class="nav-link" data-scroll-target="#how-each-region-is-checked"><span class="header-section-number">7</span> How each region is checked</a></li>
+  <li><a href="#results-and-how-to-read-them" id="toc-results-and-how-to-read-them" class="nav-link" data-scroll-target="#results-and-how-to-read-them"><span class="header-section-number">8</span> Results and how to read them</a></li>
+  <li><a href="#interpreting-species-level-recovery" id="toc-interpreting-species-level-recovery" class="nav-link" data-scroll-target="#interpreting-species-level-recovery"><span class="header-section-number">9</span> Interpreting species-level recovery</a></li>
+  <li><a href="#sanity-checks" id="toc-sanity-checks" class="nav-link" data-scroll-target="#sanity-checks"><span class="header-section-number">10</span> Sanity checks</a></li>
+  <li><a href="#troubleshooting" id="toc-troubleshooting" class="nav-link" data-scroll-target="#troubleshooting"><span class="header-section-number">11</span> Troubleshooting</a></li>
+  <li><a href="#practical-points" id="toc-practical-points" class="nav-link" data-scroll-target="#practical-points"><span class="header-section-number">12</span> Practical points</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">13</span> Summary</a></li>
+  <li><a href="#related-concepts" id="toc-related-concepts" class="nav-link" data-scroll-target="#related-concepts"><span class="header-section-number">14</span> Related concepts</a></li>
+  <li><a href="#key-references" id="toc-key-references" class="nav-link" data-scroll-target="#key-references"><span class="header-section-number">15</span> Key references</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Validation Against Known Communities</h1>
+<p class="subtitle lead">Classifying 16S rRNA with DeepTaxa, and checking the result against a known composition</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>Objective.</strong> Check DeepTaxa on a mock community of known composition, comparing its genus- and species-level calls with a reference method across the V3-V4 and full-length 16S regions.</p>
+<p><strong>Prerequisites.</strong> DeepTaxa (<code>pip install deeptaxa-rrna</code>), Python 3.10 or later, and PyTorch 2.4 or later. The two companion notebooks run end to end on a free Colab GPU.</p>
+<p><strong>Inputs.</strong> ZymoBIOMICS mock-community reads (public SRA runs) and the matching DeepTaxa checkpoints. <strong>Outputs.</strong> Genus- and species-recovery comparisons against DADA2 with SILVA. <strong>Runtime.</strong> A few minutes per region on a GPU.</p>
+<p><em>Last validated July 2026.</em></p>
+</div>
+</div>
+</div>
+<p>Taxonomic classification turns 16S reads into named organisms, the foundation of a microbiome study: which taxa are present, how abundant they are, and how communities differ between samples or conditions. Those conclusions are only as reliable as the names behind them, so before applying a classifier to study samples it is worth running it on a community whose composition is already known. Here DeepTaxa <span class="citation" data-cites="salah2026deeptaxa">(Salah et al., 2026)</span> is checked against the ZymoBIOMICS mock community, sequenced two ways: over the V3-V4 amplicon, the region most often used on Illumina platforms, and over the full-length 16S gene on PacBio, which resolves finer, species-level detail. Both are public ZymoBIOMICS runs in the Sequence Read Archive: the V3-V4 reads are run <a href="https://www.ncbi.nlm.nih.gov/sra/SRR35133066">SRR35133066</a> and the full-length reads are run <a href="https://www.ncbi.nlm.nih.gov/sra/SRR38028391">SRR38028391</a>.</p>
+<section id="when-to-use-this-tutorial" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="when-to-use-this-tutorial"><span class="header-section-number">1</span> When to use this tutorial</h2>
+<p>Use this tutorial to check DeepTaxa on data whose composition is already known. It differs from the <a href="./prediction.html">prediction tutorial</a>, which classifies unknown sequences, and from the <a href="./analysis.html">analysis tutorial</a>, which studies model behavior in depth.</p>
+</section>
+<section id="required-inputs" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="required-inputs"><span class="header-section-number">2</span> Required inputs</h2>
+<ul>
+<li>Mock-community reads reduced to amplicon sequence variants (ASVs). Here the public ZymoBIOMICS runs above are used: V3-V4 on Illumina and full-length 16S on PacBio.</li>
+<li>The DeepTaxa checkpoint that matches the sequenced region (V3-V4 or full-length).</li>
+<li>The known ZymoBIOMICS composition: eight genera, each with an expected species.</li>
+<li>Optional: a DADA2 + SILVA taxonomy for the same ASVs, used here as a reference method.</li>
+</ul>
+</section>
+<section id="expected-outputs" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="expected-outputs"><span class="header-section-number">3</span> Expected outputs</h2>
+<ul>
+<li>Per-ASV DeepTaxa predictions from domain to species, with confidence scores.</li>
+<li>Genus-level recovery: whether each expected genus is found.</li>
+<li>Species-level recovery, split into exact matches, near-neighbor calls, unresolved reads, and incorrect calls.</li>
+<li>A DeepTaxa versus DADA2 + SILVA comparison (the figure below).</li>
+</ul>
+</section>
+<section id="runtime-and-hardware" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="runtime-and-hardware"><span class="header-section-number">4</span> Runtime and hardware</h2>
+<p>Runtime observed during validation: a few minutes per region on an NVIDIA A40 GPU, and the two companion notebooks run end to end on a free Colab GPU. Runtime will vary with the number of ASVs, the checkpoint, and the hardware.</p>
+</section>
+<section id="validation-design" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="validation-design"><span class="header-section-number">5</span> Validation design</h2>
+<p>A mock community is useful because its composition is known in advance, so recovery can be measured directly. Recovery is read at two levels. Genus-level recovery is the more stable target, because the 16S gene usually carries enough signal to separate genera. Species-level recovery is harder, because closely related species can share nearly identical 16S regions, so species-level results are interpreted with more care: an exact match and a near neighbor that 16S cannot distinguish are reported separately rather than lumped together.</p>
+</section>
+<section id="workflow-overview" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="workflow-overview"><span class="header-section-number">6</span> Workflow overview</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 39%">
+<col style="width: 34%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>Purpose</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Prepare the mock-community ASVs</td>
+<td>Match the inputs to the expected taxa and the region</td>
+<td>FASTA and expected composition</td>
+</tr>
+<tr class="even">
+<td>Run DeepTaxa</td>
+<td>Classify each ASV</td>
+<td>Prediction table with confidence</td>
+</tr>
+<tr class="odd">
+<td>Compare with the expected taxa</td>
+<td>Measure recovery</td>
+<td>Genus and species recovery</td>
+</tr>
+<tr class="even">
+<td>Compare with DADA2 + SILVA</td>
+<td>Provide a conventional baseline</td>
+<td>Method comparison</td>
+</tr>
+<tr class="odd">
+<td>Interpret the results</td>
+<td>Separate exact, near-neighbor, unresolved, and incorrect calls</td>
+<td>Validation summary</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="how-each-region-is-checked" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="how-each-region-is-checked"><span class="header-section-number">7</span> How each region is checked</h2>
+<p>The steps are the same for both regions: install DeepTaxa, download the checkpoint that matches the region, classify a set of amplicon sequence variants (ASVs), read the confidence scores, and compare the calls against the known composition. The core of a region is a single <code>deeptaxa predict</code> call, shown here for the V3-V4 ASVs; the notebooks run the full workflow, including the comparison and the name reconciliation below.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">deeptaxa</span> predict <span class="dt">\</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--fasta-file</span> zymo_v3v4_asvs.fna <span class="dt">\</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--checkpoint</span> deeptaxa-v3v4-v2.pt <span class="dt">\</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--tabular</span> <span class="dt">\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--output-dir</span> predictions/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><a href="./validation/v3-v4.html">V3-V4 mock community</a> classifies ASVs from the ZymoBIOMICS standard sequenced over V3-V4, and recovers all eight expected genera.</li>
+<li><a href="./validation/full-length.html">Full-length mock community</a> classifies full-length 16S ASVs from the same standard and looks closely at species-level assignment, where DeepTaxa differs most from an exact-matching reference method.</li>
+</ul>
+<p>Each analysis runs in full on a free Colab GPU.</p>
+</section>
+<section id="results-and-how-to-read-them" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="results-and-how-to-read-them"><span class="header-section-number">8</span> Results and how to read them</h2>
+<p>At the genus rank, both DeepTaxa and the reference method recovered all eight expected genera and agreed on the genus of essentially every read, so they are indistinguishable there. The reference method here is DADA2 <span class="citation" data-cites="callahan2016dada2">(Callahan et al., 2016)</span> with the SILVA v138 database <span class="citation" data-cites="quast2013silva">(Quast et al., 2013)</span>, abbreviated DADA2 + SILVA: SILVA is the reference database, and DADA2 is the classifier, which uses a naive Bayes model for the genus and exact matching for the species.</p>
+<p>The methods differ at the species rank, and the difference is not the same in the two regions. DADA2 + SILVA assigns a species only on an exact, unambiguous match. In this mock-community benchmark that gives the reference method very high precision, but it also leaves many reads unresolved at the species level: it otherwise stays at the genus, declining to name a species rather than naming one incorrectly. On the short V3-V4 region this caution is severe, and DeepTaxa resolves far more reads to an exact species than the reference does. On the full-length gene the two are close on exact matches, and DeepTaxa’s advantage there is coverage, not exactness.</p>
+<p>That coverage is mostly close relatives that 16S cannot separate, such as the <em>Bacillus subtilis</em> group or <em>Shigella</em> for <em>Escherichia coli</em>, which the figure credits in red. None of DeepTaxa’s species calls on the expected mock organisms is an unrelated error; every such miss is a near neighbor of the correct species within the same genus. A few near neighbors are not credited, however: on some ASVs the reference resolves the true species, for example <em>Salmonella enterica</em>, which DeepTaxa labels <em>Salmonella bongori</em>, and these are counted as misses, so the figure does not reward DeepTaxa where the reference outperforms it. The net trade-off is that DeepTaxa commits to a species far more often than the reference, at the cost of being occasionally wrong by one near neighbor, while the reference abstains rather than committing. In practice, the genus-level profiles that most 16S analyses rest on are reliable here from either method, while species-level claims should be treated with the caution this comparison shows.</p>
+<div id="cell-fig-species" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div id="fig-species" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar chart comparing reads correctly identified to species by DeepTaxa and by DADA2 with SILVA, for the V3-V4 and full-length datasets.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-species-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="validation_files/figure-html/fig-species-output-1.png" alt="Bar chart comparing reads correctly identified to species by DeepTaxa and by DADA2 with SILVA, for the V3-V4 and full-length datasets." width="720" height="403" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-species-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Reads correctly identified to species in the two datasets. The genus rank is omitted because both methods assign the correct genus to essentially every read. DADA2 + SILVA assigns a species only by exact matching and abstains otherwise, so its lower values reflect caution, not error; DeepTaxa also credits close relatives that 16S cannot distinguish, in red. Near neighbors the reference does resolve, such as <em>Salmonella enterica</em> labeled <em>Salmonella bongori</em>, are counted as misses.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="interpreting-species-level-recovery" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="interpreting-species-level-recovery"><span class="header-section-number">9</span> Interpreting species-level recovery</h2>
+<p>Score each species-level call in one of four categories, and report them separately rather than treating every non-exact call as an error:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 29%">
+<col style="width: 26%">
+<col style="width: 44%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Category</th>
+<th>Meaning</th>
+<th>How to report</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Exact match</td>
+<td>Predicted species equals the expected species</td>
+<td>Count as recovered</td>
+</tr>
+<tr class="even">
+<td>Near neighbor</td>
+<td>Predicted species is a close relative that 16S cannot reliably distinguish</td>
+<td>Report separately</td>
+</tr>
+<tr class="odd">
+<td>Unresolved</td>
+<td>No confident species-level call</td>
+<td>Do not count as wrong without context</td>
+</tr>
+<tr class="even">
+<td>Incorrect</td>
+<td>The call conflicts with the expected taxon and is not a close 16S relative</td>
+<td>Count as an error</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sanity-checks" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="sanity-checks"><span class="header-section-number">10</span> Sanity checks</h2>
+<ul>
+<li>The number of DeepTaxa predictions matches the number of input ASVs.</li>
+<li>All eight expected genera appear in the prediction table.</li>
+<li>The checkpoint matches the sequenced region.</li>
+<li>Confidence scores are present for the ranks being scored.</li>
+<li>Species-level calls are read together with their near-neighbor relationships, not in isolation.</li>
+<li>DeepTaxa and DADA2 + SILVA names are reconciled before scoring (see Troubleshooting).</li>
+</ul>
+</section>
+<section id="troubleshooting" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="troubleshooting"><span class="header-section-number">11</span> Troubleshooting</h2>
+<p>If expected taxa are missing, confirm that the FASTA holds the right ASVs and that the checkpoint matches the sequenced region.</p>
+<p>If many species calls look wrong, check the matching genus calls and the near-neighbor relationships first; some species mismatches reflect the limited resolution of the 16S region rather than a real failure.</p>
+<p>If DeepTaxa and DADA2 + SILVA disagree on names, check for synonymy and database-version differences. DeepTaxa reports the GTDB names used by Greengenes2 <span class="citation" data-cites="mcdonald2024greengenes">(<span class="nocase">McDonald et al.</span>, 2024)</span>, which renames or splits several genera relative to the NCBI names on most reference materials; <em>Lactobacillus fermentum</em>, for instance, becomes <em>Limosilactobacillus</em>. Both notebooks include a short function that reconciles the names before scoring.</p>
+<p>If the output is empty, confirm that the FASTA is valid, the sequence identifiers are unique, and the checkpoint loaded correctly.</p>
+</section>
+<section id="practical-points" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="practical-points"><span class="header-section-number">12</span> Practical points</h2>
+<p>The most important choice is to match the checkpoint to the sequenced region. The paper <span class="citation" data-cites="salah2026deeptaxa">(Salah et al., 2026)</span> puts a figure on the cost of getting this wrong: applying the full-length checkpoint to V3-V4 reads lowers species accuracy from 92.96 percent to 60.7 percent, while a checkpoint trained on the V3-V4 window recovers most of the loss. Classify V3-V4 reads with the V3-V4 checkpoint, and full-length reads with the full-length checkpoint.</p>
+<p>The confidence score is best read as a measure of how much information the input carries, not as a promise that the call is correct. In the published benchmark a high score corresponds to a strong chance of being correct. The score falls at the finer ranks, and on short or off-region reads, because the marker carries less information there. A low score is the model declining to commit, and filtering it out, for example below 0.5, is reasonable.</p>
+</section>
+<section id="summary" class="level2" data-number="13">
+<h2 data-number="13" class="anchored" data-anchor-id="summary"><span class="header-section-number">13</span> Summary</h2>
+<p>DeepTaxa recovers all eight expected genera in both regions, matching the reference method at the genus rank. At the species rank it commits far more often than an exact-matching reference, at the cost of occasional near-neighbor calls that 16S cannot separate. Report genus-level recovery as the stable result, and report species-level calls in the four categories above so the limits of 16S resolution are not overinterpreted.</p>
+</section>
+<section id="related-concepts" class="level2" data-number="14">
+<h2 data-number="14" class="anchored" data-anchor-id="related-concepts"><span class="header-section-number">14</span> Related concepts</h2>
+<p>For background on the 16S rRNA gene, mock communities, ASVs, taxonomic ranks, confidence scores, DADA2, SILVA, and species-level ambiguity, see the <a href="./glossary.html">Glossary</a>.</p>
+</section>
+<section id="key-references" class="level2" data-number="15">
+<h2 data-number="15" class="anchored" data-anchor-id="key-references"><span class="header-section-number">15</span> Key references</h2>
+<p>This tutorial uses the DeepTaxa method <span class="citation" data-cites="salah2026deeptaxa">(Salah et al., 2026)</span> and the Greengenes 2 database <span class="citation" data-cites="mcdonald2024greengenes">(<span class="nocase">McDonald et al.</span>, 2024)</span>, and compares against DADA2 <span class="citation" data-cites="callahan2016dada2">(Callahan et al., 2016)</span> with SILVA <span class="citation" data-cites="quast2013silva">(Quast et al., 2013)</span>. See the <a href="./references.html">References</a> page for the complete bibliography.</p>
+<hr>
+<div class="d-flex justify-content-between">
+<p><a href="./prediction.html">← Previous: Prediction</a></p>
+<p><a href="./casestudy.html">Next: Case study →</a></p>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="https://github.com/systems-genomics-lab/deeptaxa">DeepTaxa</a> — Systems Genomics Lab</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

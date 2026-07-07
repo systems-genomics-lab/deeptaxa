@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Model Architecture and Design – DeepTaxa Tutorials</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-717509a77493095b47d39ac7ef6fe000.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<!-- Cloudflare Web Analytics --><script defer="" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;814105493de84c40bfe298120ac18d08&quot;}"></script><!-- End Cloudflare Web Analytics -->
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">DeepTaxa Tutorials</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./prediction.html"> 
+<span class="menu-text">Prediction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./ensemble.html"> 
+<span class="menu-text">Ensemble</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./validation.html"> 
+<span class="menu-text">Validation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./casestudy.html"> 
+<span class="menu-text">Case study</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./training.html"> 
+<span class="menu-text">Training</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./analysis.html"> 
+<span class="menu-text">Analysis</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./architecture.html" aria-current="page"> 
+<span class="menu-text">Architecture</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./qiime2.html"> 
+<span class="menu-text">QIIME 2</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./glossary.html"> 
+<span class="menu-text">Glossary</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./references.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/systems-genomics-lab/deeptaxa"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text">GitHub</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul>
+  <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup"><span class="header-section-number">1</span> Setup</a></li>
+  <li><a href="#architecture-overview" id="toc-architecture-overview" class="nav-link" data-scroll-target="#architecture-overview"><span class="header-section-number">2</span> Architecture overview</a></li>
+  <li><a href="#input-representation" id="toc-input-representation" class="nav-link" data-scroll-target="#input-representation"><span class="header-section-number">3</span> Input representation</a></li>
+  <li><a href="#cnn-pathway" id="toc-cnn-pathway" class="nav-link" data-scroll-target="#cnn-pathway"><span class="header-section-number">4</span> CNN pathway</a></li>
+  <li><a href="#transformer-pathway" id="toc-transformer-pathway" class="nav-link" data-scroll-target="#transformer-pathway"><span class="header-section-number">5</span> Transformer pathway</a></li>
+  <li><a href="#fusion-mechanism" id="toc-fusion-mechanism" class="nav-link" data-scroll-target="#fusion-mechanism"><span class="header-section-number">6</span> Fusion mechanism</a></li>
+  <li><a href="#classification-heads" id="toc-classification-heads" class="nav-link" data-scroll-target="#classification-heads"><span class="header-section-number">7</span> Classification heads</a></li>
+  <li><a href="#loss-function" id="toc-loss-function" class="nav-link" data-scroll-target="#loss-function"><span class="header-section-number">8</span> Loss function</a>
+  <ul class="collapse">
+  <li><a href="#cross-entropy-and-focal-loss" id="toc-cross-entropy-and-focal-loss" class="nav-link" data-scroll-target="#cross-entropy-and-focal-loss"><span class="header-section-number">8.1</span> Cross-entropy and focal loss</a></li>
+  <li><a href="#multi-rank-loss-aggregation" id="toc-multi-rank-loss-aggregation" class="nav-link" data-scroll-target="#multi-rank-loss-aggregation"><span class="header-section-number">8.2</span> Multi-rank loss aggregation</a></li>
+  </ul></li>
+  <li><a href="#training-configuration" id="toc-training-configuration" class="nav-link" data-scroll-target="#training-configuration"><span class="header-section-number">9</span> Training configuration</a></li>
+  <li><a href="#extending-deeptaxa" id="toc-extending-deeptaxa" class="nav-link" data-scroll-target="#extending-deeptaxa"><span class="header-section-number">10</span> Extending DeepTaxa</a>
+  <ul class="collapse">
+  <li><a href="#applying-deeptaxa-to-other-marker-genes" id="toc-applying-deeptaxa-to-other-marker-genes" class="nav-link" data-scroll-target="#applying-deeptaxa-to-other-marker-genes"><span class="header-section-number">10.1</span> Applying DeepTaxa to other marker genes</a></li>
+  <li><a href="#adding-a-new-taxonomic-rank" id="toc-adding-a-new-taxonomic-rank" class="nav-link" data-scroll-target="#adding-a-new-taxonomic-rank"><span class="header-section-number">10.2</span> Adding a new taxonomic rank</a></li>
+  <li><a href="#swapping-the-backbone" id="toc-swapping-the-backbone" class="nav-link" data-scroll-target="#swapping-the-backbone"><span class="header-section-number">10.3</span> Swapping the backbone</a></li>
+  <li><a href="#adding-a-new-model-variant" id="toc-adding-a-new-model-variant" class="nav-link" data-scroll-target="#adding-a-new-model-variant"><span class="header-section-number">10.4</span> Adding a new model variant</a></li>
+  <li><a href="#implementing-hierarchical-loss-consistency" id="toc-implementing-hierarchical-loss-consistency" class="nav-link" data-scroll-target="#implementing-hierarchical-loss-consistency"><span class="header-section-number">10.5</span> Implementing hierarchical loss consistency</a></li>
+  </ul></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">11</span> Summary</a></li>
+  <li><a href="#concepts-used-in-this-tutorial" id="toc-concepts-used-in-this-tutorial" class="nav-link" data-scroll-target="#concepts-used-in-this-tutorial"><span class="header-section-number">12</span> Concepts used in this tutorial</a></li>
+  <li><a href="#key-references" id="toc-key-references" class="nav-link" data-scroll-target="#key-references"><span class="header-section-number">13</span> Key references</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Model Architecture and Design</h1>
+<p class="subtitle lead">The CNN-Transformer fusion, learned representations, classification heads, and loss functions</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>Objective.</strong> Understand the DeepTaxa architecture — how the CNN and Transformer pathways are fused, what representations they learn, how the per-rank classification heads and loss function work.</p>
+<p><strong>Prerequisites.</strong> DeepTaxa (<code>pip install deeptaxa-rrna</code>), Python 3.10 or later, and PyTorch 2.4 or later. Some code cells load a pre-trained checkpoint (about 306 MB) to inspect real layer shapes and configuration.</p>
+<p><em>Last validated July 2026.</em></p>
+</div>
+</div>
+</div>
+<p>This tutorial examines the internal design of DeepTaxa: how sequences are represented, how the CNN and Transformer pathways extract features, how their outputs are fused, and how the loss function handles taxonomic class imbalance. The final section outlines concrete steps for extending the model to new tasks or architectures.</p>
+<p>This tutorial assumes familiarity with convolutional neural networks, Transformer encoders, and multi-class classification. The code cells that inspect the checkpoint require the setup from the <a href="./prediction.html">prediction tutorial</a>, including installing DeepTaxa and downloading the pre-trained checkpoint.</p>
+<section id="setup" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="setup"><span class="header-section-number">1</span> Setup</h2>
+<p>Set the working directory to the shared workspace created during the prediction tutorial.</p>
+<div id="setup-workspace" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" data-lst-cap="Set the working directory."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>os.chdir(os.path.expanduser(<span class="st">'~/deeptaxa-workspace'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="architecture-overview" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="architecture-overview"><span class="header-section-number">2</span> Architecture overview</h2>
+<p>DeepTaxa supports three model variants, selectable via the <code>--model-type</code> flag:</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    A[Input Tokens] --&gt; B{Model Type}
+    B --&gt;|cnn| C[CNN Pathway]
+    B --&gt;|bert| D[Transformer Pathway]
+    B --&gt;|hybridcnnbert| E[CNN + Transformer]
+    C --&gt; F[7 Classification Heads]
+    D --&gt; F
+    E --&gt; F
+    F --&gt; G[Domain ... Species]
+    style A fill:#f5efe4,stroke:#7a6343
+    style B fill:#e4dced,stroke:#5a3d75
+    style C fill:#d6efe8,stroke:#1f6b4f
+    style D fill:#d8e4f0,stroke:#2a5278
+    style E fill:#f0e2d6,stroke:#994a2a
+    style F fill:#f5efe4,stroke:#7a6343
+    style G fill:#f5efe4,stroke:#7a6343
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 36%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variant</th>
+<th>Strengths</th>
+<th>Use case</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>cnn</code></td>
+<td>Fast inference, captures local motifs</td>
+<td>Quick experiments, limited GPU memory</td>
+</tr>
+<tr class="even">
+<td><code>bert</code></td>
+<td>Global context via self-attention</td>
+<td>When long-range dependencies matter</td>
+</tr>
+<tr class="odd">
+<td><code>hybridcnnbert</code></td>
+<td>Both local and global features, learnable fusion</td>
+<td>Production (default)</td>
+</tr>
+</tbody>
+</table>
+<p>All three variants share the same input representation, the same per-rank classification heads, and the same loss function. The difference lies in the feature extraction stage.</p>
+<p>To compare variants quantitatively, train each with the same data and seed, then evaluate on the test set. The code below loads prediction outputs from three separate runs and prints a side-by-side accuracy table.</p>
+<div id="lst-variant-comparison" class="cell listing quarto-float quarto-figure quarto-figure-left anchored" data-execution_count="2">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-variant-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;1: Compare accuracy across model variants using metrics from the compact-configuration ablation runs.
+</figcaption>
+<div aria-describedby="lst-variant-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" data-lst-cap="Compare accuracy across model variants using metrics from the compact-configuration ablation runs."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Model variant comparison ---</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Each variant was trained with the compact-configuration hyperparameters</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># (cross-entropy loss, seed 42, 10 epochs, batch 64, lr 5e-4, kernels</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 3/5/7, 256 filters, 4 transformer layers, 7 heads, 3584 FFN, 896</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># hidden, dropout 0.20) and evaluated on the same 69,335-sequence test</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># set. The One-Hot CNN row swaps the DNABERT-2 BPE tokenizer for the</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 4-channel one-hot encoder (--encoding onehot) to isolate the</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># tokenizer's contribution.</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> gzip</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>RANKS       <span class="op">=</span> [<span class="st">'domain'</span>, <span class="st">'phylum'</span>, <span class="st">'class'</span>, <span class="st">'order'</span>, <span class="st">'family'</span>, <span class="st">'genus'</span>, <span class="st">'species'</span>]</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>RANK_LABELS <span class="op">=</span> [<span class="st">'Domain'</span>, <span class="st">'Phylum'</span>, <span class="st">'Class'</span>, <span class="st">'Order'</span>, <span class="st">'Family'</span>, <span class="st">'Genus'</span>, <span class="st">'Species'</span>]</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Metrics from the compact-configuration ablation runs (seed 42)</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>variants <span class="op">=</span> {</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Hybrid CNN+BERT'</span>: {<span class="st">'accuracy'</span>: [<span class="fl">0.9999</span>, <span class="fl">0.9968</span>, <span class="fl">0.9963</span>, <span class="fl">0.9909</span>, <span class="fl">0.9861</span>, <span class="fl">0.9693</span>, <span class="fl">0.9288</span>],</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'f1'</span>:       [<span class="fl">0.9999</span>, <span class="fl">0.9967</span>, <span class="fl">0.9959</span>, <span class="fl">0.9899</span>, <span class="fl">0.9841</span>, <span class="fl">0.9651</span>, <span class="fl">0.9203</span>]},</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">'CNN Only'</span>:        {<span class="st">'accuracy'</span>: [<span class="fl">0.9998</span>, <span class="fl">0.9969</span>, <span class="fl">0.9960</span>, <span class="fl">0.9901</span>, <span class="fl">0.9844</span>, <span class="fl">0.9635</span>, <span class="fl">0.9027</span>],</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'f1'</span>:       [<span class="fl">0.9998</span>, <span class="fl">0.9968</span>, <span class="fl">0.9956</span>, <span class="fl">0.9893</span>, <span class="fl">0.9826</span>, <span class="fl">0.9597</span>, <span class="fl">0.8931</span>]},</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">'One-Hot CNN'</span>:     {<span class="st">'accuracy'</span>: [<span class="fl">0.9998</span>, <span class="fl">0.9962</span>, <span class="fl">0.9953</span>, <span class="fl">0.9867</span>, <span class="fl">0.9789</span>, <span class="fl">0.9397</span>, <span class="fl">0.8580</span>],</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'f1'</span>:       [<span class="fl">0.9998</span>, <span class="fl">0.9961</span>, <span class="fl">0.9948</span>, <span class="fl">0.9856</span>, <span class="fl">0.9767</span>, <span class="fl">0.9336</span>, <span class="fl">0.8428</span>]},</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">'BERT Only'</span>:       {<span class="st">'accuracy'</span>: [<span class="fl">0.9931</span>, <span class="fl">0.7584</span>, <span class="fl">0.7454</span>, <span class="fl">0.5047</span>, <span class="fl">0.4012</span>, <span class="fl">0.2053</span>, <span class="fl">0.1414</span>],</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'f1'</span>:       [<span class="fl">0.9902</span>, <span class="fl">0.7348</span>, <span class="fl">0.7195</span>, <span class="fl">0.4537</span>, <span class="fl">0.3391</span>, <span class="fl">0.1412</span>, <span class="fl">0.0849</span>]},</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> variant, metrics <span class="kw">in</span> variants.items():</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, label <span class="kw">in</span> <span class="bu">enumerate</span>(RANK_LABELS):</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        rows.append({</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>            <span class="st">'Variant'</span>: variant, <span class="st">'Rank'</span>: label,</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>            <span class="st">'Accuracy'</span>: metrics[<span class="st">'accuracy'</span>][i],</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>            <span class="st">'Weighted F1'</span>: metrics[<span class="st">'f1'</span>][i],</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>comp_df <span class="op">=</span> pd.DataFrame(rows)</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>pivot_acc <span class="op">=</span> comp_df.pivot_table(index<span class="op">=</span><span class="st">'Rank'</span>, columns<span class="op">=</span><span class="st">'Variant'</span>, values<span class="op">=</span><span class="st">'Accuracy'</span>)</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>pivot_f1  <span class="op">=</span> comp_df.pivot_table(index<span class="op">=</span><span class="st">'Rank'</span>, columns<span class="op">=</span><span class="st">'Variant'</span>, values<span class="op">=</span><span class="st">'Weighted F1'</span>)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'=== Accuracy ==='</span>)</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pivot_acc.reindex(RANK_LABELS).to_string(float_format<span class="op">=</span><span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>.<span class="bu">format</span>))</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'</span><span class="ch">\n</span><span class="st">=== Weighted F1 ==='</span>)</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pivot_f1.reindex(RANK_LABELS).to_string(float_format<span class="op">=</span><span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>.<span class="bu">format</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>=== Accuracy ===
+Variant  BERT Only  CNN Only  Hybrid CNN+BERT  One-Hot CNN
+Rank                                                      
+Domain      0.9931    0.9998           0.9999       0.9998
+Phylum      0.7584    0.9969           0.9968       0.9962
+Class       0.7454    0.9960           0.9963       0.9953
+Order       0.5047    0.9901           0.9909       0.9867
+Family      0.4012    0.9844           0.9861       0.9789
+Genus       0.2053    0.9635           0.9693       0.9397
+Species     0.1414    0.9027           0.9288       0.8580
+
+=== Weighted F1 ===
+Variant  BERT Only  CNN Only  Hybrid CNN+BERT  One-Hot CNN
+Rank                                                      
+Domain      0.9902    0.9998           0.9999       0.9998
+Phylum      0.7348    0.9968           0.9967       0.9961
+Class       0.7195    0.9956           0.9959       0.9948
+Order       0.4537    0.9893           0.9899       0.9856
+Family      0.3391    0.9826           0.9841       0.9767
+Genus       0.1412    0.9597           0.9651       0.9336
+Species     0.0849    0.8931           0.9203       0.8428</code></pre>
+</div>
+</div>
+</figure>
+</div>
+<p>The hybrid model’s advantage over the standalone variants is largest at Species, where both local motifs and long-range context contribute to resolving fine-grained distinctions. The CNN-only variant (with BPE tokens) trails the hybrid by about 2.7 percentage points at Species F1; the same CNN with one-hot encoding loses another 5.0 points, isolating the BPE tokenizer’s contribution. The standalone BERT variant collapses under the compact configuration: at 4 transformer layers and 7 heads the encoder alone cannot drive 16,909 species classes from BPE tokens, which is why the hybrid keeps the CNN pathway as the primary feature extractor and treats BERT as a residual contributor. At coarser ranks (Domain through Class), the CNN variants and the hybrid all reach near-ceiling performance, so the gap is negligible there.</p>
+</section>
+<section id="input-representation" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="input-representation"><span class="header-section-number">3</span> Input representation</h2>
+<p>DeepTaxa converts raw nucleotide sequences into integer token IDs using DNABERT-2’s byte-pair encoding (BPE) tokenizer <span class="citation" data-cites="zhou2024dnabert2">(Zhou et al., 2024)</span>. BPE learns a vocabulary of 4,096 subword tokens from DNA sequences, capturing frequently occurring k-mers as single tokens. Sequences are truncated or padded to a fixed length of 512 tokens.</p>
+<p>Load the tokenizer and tokenize a short sequence to see the encoding in action.</p>
+<div id="tokenize-example" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Tokenize a sample sequence ---</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoTokenizer</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(<span class="st">'zhihan1996/DNABERT-2-117M'</span>, trust_remote_code<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>sequence <span class="op">=</span> <span class="st">'AGAGTTTGATCCTGGCTCAG'</span>  <span class="co"># first 20 nt of 16S universal primer 27F</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>encoding <span class="op">=</span> tokenizer(sequence, max_length<span class="op">=</span><span class="dv">512</span>, truncation<span class="op">=</span><span class="va">True</span>, padding<span class="op">=</span><span class="st">'max_length'</span>, return_tensors<span class="op">=</span><span class="st">'pt'</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> tokenizer.convert_ids_to_tokens(encoding[<span class="st">'input_ids'</span>][<span class="dv">0</span>][:<span class="dv">10</span>])</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Vocabulary size:'</span>, tokenizer.vocab_size)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'First 10 tokens:'</span>, tokens)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Input shape:    '</span>, encoding[<span class="st">'input_ids'</span>].shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Vocabulary size: 4096
+First 10 tokens: ['[CLS]', 'A', 'GAGTT', 'TGA', 'TCCTG', 'GCTCA', 'G', '[SEP]', '[PAD]', '[PAD]']
+Input shape:     torch.Size([1, 512])</code></pre>
+</div>
+</div>
+<p>An alternative encoding (<code>--encoding onehot</code>) maps each nucleotide to a 4-channel one-hot vector (A, C, G, T), producing a tensor of shape <code>[4, max_length]</code> suitable for direct convolution. The BPE encoding is the default because it captures higher-order sequence patterns and benefits from DNABERT-2 pretraining.</p>
+</section>
+<section id="cnn-pathway" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="cnn-pathway"><span class="header-section-number">4</span> CNN pathway</h2>
+<p>The CNN pathway detects local sequence motifs through multi-scale convolutional filters. The published model uses a single layer of parallel convolutions with kernel sizes of 3, 5, and 7 tokens, capturing patterns at different spatial scales. (The architecture supports stacking multiple layers, but the published checkpoint uses one.)</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    A[Token Embeddings] --&gt; B["Conv1d K=3"]
+    A --&gt; C["Conv1d K=5"]
+    A --&gt; D["Conv1d K=7"]
+    B --&gt; E[Concatenate]
+    C --&gt; E
+    D --&gt; E
+    E --&gt; F[Global Max Pool]
+    style A fill:#f5efe4,stroke:#7a6343
+    style B fill:#d6efe8,stroke:#1f6b4f
+    style C fill:#d6efe8,stroke:#1f6b4f
+    style D fill:#d6efe8,stroke:#1f6b4f
+    style E fill:#e4dced,stroke:#5a3d75
+    style F fill:#d8e4f0,stroke:#2a5278
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>The three kernel branches operate in parallel on the same input. Their outputs are concatenated along the channel dimension, producing a feature map of width <code>num_filters x 3</code> channels (768 in the published model, with 256 filters per kernel). Each branch applies ReLU activation and dropout (0.20) after the convolution. Global max pooling across the sequence length reduces the output to a fixed-size vector regardless of input length.</p>
+<p>The multi-scale design is motivated by the structure of the 16S gene. Hypervariable regions (V1 through V9) contain short, taxon-specific motifs that the narrowest kernel (K=3) can isolate precisely. Conserved regions flanking them tend to have longer repetitive stretches that benefit from wider receptive fields (K=7). The intermediate kernel (K=5) bridges both scales.</p>
+<p>Extract and print the CNN layer shapes from the pre-trained checkpoint.</p>
+<div id="cnn-layers" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Inspect CNN layer shapes from checkpoint ---</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>ckpt <span class="op">=</span> torch.load(<span class="st">'data/models/deeptaxa-full-length-v2.pt'</span>, map_location<span class="op">=</span><span class="st">'cpu'</span>, weights_only<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>state <span class="op">=</span> ckpt[<span class="st">'state_dict'</span>]</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>cfg <span class="op">=</span> ckpt.get(<span class="st">'model_config'</span>, {})</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>cnn_cfg <span class="op">=</span> cfg.get(<span class="st">'cnn'</span>, {})</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>bert_cfg <span class="op">=</span> cfg.get(<span class="st">'bert'</span>, {})</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'CNN architecture:'</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> key <span class="kw">in</span> <span class="bu">sorted</span>(state.keys()):</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="st">'conv_stacks'</span> <span class="kw">in</span> key <span class="kw">and</span> <span class="st">'weight'</span> <span class="kw">in</span> key:</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        layer, branch, _ <span class="op">=</span> key.split(<span class="st">'.'</span>)[<span class="dv">1</span>:<span class="dv">4</span>]</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        shape <span class="op">=</span> state[key].shape</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f'  Layer </span><span class="sc">{</span>layer<span class="sc">}</span><span class="ss">, Branch </span><span class="sc">{</span>branch<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>shape[<span class="dv">1</span>]<span class="sc">}</span><span class="ss"> -&gt; </span><span class="sc">{</span>shape[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> channels, kernel size </span><span class="sc">{</span>shape[<span class="dv">2</span>]<span class="sc">}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>CNN architecture:
+  Layer 0, Branch 0: 896 -&gt; 256 channels, kernel size 3
+  Layer 0, Branch 1: 896 -&gt; 256 channels, kernel size 5
+  Layer 0, Branch 2: 896 -&gt; 256 channels, kernel size 7</code></pre>
+</div>
+</div>
+</section>
+<section id="transformer-pathway" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="transformer-pathway"><span class="header-section-number">5</span> Transformer pathway</h2>
+<p>The Transformer pathway captures long-range dependencies across the full sequence through multi-head self-attention. The table below shows the configuration used in the published checkpoint. These values are stored inside the checkpoint and can differ across training runs.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Published value</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Hidden size</td>
+<td>896</td>
+<td>Dimension of each transformer layer’s output</td>
+</tr>
+<tr class="even">
+<td>Layers</td>
+<td>4</td>
+<td>Compact configuration</td>
+</tr>
+<tr class="odd">
+<td>Attention heads</td>
+<td>7</td>
+<td>Head dimension = 896 / 7 = 128</td>
+</tr>
+<tr class="even">
+<td>FFN intermediate size</td>
+<td>3,584</td>
+<td>4x expansion ratio</td>
+</tr>
+<tr class="odd">
+<td>Max position embeddings</td>
+<td>512</td>
+<td>Matches tokenizer truncation length</td>
+</tr>
+</tbody>
+</table>
+<p>The hybrid model extracts the <code>[CLS]</code> token representation (position 0 of the final hidden state) as the Transformer’s output vector. The standalone BERT variant uses a different strategy: masked mean pooling, which averages all non-padding positions weighted by the attention mask. Mean pooling preserves information from the full sequence rather than concentrating it in a single token, but the hybrid model delegates that responsibility to the CNN pathway instead.</p>
+<p>Print the Transformer configuration extracted from the checkpoint.</p>
+<div id="bert-config" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Print Transformer configuration from checkpoint ---</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> ckpt.get(<span class="st">'bert_config'</span>, {})</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> config:</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Reconstruct from model keys</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    hidden <span class="op">=</span> state[<span class="st">'bert.embeddings.word_embeddings.weight'</span>].shape[<span class="dv">1</span>]</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    layers <span class="op">=</span> <span class="bu">max</span>(<span class="bu">int</span>(k.split(<span class="st">'.'</span>)[<span class="dv">3</span>]) <span class="cf">for</span> k <span class="kw">in</span> state <span class="cf">if</span> <span class="st">'bert.encoder.layer'</span> <span class="kw">in</span> k) <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Hidden size:       </span><span class="sc">{</span>hidden<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Transformer layers: </span><span class="sc">{</span>layers<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> [<span class="st">'hidden_size'</span>, <span class="st">'num_hidden_layers'</span>, <span class="st">'num_attention_heads'</span>, <span class="st">'intermediate_size'</span>]:</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>config<span class="sc">.</span>get(k)<span class="sc">}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Hidden size:       896
+Transformer layers: 4</code></pre>
+</div>
+</div>
+</section>
+<section id="fusion-mechanism" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="fusion-mechanism"><span class="header-section-number">6</span> Fusion mechanism</h2>
+<p>In the hybrid model, the CNN and Transformer pathways produce representations of different dimensionalities: the CNN output has <code>num_filters x 3</code> channels (768 in the published model), while the Transformer output has <code>hidden_size</code> dimensions (896). A linear projection (768 to 896) aligns the CNN output to the Transformer’s hidden size before fusion.</p>
+<p>The fusion itself uses learnable scalar weights:</p>
+<p><span class="math display">\[\mathbf{h}_{\text{fused}} = w_{\text{cnn}} \cdot \text{proj}(\mathbf{h}_{\text{cnn}}) + (1 + w_{\text{bert}}) \cdot \mathbf{h}_{\text{bert}}\]</span></p>
+<p>The <span class="math inline">\((1 + w_{\text{bert}})\)</span> coefficient ensures that the Transformer representation always contributes at least its unscaled value, acting as a residual connection. This guarantees reliable gradient flow through the Transformer pathway regardless of how small <span class="math inline">\(w_{\text{bert}}\)</span> becomes during training. Both <span class="math inline">\(w_{\text{cnn}}\)</span> and <span class="math inline">\(w_{\text{bert}}\)</span> are initialized to 1.0 and learned jointly with the rest of the model. After fusion, a dropout layer (<span class="math inline">\(p = 0.20\)</span>) is applied before the classification heads.</p>
+<p>Inspect the learned fusion weights from the pre-trained checkpoint.</p>
+<div id="fusion-weights" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Inspect learned fusion weights ---</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>w_cnn <span class="op">=</span> state.get(<span class="st">'w_cnn'</span>, <span class="va">None</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>w_bert <span class="op">=</span> state.get(<span class="st">'w_bert'</span>, <span class="va">None</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> w_cnn <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'w_cnn:  </span><span class="sc">{</span>w_cnn<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">'</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'w_bert: </span><span class="sc">{</span>w_bert<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">'</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    ratio <span class="op">=</span> w_cnn.item() <span class="op">/</span> (w_cnn.item() <span class="op">+</span> w_bert.item())</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'CNN contribution: </span><span class="sc">{</span>ratio<span class="sc">:.1%}</span><span class="ss">, Transformer contribution: </span><span class="sc">{</span><span class="dv">1</span><span class="op">-</span>ratio<span class="sc">:.1%}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>w_cnn:  0.2018
+w_bert: -0.8889
+CNN contribution: -29.4%, Transformer contribution: 129.4%</code></pre>
+</div>
+</div>
+</section>
+<section id="classification-heads" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="classification-heads"><span class="header-section-number">7</span> Classification heads</h2>
+<p>Each taxonomic rank has an independent linear classifier that maps the fused representation to a probability distribution over that rank’s classes:</p>
+<p><span class="math display">\[\mathbf{z}^{(r)} = \mathbf{W}_r \mathbf{h}_{\text{fused}} + \mathbf{b}_r\]</span></p>
+<p>where <span class="math inline">\(\mathbf{W}_r \in \mathbb{R}^{C_r \times d}\)</span>, <span class="math inline">\(C_r\)</span> is the number of classes at rank <span class="math inline">\(r\)</span>, and <span class="math inline">\(d\)</span> is the dimension of the fused representation (equal to <code>hidden_size</code>, 896 in the published model). The heads are independent rather than hierarchical (i.e., the Domain prediction does not feed into the Phylum head). This design trades strict taxonomic consistency for training simplicity and parallelism: all seven heads can be computed simultaneously from the same fused vector.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In practice, hierarchical consistency violations are rare because the shared representation already encodes taxonomic structure. The <a href="./analysis.html">analysis tutorial</a> shows that over 95% of species-level errors retain the correct phylum.</p>
+</div>
+</div>
+<p>Print the classification head dimensions and parameter counts per rank.</p>
+<div id="head-dimensions" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Print classification head dimensions ---</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>RANK_LABELS <span class="op">=</span> [<span class="st">'Domain'</span>, <span class="st">'Phylum'</span>, <span class="st">'Class'</span>, <span class="st">'Order'</span>, <span class="st">'Family'</span>, <span class="st">'Genus'</span>, <span class="st">'Species'</span>]</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>total_params <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> level, label <span class="kw">in</span> <span class="bu">enumerate</span>(RANK_LABELS):</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    w_key <span class="op">=</span> <span class="ss">f'classifiers.</span><span class="sc">{</span>level<span class="sc">}</span><span class="ss">.weight'</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> w_key <span class="kw">in</span> state:</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>        shape <span class="op">=</span> state[w_key].shape</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>        params <span class="op">=</span> shape[<span class="dv">0</span>] <span class="op">*</span> shape[<span class="dv">1</span>] <span class="op">+</span> shape[<span class="dv">0</span>]  <span class="co"># weight + bias</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>        total_params <span class="op">+=</span> params</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span>label<span class="sc">:8s}</span><span class="ss">: </span><span class="sc">{</span>shape[<span class="dv">1</span>]<span class="sc">}</span><span class="ss"> -&gt; </span><span class="sc">{</span>shape[<span class="dv">0</span>]<span class="sc">:&gt;6,}</span><span class="ss"> classes (</span><span class="sc">{</span>params<span class="sc">:&gt;10,}</span><span class="ss"> parameters)'</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span><span class="st">"Total"</span><span class="sc">:8s}</span><span class="ss">: </span><span class="sc">{</span>total_params<span class="sc">:&gt;31,}</span><span class="ss"> parameters in classification heads'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Domain  : 896 -&gt;      2 classes (     1,794 parameters)
+Phylum  : 896 -&gt;    129 classes (   115,713 parameters)
+Class   : 896 -&gt;    349 classes (   313,053 parameters)
+Order   : 896 -&gt;    997 classes (   894,309 parameters)
+Family  : 896 -&gt;  2,250 classes ( 2,018,250 parameters)
+Genus   : 896 -&gt;  7,287 classes ( 6,536,439 parameters)
+Species : 896 -&gt; 16,909 classes (15,167,373 parameters)
+Total   :                      25,046,931 parameters in classification heads</code></pre>
+</div>
+</div>
+</section>
+<section id="loss-function" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="loss-function"><span class="header-section-number">8</span> Loss function</h2>
+<section id="cross-entropy-and-focal-loss" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="cross-entropy-and-focal-loss"><span class="header-section-number">8.1</span> Cross-entropy and focal loss</h3>
+<p>DeepTaxa uses cross-entropy loss by default. For datasets with extreme class imbalance, the optional focal loss (<code>--loss-type focal</code>) <span class="citation" data-cites="lin2017focal">(Lin et al., 2017)</span> modifies the loss by introducing a factor that down-weights well-classified examples, allowing abundant classes to contribute less to the gradient signal:</p>
+<p><span class="math display">\[\text{FL}(p_t) = -(1 - p_t)^\gamma \log(p_t)\]</span></p>
+<p>where <span class="math inline">\(p_t\)</span> is the predicted probability of the true class and <span class="math inline">\(\gamma\)</span> is the focusing parameter. When <span class="math inline">\(\gamma = 0\)</span>, focal loss reduces to standard cross-entropy. At the default <span class="math inline">\(\gamma = 2\)</span>, an example classified with 90% confidence receives a loss weight of only <span class="math inline">\((1 - 0.9)^2 = 0.01\)</span>, effectively removing it from the gradient signal and letting the optimizer concentrate on harder cases.</p>
+<p>The following plot compares focal loss to standard cross-entropy across different values of <span class="math inline">\(\gamma\)</span>.</p>
+<div id="cell-fig-focal-loss" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Focal loss vs cross-entropy ---</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>pt <span class="op">=</span> np.linspace(<span class="fl">0.01</span>, <span class="fl">0.99</span>, <span class="dv">200</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>ce <span class="op">=</span> <span class="op">-</span>np.log(pt)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">4</span>))</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>plt.plot(pt, ce, <span class="st">'k-'</span>, label<span class="op">=</span><span class="st">'Cross-entropy (gamma=0)'</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> gamma <span class="kw">in</span> [<span class="fl">0.5</span>, <span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">5.0</span>]:</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    fl <span class="op">=</span> <span class="op">-</span>((<span class="dv">1</span> <span class="op">-</span> pt) <span class="op">**</span> gamma) <span class="op">*</span> np.log(pt)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    plt.plot(pt, fl, <span class="st">'--'</span>, label<span class="op">=</span><span class="ss">f'Focal loss (gamma=</span><span class="sc">{</span>gamma<span class="sc">}</span><span class="ss">)'</span>)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Predicted probability for true class (pt)'</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Loss'</span>)</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-focal-loss" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Line plot of loss against predicted probability for the true class, with a solid cross-entropy curve and dashed focal-loss curves for gamma 0.5, 1, 2, and 5; larger gamma values pull the loss toward zero more sharply as the predicted probability increases.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-focal-loss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="architecture_files/figure-html/fig-focal-loss-output-1.png" alt="Line plot of loss against predicted probability for the true class, with a solid cross-entropy curve and dashed focal-loss curves for gamma 0.5, 1, 2, and 5; larger gamma values pull the loss toward zero more sharply as the predicted probability increases." width="662" height="374" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-focal-loss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Focal loss versus standard cross-entropy as a function of predicted probability for the true class. Higher gamma values increasingly suppress the loss for well-classified examples.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The plot illustrates the key tradeoff. Standard cross-entropy (black curve) decreases smoothly as confidence increases, but even at <span class="math inline">\(p_t = 0.9\)</span> (90% confident and correct) the loss is still around 0.1, so every example contributes to the gradient regardless of how well-classified it is. With <span class="math inline">\(\gamma = 2\)</span> (green curve), an example at <span class="math inline">\(p_t = 0.9\)</span> produces a loss of only <span class="math inline">\((1 - 0.9)^2 \times (-\log 0.9) \approx 0.001\)</span>, effectively removing it from the gradient signal. At <span class="math inline">\(\gamma = 5\)</span> (red curve), only severely misclassified examples (<span class="math inline">\(p_t &lt; 0.2\)</span>) generate meaningful loss.</p>
+<p>When class imbalance is severe, as in the Greengenes training set where some species have thousands of sequences and others fewer than five, focal loss prevents the optimizer from spending most of its updates on already-confident predictions for abundant taxa. With <span class="math inline">\(\gamma = 2\)</span>, the well-classified majority produces negligible loss, freeing the optimizer to concentrate on underrepresented cases.</p>
+</section>
+<section id="multi-rank-loss-aggregation" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="multi-rank-loss-aggregation"><span class="header-section-number">8.2</span> Multi-rank loss aggregation</h3>
+<p>Each of the seven classification heads produces an independent loss. When focal loss is enabled, these are focal loss values; with the default cross-entropy, they are cross-entropy values. Either way, they are combined into a single scalar that the optimizer minimizes:</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    H[Fused Representation] --&gt; D["Domain Head"]
+    H --&gt; P["Phylum Head"]
+    H --&gt; Cl["Class Head"]
+    H --&gt; O["Order Head"]
+    H --&gt; F["Family Head"]
+    H --&gt; G["Genus Head"]
+    H --&gt; S["Species Head"]
+    D --&gt; LD["ℒ₁"]
+    P --&gt; LP["ℒ₂"]
+    Cl --&gt; LC["ℒ₃"]
+    O --&gt; LO["ℒ₄"]
+    F --&gt; LF["ℒ₅"]
+    G --&gt; LG["ℒ₆"]
+    S --&gt; LS["ℒ₇"]
+    LD --&gt; W["Weighted Sum ℒ"]
+    LP --&gt; W
+    LC --&gt; W
+    LO --&gt; W
+    LF --&gt; W
+    LG --&gt; W
+    LS --&gt; W
+    style H fill:#f5efe4,stroke:#7a6343
+    style W fill:#f0e2d6,stroke:#994a2a
+    style LD fill:#d6efe8,stroke:#1f6b4f
+    style LP fill:#d6efe8,stroke:#1f6b4f
+    style LC fill:#d6efe8,stroke:#1f6b4f
+    style LO fill:#d6efe8,stroke:#1f6b4f
+    style LF fill:#d6efe8,stroke:#1f6b4f
+    style LG fill:#d6efe8,stroke:#1f6b4f
+    style LS fill:#d6efe8,stroke:#1f6b4f
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>The total loss is a weighted sum across all seven taxonomic ranks:</p>
+<p><span class="math display">\[\mathcal{L} = \sum_{r=1}^{7} w_r \cdot \mathcal{L}_r\]</span></p>
+<p>where <span class="math inline">\(\mathcal{L}_r\)</span> is either cross-entropy or focal loss at rank <span class="math inline">\(r\)</span>, depending on the <code>--loss-type</code> flag. The rank weights <span class="math inline">\(w_r\)</span> default to 1.0 (uniform). Optionally, per-class inverse-frequency weights can be applied within each rank to further compensate for imbalance. These are computed as <span class="math inline">\(w_c = N / (C \cdot n_c)\)</span>, where <span class="math inline">\(N\)</span> is the total number of sequences, <span class="math inline">\(C\)</span> is the number of classes, and <span class="math inline">\(n_c\)</span> is the count for class <span class="math inline">\(c\)</span>.</p>
+</section>
+</section>
+<section id="training-configuration" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="training-configuration"><span class="header-section-number">9</span> Training configuration</h2>
+<p>The training pipeline uses standard practices for transformer-based models:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 35%">
+<col style="width: 29%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Setting</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Optimizer</td>
+<td>AdamW (lr=5e-4, decay=0.01)</td>
+<td>Decoupled weight decay; standard for transformers <span class="citation" data-cites="loshchilov2019adamw">(Loshchilov &amp; Hutter, 2019)</span></td>
+</tr>
+<tr class="even">
+<td>LR schedule</td>
+<td>Linear warmup (10%) + linear decay</td>
+<td>Prevents instability from large early gradients</td>
+</tr>
+<tr class="odd">
+<td>Mixed precision</td>
+<td>FP16 forward, FP32 updates</td>
+<td>2x memory savings, 2-3x throughput on tensor-core GPUs</td>
+</tr>
+<tr class="even">
+<td>Gradient clipping</td>
+<td>max_norm=0.5</td>
+<td>Prevents gradient explosions in deep networks</td>
+</tr>
+<tr class="odd">
+<td>Gradient accumulation</td>
+<td>Configurable (default: 1)</td>
+<td>Simulates larger batch sizes without additional memory</td>
+</tr>
+<tr class="even">
+<td>Loss scaling</td>
+<td>GradScaler (init=16,384)</td>
+<td>Prevents FP16 gradient underflow</td>
+</tr>
+</tbody>
+</table>
+<p>The learning rate follows a triangular schedule: it increases linearly from zero to the base rate over the first 10% of training steps (warmup), then decreases linearly back to zero over the remaining 90% (decay). This schedule stabilizes early training when the randomly initialized classification heads produce large, noisy gradients, and gradually anneals the step size for fine-grained convergence.</p>
+<p>For details on running a training job, interpreting loss curves, and using early stopping, see the <a href="./training.html">training tutorial</a>.</p>
+</section>
+<section id="extending-deeptaxa" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="extending-deeptaxa"><span class="header-section-number">10</span> Extending DeepTaxa</h2>
+<section id="applying-deeptaxa-to-other-marker-genes" class="level3" data-number="10.1">
+<h3 data-number="10.1" class="anchored" data-anchor-id="applying-deeptaxa-to-other-marker-genes"><span class="header-section-number">10.1</span> Applying DeepTaxa to other marker genes</h3>
+<p>Although the tutorials use 16S rRNA sequences throughout, the model architecture is not specific to the 16S gene. The CNN kernels, Transformer attention, and BPE tokenizer operate on raw nucleotide strings regardless of their biological origin. Any marker gene with a reference database mapping sequences to hierarchical labels can be used as training data. Candidates include:</p>
+<ul>
+<li><strong>ITS</strong> (internal transcribed spacer) for fungal taxonomy</li>
+<li><strong>18S rRNA</strong> for eukaryotic microorganisms</li>
+<li><strong><em>rpoB</em></strong> or <strong><em>gyrB</em></strong> for higher-resolution bacterial classification</li>
+<li><strong>COI</strong> (cytochrome c oxidase subunit I) for animal metabarcoding</li>
+</ul>
+<p>To train on a different marker, prepare a FASTA file of reference sequences and a TSV file of taxonomy labels in the same format used by the <a href="./training.html">training tutorial</a>. The <code>--max-length</code> flag may need adjustment if the new marker is substantially longer or shorter than the ~1,500 bp 16S gene.</p>
+</section>
+<section id="adding-a-new-taxonomic-rank" class="level3" data-number="10.2">
+<h3 data-number="10.2" class="anchored" data-anchor-id="adding-a-new-taxonomic-rank"><span class="header-section-number">10.2</span> Adding a new taxonomic rank</h3>
+<p>The number of ranks is determined automatically from the taxonomy file at training time. To add an eighth rank (e.g., Strain), append a column to the TSV file. The training pipeline will detect the additional column, build a new classification head, and include it in the loss computation. No code changes are required.</p>
+</section>
+<section id="swapping-the-backbone" class="level3" data-number="10.3">
+<h3 data-number="10.3" class="anchored" data-anchor-id="swapping-the-backbone"><span class="header-section-number">10.3</span> Swapping the backbone</h3>
+<p>To replace DNABERT-2 with another tokenizer and pretrained model (e.g., ESM-2 for protein sequences):</p>
+<ol type="1">
+<li>Change <code>--tokenizer-name</code> to the new Hugging Face model ID</li>
+<li>Adjust <code>--max-length</code> if the new model expects a different sequence length</li>
+<li>If the pretrained model is not BERT-based, replace <code>BertModel</code> in <code>deeptaxa/models/bert.py</code> or <code>deeptaxa/models/hybrid.py</code> with the appropriate class</li>
+</ol>
+</section>
+<section id="adding-a-new-model-variant" class="level3" data-number="10.4">
+<h3 data-number="10.4" class="anchored" data-anchor-id="adding-a-new-model-variant"><span class="header-section-number">10.4</span> Adding a new model variant</h3>
+<ol type="1">
+<li>Create a new file in <code>deeptaxa/models/</code> (e.g., <code>attention.py</code>)</li>
+<li>Implement a module that accepts <code>input_ids</code> and <code>attention_mask</code> and returns a dictionary of logits keyed by rank index</li>
+<li>Register the new variant in <code>deeptaxa/models/__init__.py</code> and in the model setup logic in <code>deeptaxa/train.py</code></li>
+</ol>
+</section>
+<section id="implementing-hierarchical-loss-consistency" class="level3" data-number="10.5">
+<h3 data-number="10.5" class="anchored" data-anchor-id="implementing-hierarchical-loss-consistency"><span class="header-section-number">10.5</span> Implementing hierarchical loss consistency</h3>
+<p>The current architecture treats each rank independently. To enforce parent-child consistency (e.g., the predicted genus must belong to the predicted family), two approaches are available:</p>
+<ul>
+<li><strong>Post-hoc correction</strong>: after inference, propagate the top-level prediction downward and mask inconsistent children. This requires no retraining.</li>
+<li><strong>Hierarchical loss penalty</strong>: add a term to the loss function that penalizes predictions where the child label is not a valid descendant of the parent label. This requires access to the taxonomy tree during training.</li>
+</ul>
+</section>
+</section>
+<section id="summary" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="summary"><span class="header-section-number">11</span> Summary</h2>
+<p>DeepTaxa’s hybrid architecture combines convolutional feature extraction (local motifs at multiple scales) with transformer-based attention (global sequence context), fused through learnable weights with a residual connection for gradient stability. The released checkpoints train with cross-entropy loss, and an optional focal loss is available for the long-tailed class distribution inherent to microbial taxonomy databases. Independent per-rank classification heads allow parallel predictions across all seven taxonomic levels.</p>
+<p>For running predictions, see the <a href="./prediction.html">prediction tutorial</a>. For training and evaluation, see the <a href="./training.html">training tutorial</a> and <a href="./analysis.html">analysis tutorial</a>.</p>
+</section>
+<section id="concepts-used-in-this-tutorial" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="concepts-used-in-this-tutorial"><span class="header-section-number">12</span> Concepts used in this tutorial</h2>
+<p>This tutorial uses several standard terms: base pairs, convolutional filters and kernel sizes, ReLU, dropout, residual connections, self-attention, byte-pair encoding, focal loss, mixed-precision training, and gradient accumulation. See the <a href="./glossary.html">Glossary</a> for short definitions.</p>
+</section>
+<section id="key-references" class="level2" data-number="13">
+<h2 data-number="13" class="anchored" data-anchor-id="key-references"><span class="header-section-number">13</span> Key references</h2>
+<p>This tutorial references the DNABERT-2 tokenizer <span class="citation" data-cites="zhou2024dnabert2">(Zhou et al., 2024)</span>, the AdamW optimizer <span class="citation" data-cites="loshchilov2019adamw">(Loshchilov &amp; Hutter, 2019)</span>, and focal loss <span class="citation" data-cites="lin2017focal">(Lin et al., 2017)</span>. See the <a href="./references.html">References</a> page for the complete bibliography.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="https://github.com/systems-genomics-lab/deeptaxa">DeepTaxa</a> — Systems Genomics Lab</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

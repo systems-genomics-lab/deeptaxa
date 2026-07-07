@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>DeepTaxa Tutorial: Classifying V3-V4 16S ASVs and Validating Against a Mock Community – DeepTaxa Tutorials</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-717509a77493095b47d39ac7ef6fe000.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<!-- Cloudflare Web Analytics --><script defer="" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;814105493de84c40bfe298120ac18d08&quot;}"></script><!-- End Cloudflare Web Analytics -->
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">DeepTaxa Tutorials</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../prediction.html"> 
+<span class="menu-text">Prediction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../ensemble.html"> 
+<span class="menu-text">Ensemble</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../validation.html"> 
+<span class="menu-text">Validation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../casestudy.html"> 
+<span class="menu-text">Case study</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../training.html"> 
+<span class="menu-text">Training</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../analysis.html"> 
+<span class="menu-text">Analysis</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../architecture.html"> 
+<span class="menu-text">Architecture</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../qiime2.html"> 
+<span class="menu-text">QIIME 2</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../glossary.html"> 
+<span class="menu-text">Glossary</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../references.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/systems-genomics-lab/deeptaxa"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text">GitHub</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul>
+  <li><a href="#install" id="toc-install" class="nav-link active" data-scroll-target="#install"><span class="header-section-number">1</span> Install</a></li>
+  <li><a href="#the-sequences" id="toc-the-sequences" class="nav-link" data-scroll-target="#the-sequences"><span class="header-section-number">2</span> The sequences</a></li>
+  <li><a href="#download-the-v3-v4-checkpoint" id="toc-download-the-v3-v4-checkpoint" class="nav-link" data-scroll-target="#download-the-v3-v4-checkpoint"><span class="header-section-number">3</span> Download the V3-V4 checkpoint</a></li>
+  <li><a href="#classify" id="toc-classify" class="nav-link" data-scroll-target="#classify"><span class="header-section-number">4</span> Classify</a></li>
+  <li><a href="#read-the-predictions" id="toc-read-the-predictions" class="nav-link" data-scroll-target="#read-the-predictions"><span class="header-section-number">5</span> Read the predictions</a></li>
+  <li><a href="#validate-against-the-known-genera" id="toc-validate-against-the-known-genera" class="nav-link" data-scroll-target="#validate-against-the-known-genera"><span class="header-section-number">6</span> Validate against the known genera</a></li>
+  <li><a href="#species-where-the-two-methods-differ" id="toc-species-where-the-two-methods-differ" class="nav-link" data-scroll-target="#species-where-the-two-methods-differ"><span class="header-section-number">7</span> Species: where the two methods differ</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">8</span> Summary</a></li>
+  <li><a href="#appendix-how-the-asvs-were-made" id="toc-appendix-how-the-asvs-were-made" class="nav-link" data-scroll-target="#appendix-how-the-asvs-were-made"><span class="header-section-number">9</span> Appendix: how the ASVs were made</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">DeepTaxa Tutorial: Classifying V3-V4 16S ASVs and Validating Against a Mock Community</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="https://colab.research.google.com/github/systems-genomics-lab/deeptaxa/blob/main/tutorials/validation/v3-v4.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" class="img-fluid figure-img"></a></p>
+<figcaption>Open In Colab</figcaption>
+</figure>
+</div>
+<p>A 16S survey produces a set of amplicon sequence variants (ASVs), and the analytical goal is to determine which organisms they represent and how far down the taxonomy the names can be trusted. This notebook pursues that goal with DeepTaxa on V3-V4 reads from a community of known composition, the ZymoBIOMICS Microbial Community Standard, where each assignment can be checked directly.</p>
+<p>The key choice when using DeepTaxa is to match the model checkpoint to the sequenced region. DeepTaxa provides region-specific checkpoints; these reads are V3-V4, so the V3-V4 checkpoint is used. The sample is the ZymoBIOMICS standard, eight known bacteria, sequenced 2 x 300 on an Illumina MiSeq over V3-V4 (accession <a href="https://www.ncbi.nlm.nih.gov/sra/SRR35133066">SRR35133066</a>). The analysis begins from ASVs produced with DADA2; the Appendix details that step. The notebook runs on a free Colab GPU.</p>
+<section id="install" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="install"><span class="header-section-number">1</span> Install</h2>
+<div id="29650ec2" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-06-27T08:25:05.057789Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-06-27T08:25:05.057666Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-06-27T08:25:07.370970Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-06-27T08:25:07.370065Z&quot;}}" data-outputid="2bcf32e1-58ad-4c3f-c416-2eb365239a45" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install <span class="op">-</span>q deeptaxa<span class="op">-</span>rrna</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd, torch</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> torch.cuda.is_available():</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    g <span class="op">=</span> torch.cuda.get_device_properties(<span class="dv">0</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"GPU: </span><span class="sc">{</span>g<span class="sc">.</span>name<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span>g<span class="sc">.</span>total_memory <span class="op">//</span> <span class="dv">1024</span><span class="op">**</span><span class="dv">3</span><span class="sc">}</span><span class="ss"> GB, compute </span><span class="sc">{</span>g<span class="sc">.</span>major<span class="sc">}</span><span class="ss">.</span><span class="sc">{</span>g<span class="sc">.</span>minor<span class="sc">}</span><span class="ss">, CUDA </span><span class="sc">{</span>torch<span class="sc">.</span>version<span class="sc">.</span>cuda<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"No GPU detected. In Colab: Runtime &gt; Change runtime type &gt; GPU, then run again."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 0.0/82.7 kB ? eta -:--:--
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 82.7/82.7 kB 5.2 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 0.0/3.2 MB ? eta -:--:--
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸ 3.2/3.2 MB 104.4 MB/s eta 0:00:01
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.2/3.2 MB 68.5 MB/s eta 0:00:00
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 0.0/425.6 kB ? eta -:--:--
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 425.6/425.6 kB 39.5 MB/s eta 0:00:00
+GPU: Tesla T4, 14 GB, compute 7.5, CUDA 12.8</code></pre>
+</div>
+</div>
+</section>
+<section id="the-sequences" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="the-sequences"><span class="header-section-number">2</span> The sequences</h2>
+<p>Fifteen ASVs were inferred from a ZymoBIOMICS Microbial Community Standard (Zymo Research) sequenced over the V3-V4 region, from the public SRA run <a href="https://www.ncbi.nlm.nih.gov/sra/SRR35133066">SRR35133066</a>. The Appendix shows how they were produced.</p>
+<div id="4e9cf5b7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-06-27T08:25:07.373343Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-06-27T08:25:07.373069Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-06-27T08:25:08.140182Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-06-27T08:25:08.139348Z&quot;}}" data-outputid="b18b2287-ff9f-4ed3-dd27-d7462a00fec0" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> urllib.request</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>base <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/systems-genomics-lab/deeptaxa/main/tutorials/validation/data"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>urllib.request.urlretrieve(<span class="ss">f"</span><span class="sc">{</span>base<span class="sc">}</span><span class="ss">/v3v4_seqs.fasta"</span>, <span class="st">"asvs.fasta"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>counts <span class="op">=</span> pd.read_csv(<span class="ss">f"</span><span class="sc">{</span>base<span class="sc">}</span><span class="ss">/v3v4_counts.tsv"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>, index_col<span class="op">=</span><span class="dv">0</span>)[<span class="st">"count"</span>]</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(counts), <span class="st">"ASVs"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>15 ASVs</code></pre>
+</div>
+</div>
+</section>
+<section id="download-the-v3-v4-checkpoint" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="download-the-v3-v4-checkpoint"><span class="header-section-number">3</span> Download the V3-V4 checkpoint</h2>
+<p>The checkpoints are on Hugging Face. This is V3-V4 data, so the V3-V4 checkpoint is downloaded.</p>
+<div id="fe6b4248" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-06-27T08:25:08.141880Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-06-27T08:25:08.141722Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-06-27T08:25:08.268206Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-06-27T08:25:08.267290Z&quot;}}" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>wget <span class="op">-</span>q <span class="op">-</span>nc https:<span class="op">//</span>huggingface.co<span class="op">/</span>systems<span class="op">-</span>genomics<span class="op">-</span>lab<span class="op">/</span>deeptaxa<span class="op">/</span>resolve<span class="op">/</span>main<span class="op">/</span>deeptaxa<span class="op">-</span>v3v4<span class="op">-</span>v2.pt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="classify" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="classify"><span class="header-section-number">4</span> Classify</h2>
+<p>A single command performs the classification. <code>--tabular</code> writes one row per sequence with a column per rank.</p>
+<div id="541b3474" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-06-27T08:25:08.270186Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-06-27T08:25:08.270006Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-06-27T08:25:17.503522Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-06-27T08:25:17.502726Z&quot;}}" data-outputid="66c66965-0e02-4f63-c343-7e5c3cad633e" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>deeptaxa predict <span class="op">--</span>fasta<span class="op">-</span><span class="bu">file</span> asvs.fasta <span class="op">--</span>checkpoint deeptaxa<span class="op">-</span>v3v4<span class="op">-</span>v2.pt <span class="op">--</span>output<span class="op">-</span><span class="bu">dir</span> out <span class="op">--</span>tabular</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>pred <span class="op">=</span> pd.read_csv(<span class="st">"out/asvs_deeptaxa_predictions.tsv"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>).set_index(<span class="st">"sequence_id"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>counts <span class="op">=</span> counts.reindex(pred.index)  <span class="co"># align read counts to the classified ASVs</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>2026-06-27 09:05:36,373 - INFO - 
+======================================================================
+          DeepTaxa Prediction Session (v1.1.0)
+--------------------------------------------------
+          Started: 2026-06-27T09:05:36.373131
+======================================================================
+    
+config.json: 100% 904/904 [00:00&lt;00:00, 3.09MB/s]
+configuration_bert.py: 100% 1.01k/1.01k [00:00&lt;00:00, 2.82MB/s]
+[transformers] A new version of the following files was downloaded from https://huggingface.co/zhihan1996/DNABERT-2-117M:
+- configuration_bert.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+tokenizer_config.json: 100% 158/158 [00:00&lt;00:00, 701kB/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-06-27 09:05:37,959 - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+tokenizer.json: 100% 168k/168k [00:00&lt;00:00, 85.5MB/s]
+2026-06-27 09:05:39,130 - INFO - Initialized HybridCNNBERTClassifier with CNN: {'embed_dim': 896, 'num_filters': 256, 'kernel_sizes': [3, 5, 7], 'num_conv_layers': 1, 'dropout_prob': 0.2}, BERT hidden_size=896, output_attentions=False
+2026-06-27 09:05:39,291 - INFO - Model loaded from checkpoint: deeptaxa-v3v4-v2.pt with type: hybridcnnbert
+2026-06-27 09:05:39,987 - INFO - Loaded 15 sequences from asvs.fasta
+Predicting: 100% 1/1 [00:01&lt;00:00,  1.68s/it]
+2026-06-27 09:05:41,671 - INFO - Saved run UUID to out/deeptaxa_uuid.txt
+2026-06-27 09:05:41,672 - INFO - 
+======================================================================
+          DeepTaxa Prediction Summary (v1.1.0)
+--------------------------------------------------
+          Here's a summary of your prediction results:
+          - Total Sequences Processed: 15
+          - Prediction Time: 5.30 seconds
+          - Completed At: 2026-06-27T09:05:41.671186
+======================================================================
+    
+2026-06-27 09:05:41,672 - INFO - Performance Metrics by Taxonomic Rank:
+2026-06-27 09:05:41,672 - INFO - Rank       | Mean Score   | Std Score    | Accuracy     | Top-{top_k} Acc | F1       | Precision    | Recall       | AUC         
+2026-06-27 09:05:41,672 - INFO - ---------------------------------------------------------------------------------------------------------------------------------
+2026-06-27 09:05:41,672 - INFO - domain     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-06-27 09:05:41,673 - INFO - phylum     | 1.0000       | 0.0001       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-06-27 09:05:41,673 - INFO - class      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-06-27 09:05:41,673 - INFO - order      | 0.9993       | 0.0016       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-06-27 09:05:41,673 - INFO - family     | 0.9665       | 0.1220       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-06-27 09:05:41,674 - INFO - genus      | 0.9731       | 0.0962       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-06-27 09:05:41,674 - INFO - species    | 0.8010       | 0.2472       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-06-27 09:05:41,894 - INFO - Saved prediction results to: out/asvs_deeptaxa_predictions.json
+2026-06-27 09:05:41,909 - INFO - Saved tabular prediction results to: out/asvs_deeptaxa_predictions.tsv
+2026-06-27 09:05:41,909 - INFO - 
+======================================================================
+Thank you for using DeepTaxa 🤗
+======================================================================</code></pre>
+</div>
+</div>
+</section>
+<section id="read-the-predictions" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="read-the-predictions"><span class="header-section-number">5</span> Read the predictions</h2>
+<p>Each rank has a predicted label and a <code>raw_score</code>, the model’s confidence in that label, from 0 to 1. Confidence is high on a region-matched amplicon and falls at the deeper ranks, because the 16S gene carries less information about species than about phylum. A low score means the model is uncertain and should be treated as provisional. Where DeepTaxa cannot resolve a species, it keeps the genus and returns it with an “Unclassified_” prefix, for example “Unclassified_Escherichia”, rather than forcing a species call.</p>
+<div id="6a5dc849" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-06-27T08:25:17.505404Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-06-27T08:25:17.505229Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-06-27T08:25:17.517960Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-06-27T08:25:17.517412Z&quot;}}" data-outputid="c7ae8e82-2b0c-42fa-b986-bc6a832ffa03" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>pred[[<span class="st">"genus_predicted"</span>, <span class="st">"genus_raw_score"</span>, <span class="st">"species_predicted"</span>, <span class="st">"species_raw_score"</span>]].head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div id="df-35f14d2d-ce46-4f22-aa5a-b93a95e46dd0" class="colab-df-container">
+    <div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">genus_predicted</th>
+<th data-quarto-table-cell-role="th">genus_raw_score</th>
+<th data-quarto-table-cell-role="th">species_predicted</th>
+<th data-quarto-table-cell-role="th">species_raw_score</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">sequence_id</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">ASV1</th>
+<td>Limosilactobacillus</td>
+<td>0.999996</td>
+<td>Limosilactobacillus fermentum</td>
+<td>0.999981</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">ASV2</th>
+<td>Bacillus_P_294101</td>
+<td>0.999701</td>
+<td>Bacillus_P_294101 halotolerans</td>
+<td>0.748827</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">ASV3</th>
+<td>Escherichia</td>
+<td>0.999959</td>
+<td>Unclassified_Escherichia</td>
+<td>0.537758</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">ASV4</th>
+<td>Salmonella</td>
+<td>0.999756</td>
+<td>Salmonella bongori</td>
+<td>0.999722</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">ASV5</th>
+<td>Staphylococcus</td>
+<td>0.999766</td>
+<td>Unclassified_Staphylococcus</td>
+<td>0.953749</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-35f14d2d-ce46-4f22-aa5a-b93a95e46dd0')" title="Convert this dataframe to an interactive table." style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"></path>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-35f14d2d-ce46-4f22-aa5a-b93a95e46dd0 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-35f14d2d-ce46-4f22-aa5a-b93a95e46dd0');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+    </div>
+  </div>
+</div>
+</div>
+</section>
+<section id="validate-against-the-known-genera" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="validate-against-the-known-genera"><span class="header-section-number">6</span> Validate against the known genera</h2>
+<p>The sample contains eight known genera, so the result can be checked. DeepTaxa reports GTDB names, which differ from the NCBI names of the standard: <em>Lactobacillus fermentum</em> is <em>Limosilactobacillus</em> in GTDB, <em>Pseudomonas</em> may appear as <em>Pseudomonas_E</em>, and <em>Escherichia</em> and <em>Shigella</em> are reported together. The short function below reduces a label to a plain genus name so the two can be compared.</p>
+<p>For comparison, the result of a conventional pipeline is loaded as a reference: DADA2 with the SILVA v138 database. That pipeline classifies the genus with a naive Bayes model and assigns a species only by exact matching against the reference. It is labeled DADA2 + SILVA below, since SILVA itself is the reference database, not the classifier.</p>
+<div id="dc2f644d" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-06-27T08:25:17.519355Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-06-27T08:25:17.519209Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-06-27T08:25:17.836332Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-06-27T08:25:17.835681Z&quot;}}" data-outputid="a61f206e-aa09-42f9-ee83-7781abda642e" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>silva <span class="op">=</span> pd.read_csv(<span class="ss">f"</span><span class="sc">{</span>base<span class="sc">}</span><span class="ss">/v3v4_silva.tsv"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>).set_index(<span class="st">"ASV"</span>).reindex(pred.index)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> base_genus(name):</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(name, <span class="bu">str</span>):                      <span class="co"># missing genus (NaN)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    name <span class="op">=</span> re.sub(<span class="vs">r"</span><span class="pp">[ _-]</span><span class="dv">.</span><span class="op">*</span><span class="vs">"</span>, <span class="st">""</span>, name).lower()        <span class="co"># drop GTDB suffixes and "sensu stricto"</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"limosilactobacillus"</span>: <span class="st">"lactobacillus"</span>, <span class="st">"shigella"</span>: <span class="st">"escherichia"</span>}.get(name, name)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>EXPECTED <span class="op">=</span> {<span class="st">"pseudomonas"</span>, <span class="st">"escherichia"</span>, <span class="st">"salmonella"</span>, <span class="st">"lactobacillus"</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>            <span class="st">"enterococcus"</span>, <span class="st">"staphylococcus"</span>, <span class="st">"listeria"</span>, <span class="st">"bacillus"</span>}</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>dt_genus <span class="op">=</span> pred[<span class="st">"genus_predicted"</span>].<span class="bu">map</span>(base_genus)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>sv_genus <span class="op">=</span> silva[<span class="st">"Genus"</span>].<span class="bu">map</span>(base_genus)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"DeepTaxa recovered"</span>, <span class="bu">len</span>(<span class="bu">set</span>(dt_genus) <span class="op">&amp;</span> EXPECTED), <span class="st">"of 8 genera"</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"DADA2 + SILVA recovered"</span>, <span class="bu">len</span>(<span class="bu">set</span>(sv_genus.dropna()) <span class="op">&amp;</span> EXPECTED), <span class="st">"of 8 genera"</span>)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"They agree on the genus of"</span>,</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>      <span class="bu">round</span>(counts[dt_genus <span class="op">==</span> sv_genus].<span class="bu">sum</span>() <span class="op">/</span> counts.<span class="bu">sum</span>() <span class="op">*</span> <span class="dv">100</span>), <span class="st">"</span><span class="sc">% o</span><span class="st">f reads"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>DeepTaxa recovered 8 of 8 genera
+DADA2 + SILVA recovered 8 of 8 genera
+They agree on the genus of 100 % of reads</code></pre>
+</div>
+</div>
+</section>
+<section id="species-where-the-two-methods-differ" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="species-where-the-two-methods-differ"><span class="header-section-number">7</span> Species: where the two methods differ</h2>
+<p>At the species rank the methods diverge. The table lists the calls for the most abundant ASVs; a single-word entry is a genus only, where the method stopped, and a two-word entry is a species. DADA2 + SILVA assigns a species only on an exact, unambiguous reference match, so here it stops at the genus on all but a few low-abundance ASVs. Those genus-only entries are reads it declined to name rather than reads it named incorrectly, and every species it does assign is correct. DeepTaxa names a species for a much larger share of the reads, but from this short region it too stops at the genus on several ASVs, such as <em>Staphylococcus</em>, <em>Escherichia</em>, and <em>Listeria</em>, where the V3-V4 window does not support a confident species call. Where it does name a species, the call is occasionally a close relative of the expected organism, such as <em>Shigella</em> for <em>Escherichia coli</em>. The full-length example resolves species more reliably.</p>
+<div id="180145b7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-06-27T08:25:17.837818Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-06-27T08:25:17.837682Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-06-27T08:25:17.846298Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-06-27T08:25:17.845720Z&quot;}}" data-outputid="c8942d1c-f90c-4a8e-c254-f4d3be957869" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>pd.DataFrame({</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"reads"</span>: counts,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"DeepTaxa"</span>: (pred[<span class="st">"species_predicted"</span>]</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                 .<span class="bu">str</span>.replace(<span class="st">"Unclassified_"</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                 .<span class="bu">str</span>.replace(<span class="vs">r"_</span><span class="pp">[A-Za-z0-9]</span><span class="op">+</span><span class="vs">"</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">True</span>)),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"DADA2 + SILVA"</span>: (silva[<span class="st">"Genus"</span>].fillna(<span class="st">""</span>) <span class="op">+</span> <span class="st">" "</span> <span class="op">+</span> silva[<span class="st">"Species"</span>].fillna(<span class="st">""</span>)).<span class="bu">str</span>.strip(),</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>}).sort_values(<span class="st">"reads"</span>, ascending<span class="op">=</span><span class="va">False</span>).head(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<div id="df-d35353b0-edb7-4886-ab04-3ae4ae344f57" class="colab-df-container">
+    <div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">reads</th>
+<th data-quarto-table-cell-role="th">DeepTaxa</th>
+<th data-quarto-table-cell-role="th">DADA2 + SILVA</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">sequence_id</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">ASV1</th>
+<td>7473</td>
+<td>Limosilactobacillus fermentum</td>
+<td>Lactobacillus</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">ASV2</th>
+<td>3550</td>
+<td>Bacillus halotolerans</td>
+<td>Bacillus</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">ASV3</th>
+<td>3494</td>
+<td>Escherichia</td>
+<td>Escherichia-Shigella</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">ASV4</th>
+<td>3356</td>
+<td>Salmonella bongori</td>
+<td>Salmonella</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">ASV5</th>
+<td>2821</td>
+<td>Staphylococcus</td>
+<td>Staphylococcus</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">ASV6</th>
+<td>2558</td>
+<td>Listeria</td>
+<td>Listeria</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">ASV7</th>
+<td>2084</td>
+<td>Pseudomonas paraeruginosa</td>
+<td>Pseudomonas</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">ASV8</th>
+<td>1633</td>
+<td>Enterococcus faecalis</td>
+<td>Enterococcus</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">ASV9</th>
+<td>574</td>
+<td>Escherichia</td>
+<td>Escherichia-Shigella</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">ASV10</th>
+<td>573</td>
+<td>Staphylococcus</td>
+<td>Staphylococcus aureus</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-d35353b0-edb7-4886-ab04-3ae4ae344f57')" title="Convert this dataframe to an interactive table." style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"></path>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-d35353b0-edb7-4886-ab04-3ae4ae344f57 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-d35353b0-edb7-4886-ab04-3ae4ae344f57');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+    </div>
+  </div>
+</div>
+</div>
+<p>The calls reduce to a single set of numbers: the share of reads reaching the correct species. DADA2 + SILVA is credited for exact matches only; DeepTaxa is credited for exact matches, and separately for exact matches plus close relatives that 16S cannot separate from the expected organism.</p>
+<div id="c118cdae" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-06-27T08:25:17.847656Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-06-27T08:25:17.847513Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-06-27T08:25:17.856157Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-06-27T08:25:17.855615Z&quot;}}" data-outputid="d78a878a-6ad3-4a14-c8ea-8a433868d0f9" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>EXPECTED_SP <span class="op">=</span> {<span class="st">"escherichia"</span>: <span class="st">"coli"</span>, <span class="st">"salmonella"</span>: <span class="st">"enterica"</span>, <span class="st">"lactobacillus"</span>: <span class="st">"fermentum"</span>,</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">"enterococcus"</span>: <span class="st">"faecalis"</span>, <span class="st">"staphylococcus"</span>: <span class="st">"aureus"</span>, <span class="st">"listeria"</span>: <span class="st">"monocytogenes"</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>               <span class="st">"pseudomonas"</span>: <span class="st">"aeruginosa"</span>, <span class="st">"bacillus"</span>: <span class="st">"subtilis"</span>}</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>SIBLINGS <span class="op">=</span> {<span class="st">"escherichia"</span>: {<span class="st">"flexneri"</span>, <span class="st">"sonnei"</span>, <span class="st">"boydii"</span>, <span class="st">"dysenteriae"</span>, <span class="st">"albertii"</span>},</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">"pseudomonas"</span>: {<span class="st">"paraeruginosa"</span>}, <span class="st">"bacillus"</span>: {<span class="st">"spizizenii"</span>, <span class="st">"inaquosorum"</span>, <span class="st">"halotolerans"</span>}}</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> epithet(label):</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> re.sub(<span class="vs">r"_</span><span class="pp">[A-Za-z0-9]</span><span class="op">+</span><span class="vs">"</span>, <span class="st">""</span>, <span class="bu">str</span>(label).split()[<span class="op">-</span><span class="dv">1</span>]).lower() <span class="cf">if</span> <span class="st">" "</span> <span class="kw">in</span> <span class="bu">str</span>(label) <span class="cf">else</span> <span class="st">""</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>dt_g <span class="op">=</span> pred[<span class="st">"genus_predicted"</span>].<span class="bu">map</span>(base_genus)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>dt_e <span class="op">=</span> pred[<span class="st">"species_predicted"</span>].<span class="bu">map</span>(epithet)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>confident <span class="op">=</span> pred[<span class="st">"species_raw_score"</span>] <span class="op">&gt;=</span> <span class="fl">0.5</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>dt_exact <span class="op">=</span> confident <span class="op">&amp;</span> (dt_e <span class="op">==</span> dt_g.<span class="bu">map</span>(EXPECTED_SP))</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>dt_sibling <span class="op">=</span> confident <span class="op">&amp;</span> pd.Series([e <span class="kw">in</span> SIBLINGS.get(g, <span class="bu">set</span>()) <span class="cf">for</span> g, e <span class="kw">in</span> <span class="bu">zip</span>(dt_g, dt_e)], index<span class="op">=</span>dt_g.index)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>sv_e <span class="op">=</span> silva[<span class="st">"Species"</span>].<span class="bu">map</span>(<span class="kw">lambda</span> s: <span class="bu">str</span>(s).lower() <span class="cf">if</span> <span class="bu">isinstance</span>(s, <span class="bu">str</span>) <span class="cf">else</span> <span class="st">""</span>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>sv_exact <span class="op">=</span> sv_e <span class="op">==</span> silva[<span class="st">"Genus"</span>].<span class="bu">map</span>(base_genus).<span class="bu">map</span>(EXPECTED_SP)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> reads_pct(mask):</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">round</span>(counts[mask].<span class="bu">sum</span>() <span class="op">/</span> counts.<span class="bu">sum</span>() <span class="op">*</span> <span class="dv">100</span>)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Reads correctly identified to species (%):"</span>)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"  DADA2 + SILVA, exact:               </span><span class="sc">{</span>reads_pct(sv_exact)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"  DeepTaxa, exact:                    </span><span class="sc">{</span>reads_pct(dt_exact)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"  DeepTaxa, exact or close relative:  </span><span class="sc">{</span>reads_pct(dt_exact <span class="op">|</span> dt_sibling)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reads correctly identified to species (%):
+  DADA2 + SILVA, exact:               4
+  DeepTaxa, exact:                    32
+  DeepTaxa, exact or close relative:  52</code></pre>
+</div>
+</div>
+</section>
+<section id="summary" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="summary"><span class="header-section-number">8</span> Summary</h2>
+<p>DeepTaxa recovered all eight genera, agreed with DADA2 + SILVA on the genus of essentially every read, and named a species for many more reads than the reference method, though from this short region it stopped at the genus on some ASVs. The two lessons that carry to other datasets are to use the checkpoint that matches the sequenced region, and to read the confidence score as a measure of information rather than a guarantee, filtering low-confidence calls. The full-length example shows the same workflow where the longer gene supports species-level assignment.</p>
+</section>
+<section id="appendix-how-the-asvs-were-made" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="appendix-how-the-asvs-were-made"><span class="header-section-number">9</span> Appendix: how the ASVs were made</h2>
+<p>The ASVs were produced offline from raw reads with primer removal and DADA2.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cutadapt</span> <span class="at">-g</span> CCTACGGGNGGCWGCAG <span class="at">-G</span> GGACTACNVGGGTWTCTAAT <span class="dt">\</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">--discard-untrimmed</span> <span class="at">-e</span> 0.15 <span class="at">--minimum-length</span> 100 <span class="dt">\</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">-o</span> fwd.trim.fastq.gz <span class="at">-p</span> rev.trim.fastq.gz fwd.fastq.gz rev.fastq.gz</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dada2)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">filterAndTrim</span>(<span class="st">"fwd.trim.fastq.gz"</span>, <span class="st">"F.fq.gz"</span>, <span class="st">"rev.trim.fastq.gz"</span>, <span class="st">"R.fq.gz"</span>,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">truncLen =</span> <span class="fu">c</span>(<span class="dv">280</span>, <span class="dv">220</span>), <span class="at">maxEE =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">4</span>), <span class="at">truncQ =</span> <span class="dv">2</span>, <span class="at">rm.phix =</span> <span class="cn">TRUE</span>, <span class="at">multithread =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>eF <span class="ot">&lt;-</span> <span class="fu">learnErrors</span>(<span class="st">"F.fq.gz"</span>, <span class="at">multithread =</span> <span class="cn">TRUE</span>); eR <span class="ot">&lt;-</span> <span class="fu">learnErrors</span>(<span class="st">"R.fq.gz"</span>, <span class="at">multithread =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>dF <span class="ot">&lt;-</span> <span class="fu">dada</span>(<span class="st">"F.fq.gz"</span>, <span class="at">err =</span> eF, <span class="at">pool =</span> <span class="st">"pseudo"</span>); dR <span class="ot">&lt;-</span> <span class="fu">dada</span>(<span class="st">"R.fq.gz"</span>, <span class="at">err =</span> eR, <span class="at">pool =</span> <span class="st">"pseudo"</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>st <span class="ot">&lt;-</span> <span class="fu">removeBimeraDenovo</span>(<span class="fu">makeSequenceTable</span>(<span class="fu">mergePairs</span>(dF, <span class="st">"F.fq.gz"</span>, dR, <span class="st">"R.fq.gz"</span>, <span class="at">minOverlap =</span> <span class="dv">12</span>)),</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">method =</span> <span class="st">"consensus"</span>, <span class="at">multithread =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>DeepTaxa does not require DADA2; any FASTA of 16S sequences works.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="https://github.com/systems-genomics-lab/deeptaxa">DeepTaxa</a> — Systems Genomics Lab</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

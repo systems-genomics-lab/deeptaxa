@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Taxonomic Classification of 16S rRNA Sequences with DeepTaxa – DeepTaxa Tutorials</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-717509a77493095b47d39ac7ef6fe000.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<!-- Cloudflare Web Analytics --><script defer="" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;814105493de84c40bfe298120ac18d08&quot;}"></script><!-- End Cloudflare Web Analytics -->
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">DeepTaxa Tutorials</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./prediction.html" aria-current="page"> 
+<span class="menu-text">Prediction</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./ensemble.html"> 
+<span class="menu-text">Ensemble</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./validation.html"> 
+<span class="menu-text">Validation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./casestudy.html"> 
+<span class="menu-text">Case study</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./training.html"> 
+<span class="menu-text">Training</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./analysis.html"> 
+<span class="menu-text">Analysis</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./architecture.html"> 
+<span class="menu-text">Architecture</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./qiime2.html"> 
+<span class="menu-text">QIIME 2</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./glossary.html"> 
+<span class="menu-text">Glossary</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./references.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/systems-genomics-lab/deeptaxa"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text">GitHub</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul>
+  <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup"><span class="header-section-number">1</span> Setup</a></li>
+  <li><a href="#data-and-model" id="toc-data-and-model" class="nav-link" data-scroll-target="#data-and-model"><span class="header-section-number">2</span> Data and model</a></li>
+  <li><a href="#running-predictions" id="toc-running-predictions" class="nav-link" data-scroll-target="#running-predictions"><span class="header-section-number">3</span> Running predictions</a>
+  <ul class="collapse">
+  <li><a href="#how-prediction-works" id="toc-how-prediction-works" class="nav-link" data-scroll-target="#how-prediction-works"><span class="header-section-number">3.1</span> How prediction works</a></li>
+  <li><a href="#single-sequence-prediction" id="toc-single-sequence-prediction" class="nav-link" data-scroll-target="#single-sequence-prediction"><span class="header-section-number">3.2</span> Single-sequence prediction</a></li>
+  <li><a href="#full-test-set-prediction" id="toc-full-test-set-prediction" class="nav-link" data-scroll-target="#full-test-set-prediction"><span class="header-section-number">3.3</span> Full test set prediction</a></li>
+  </ul></li>
+  <li><a href="#interpreting-the-results" id="toc-interpreting-the-results" class="nav-link" data-scroll-target="#interpreting-the-results"><span class="header-section-number">4</span> Interpreting the results</a>
+  <ul class="collapse">
+  <li><a href="#per-rank-accuracy" id="toc-per-rank-accuracy" class="nav-link" data-scroll-target="#per-rank-accuracy"><span class="header-section-number">4.1</span> Per-rank accuracy</a></li>
+  <li><a href="#prediction-confidence" id="toc-prediction-confidence" class="nav-link" data-scroll-target="#prediction-confidence"><span class="header-section-number">4.2</span> Prediction confidence</a></li>
+  <li><a href="#examining-individual-predictions" id="toc-examining-individual-predictions" class="nav-link" data-scroll-target="#examining-individual-predictions"><span class="header-section-number">4.3</span> Examining individual predictions</a></li>
+  </ul></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">5</span> Summary</a></li>
+  <li><a href="#concepts-used-in-this-tutorial" id="toc-concepts-used-in-this-tutorial" class="nav-link" data-scroll-target="#concepts-used-in-this-tutorial"><span class="header-section-number">6</span> Concepts used in this tutorial</a></li>
+  <li><a href="#key-references" id="toc-key-references" class="nav-link" data-scroll-target="#key-references"><span class="header-section-number">7</span> Key references</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Taxonomic Classification of 16S rRNA Sequences with DeepTaxa</h1>
+<p class="subtitle lead">Running the pre-trained model and interpreting per-rank predictions and confidence scores</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>Objective.</strong> Classify a set of 16S rRNA sequences with a pre-trained DeepTaxa model and interpret the per-rank taxonomic predictions and confidence scores.</p>
+<p><strong>Prerequisites.</strong> DeepTaxa (<code>pip install deeptaxa-rrna</code>), Python 3.10 or later, and PyTorch 2.4 or later. A CUDA-capable GPU is optional; prediction also runs on CPU.</p>
+<p><strong>Inputs.</strong> A FASTA file of 16S sequences and a pre-trained model checkpoint (about 306 MB), plus an optional ground-truth taxonomy file for evaluation. <strong>Outputs.</strong> A per-rank taxonomy TSV with confidence and entropy columns, along with accuracy and confidence summary figures. <strong>Runtime.</strong> A few minutes; the full test-set prediction takes about 6 minutes on an NVIDIA A40 GPU.</p>
+<p><em>Last validated July 2026.</em></p>
+</div>
+</div>
+</div>
+<p>The 16S ribosomal RNA gene is a roughly 1,500-nucleotide region present in all bacteria and archaea. Because portions of this gene evolve slowly while others accumulate mutations rapidly, it serves as a molecular clock for placing organisms within the tree of life. Sequencing the 16S gene from an environmental sample and assigning each read to a taxonomic lineage is one of the foundational tasks in microbial ecology and clinical microbiome research <span class="citation" data-cites="mcdonald2024greengenes">(<span class="nocase">McDonald et al.</span>, 2024)</span>.</p>
+<p>DeepTaxa is a hybrid deep learning model that classifies 16S sequences into a seven-rank taxonomic hierarchy: Domain, Phylum, Class, Order, Family, Genus, and Species. It combines convolutional neural networks (for detecting local sequence motifs) with a Transformer encoder (for capturing long-range dependencies across the full gene), and produces independent predictions at each rank along with calibrated confidence scores.</p>
+<p>This tutorial walks through the prediction workflow: loading a pre-trained model, classifying a set of test sequences, and interpreting the results. The companion tutorials cover <a href="./training.html">model training</a> and <a href="./analysis.html">in-depth performance analysis</a>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The code cells below are designed to be read in order. To run them, copy the commands into a terminal or Jupyter session on a machine with a CUDA-capable GPU.</p>
+</div>
+</div>
+<section id="setup" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="setup"><span class="header-section-number">1</span> Setup</h2>
+<p>The following cells configure the Python environment and verify GPU availability. DeepTaxa uses mixed-precision inference on CUDA GPUs, which reduces memory usage and increases throughput compared to CPU-only execution.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The PATH modification and GPU verification below are specific to containerized environments (e.g., Vast.ai, Docker) where the system Python differs from the virtual environment. If you are running on a local machine with CUDA already configured, skip ahead to the installation step.</p>
+</div>
+</div>
+<div id="lst-setup-path" class="cell listing quarto-float quarto-figure quarto-figure-left anchored" data-execution_count="1">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-setup-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;1: Configure PATH for containerized environments.
+</figcaption>
+<div aria-describedby="lst-setup-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" data-lst-cap="Configure PATH for containerized environments."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Configure PATH so bash cells find the GPU-enabled Python</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">'PATH'</span>] <span class="op">=</span> <span class="st">'/venv/main/bin:'</span> <span class="op">+</span> os.environ[<span class="st">'PATH'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</figure>
+</div>
+<p>Check that PyTorch detects the GPU. The output should show <code>True</code>, the device count, and the GPU model name.</p>
+<div id="lst-setup-gpu" class="cell listing quarto-float quarto-figure quarto-figure-left anchored" data-execution_count="2">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-setup-gpu-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;2: Verify GPU availability.
+</figcaption>
+<div aria-describedby="lst-setup-gpu-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" data-lst-cap="Verify GPU availability."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(torch.cuda.is_available())</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(torch.cuda.device_count())</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(torch.cuda.get_device_name(<span class="dv">0</span>) <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'No GPU'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>True
+1
+NVIDIA A40</code></pre>
+</div>
+</div>
+</figure>
+</div>
+<p>Install DeepTaxa from PyPI, along with the optional libraries for evaluation and plotting. DeepTaxa is distributed as <code>deeptaxa-rrna</code>; after installation the command-line tool is <code>deeptaxa</code>. Bioconda is an alternative for Conda-based toolchains (<code>conda install -c bioconda deeptaxa-rrna</code>).</p>
+<div id="lst-install-deeptaxa" class="cell listing quarto-float quarto-figure quarto-figure-left anchored" data-execution_count="3">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-install-deeptaxa-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;3: Install DeepTaxa from PyPI.
+</figcaption>
+<div aria-describedby="lst-install-deeptaxa-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" data-lst-cap="Install DeepTaxa from PyPI."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>bash</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>mkdir <span class="op">-</span>p <span class="op">~/</span>deeptaxa<span class="op">-</span>workspace</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>python <span class="op">-</span>m pip install <span class="op">-</span>q deeptaxa<span class="op">-</span>rrna</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>python <span class="op">-</span>m pip install <span class="op">-</span>q matplotlib scikit<span class="op">-</span>learn</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</figure>
+</div>
+<p>Confirm the installation.</p>
+<div id="lst-deeptaxa-version" class="cell listing quarto-float quarto-figure quarto-figure-left anchored" data-execution_count="4">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-deeptaxa-version-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;4: Verify DeepTaxa installation.
+</figcaption>
+<div aria-describedby="lst-deeptaxa-version-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-lst-cap="Verify DeepTaxa installation."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>bash</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>deeptaxa <span class="op">--</span>version</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>DeepTaxa 1.2.0</code></pre>
+</div>
+</div>
+</figure>
+</div>
+</section>
+<section id="data-and-model" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="data-and-model"><span class="header-section-number">2</span> Data and model</h2>
+<p>DeepTaxa ships a pre-trained checkpoint on <a href="https://huggingface.co/systems-genomics-lab/deeptaxa">Hugging Face</a>. This checkpoint was trained on approximately 277,000 full-length 16S sequences from the <a href="https://huggingface.co/datasets/systems-genomics-lab/greengenes">Greengenes 2</a> reference database (release 2024.09), covering over 16,000 species across 129 bacterial and archaeal phyla.</p>
+<p>The test set contains 69,335 sequences held out from training. Each sequence carries a known ground-truth taxonomy, enabling direct measurement of classification accuracy. The commands below place all files under a shared workspace directory:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 52%">
+<col style="width: 24%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Description</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>data/models/deeptaxa-full-length-v2.pt</code></td>
+<td>Pre-trained model checkpoint</td>
+<td>~306 MB</td>
+</tr>
+<tr class="even">
+<td><code>data/greengenes/gg_2024_09_testing.fna.gz</code></td>
+<td>Test sequences (FASTA, compressed)</td>
+<td>~65 MB</td>
+</tr>
+<tr class="odd">
+<td><code>data/greengenes/gg_2024_09_testing.tsv.gz</code></td>
+<td>Ground-truth taxonomy (TSV, compressed)</td>
+<td>~1.5 MB</td>
+</tr>
+</tbody>
+</table>
+<p>Download the pre-trained checkpoint and the test data from Hugging Face.</p>
+<div id="lst-download-data" class="cell listing quarto-float quarto-figure quarto-figure-left anchored" data-execution_count="5">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-download-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;5: Download model checkpoint and test data.
+</figcaption>
+<div aria-describedby="lst-download-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" data-lst-cap="Download model checkpoint and test data."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>bash</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>cd <span class="op">~/</span>deeptaxa<span class="op">-</span>workspace</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>mkdir <span class="op">-</span>p data<span class="op">/</span>models data<span class="op">/</span>greengenes</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>test <span class="op">-</span>f data<span class="op">/</span>models<span class="op">/</span>deeptaxa<span class="op">-</span>full<span class="op">-</span>length<span class="op">-</span>v2.pt <span class="op">||</span> curl <span class="op">-</span>L <span class="op">-</span>o data<span class="op">/</span>models<span class="op">/</span>deeptaxa<span class="op">-</span>full<span class="op">-</span>length<span class="op">-</span>v2.pt https:<span class="op">//</span>huggingface.co<span class="op">/</span>systems<span class="op">-</span>genomics<span class="op">-</span>lab<span class="op">/</span>deeptaxa<span class="op">/</span>resolve<span class="op">/</span>main<span class="op">/</span>deeptaxa<span class="op">-</span>full<span class="op">-</span>length<span class="op">-</span>v2.pt</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>test <span class="op">-</span>f data<span class="op">/</span>greengenes<span class="op">/</span>gg_2024_09_testing.fna.gz <span class="op">||</span> curl <span class="op">-</span>L <span class="op">-</span>o data<span class="op">/</span>greengenes<span class="op">/</span>gg_2024_09_testing.fna.gz https:<span class="op">//</span>huggingface.co<span class="op">/</span>datasets<span class="op">/</span>systems<span class="op">-</span>genomics<span class="op">-</span>lab<span class="op">/</span>greengenes<span class="op">/</span>resolve<span class="op">/</span>main<span class="op">/</span>gg_2024_09_testing.fna.gz</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>test <span class="op">-</span>f data<span class="op">/</span>greengenes<span class="op">/</span>gg_2024_09_testing.tsv.gz <span class="op">||</span> curl <span class="op">-</span>L <span class="op">-</span>o data<span class="op">/</span>greengenes<span class="op">/</span>gg_2024_09_testing.tsv.gz https:<span class="op">//</span>huggingface.co<span class="op">/</span>datasets<span class="op">/</span>systems<span class="op">-</span>genomics<span class="op">-</span>lab<span class="op">/</span>greengenes<span class="op">/</span>resolve<span class="op">/</span>main<span class="op">/</span>gg_2024_09_testing.tsv.gz</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</figure>
+</div>
+<p>List the downloaded files.</p>
+<div id="lst-list-data" class="cell listing quarto-float quarto-figure quarto-figure-left anchored" data-execution_count="6">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-list-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;6: Verify downloaded files.
+</figcaption>
+<div aria-describedby="lst-list-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8" data-lst-cap="Verify downloaded files."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>bash</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>cd <span class="op">~/</span>deeptaxa<span class="op">-</span>workspace <span class="op">&amp;&amp;</span> du <span class="op">-</span>h data<span class="op">/</span>models<span class="op">/*</span> data<span class="op">/</span>greengenes<span class="op">/*</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>293M    data/models/deeptaxa-full-length-v2.pt
+293M    data/models/deeptaxa-full-length-v2-seed1011.pt
+293M    data/models/deeptaxa-full-length-v2-seed123.pt
+293M    data/models/deeptaxa-full-length-v2-seed42.pt
+293M    data/models/deeptaxa-full-length-v2-seed456.pt
+293M    data/models/deeptaxa-full-length-v2-seed789.pt
+25M data/greengenes/gg_2024_09_testing.fna.gz
+812K    data/greengenes/gg_2024_09_testing.tsv.gz
+97M data/greengenes/gg_2024_09_training.fna.gz
+2.7M    data/greengenes/gg_2024_09_training.tsv.gz</code></pre>
+</div>
+</div>
+</figure>
+</div>
+<p>To confirm that the downloads are intact, compare each file against its published SHA-256 checksum. The following commands write the expected values to a file and verify them; every line should report <code>OK</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/deeptaxa-workspace</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> data/CHECKSUMS.sha256 <span class="op">&lt;&lt;'EOF'</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="st">b924500450ba623e26c7a023bf7246c0d4fb61787e8aa8d720d7ad35c3c6dfb4  data/models/deeptaxa-full-length-v2.pt</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="st">d79347cb231edc72371c20daa8384581a1e6fbb9fa8ad6e172a3eecba29b5709  data/greengenes/gg_2024_09_testing.fna.gz</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="st">d5268e7980ce81a39a521e22ff6078f622843c792682e7f95519188475c6d6bb  data/greengenes/gg_2024_09_testing.tsv.gz</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> <span class="at">-c</span> data/CHECKSUMS.sha256</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="running-predictions" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="running-predictions"><span class="header-section-number">3</span> Running predictions</h2>
+<section id="how-prediction-works" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="how-prediction-works"><span class="header-section-number">3.1</span> How prediction works</h3>
+<p>When DeepTaxa receives a DNA sequence, it processes it through four stages:</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+    A[DNA Sequence] --&gt; B[BPE Tokenizer]
+    B --&gt; C[CNN Pathway]
+    B --&gt; D[Transformer Pathway]
+    C --&gt; E[Fusion]
+    D --&gt; E
+    E --&gt; F[7 Classification Heads]
+    F --&gt; G[Domain ... Species]
+    style A fill:#f5efe4,stroke:#7a6343
+    style B fill:#f5efe4,stroke:#7a6343
+    style C fill:#d6efe8,stroke:#1f6b4f
+    style D fill:#d8e4f0,stroke:#2a5278
+    style E fill:#e4dced,stroke:#5a3d75
+    style F fill:#f0e2d6,stroke:#994a2a
+    style G fill:#f0e2d6,stroke:#994a2a
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<ol type="1">
+<li><p><strong>Tokenization.</strong> The raw nucleotide string is split into subword tokens using DNABERT-2 <span class="citation" data-cites="zhou2024dnabert2">(Zhou et al., 2024)</span>’s byte-pair encoding (BPE) vocabulary (4,096 tokens). This is analogous to how language models tokenize text into word pieces rather than individual characters.</p></li>
+<li><p><strong>Feature extraction.</strong> The token sequence passes through two parallel pathways: a set of convolutional filters that detect local motifs (256 filters at each of three kernel widths: 3, 5, and 7 tokens), and a Transformer encoder (4 layers, 7 attention heads) that models dependencies across the full 512-token window.</p></li>
+<li><p><strong>Fusion.</strong> The outputs of both pathways are combined through a learnable scalar fusion weight and passed through a dropout layer.</p></li>
+<li><p><strong>Classification.</strong> Seven independent linear heads produce probability distributions over the classes at each taxonomic rank. The predicted class is the one with the highest probability, and that probability serves as the confidence score.</p></li>
+</ol>
+</section>
+<section id="single-sequence-prediction" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="single-sequence-prediction"><span class="header-section-number">3.2</span> Single-sequence prediction</h3>
+<p>To verify the setup, we extract one sequence from the test set and classify it. The <code>--tabular</code> flag requests tab-separated output with columns for the predicted label, confidence score, and entropy at each rank.</p>
+<div id="lst-single-prediction" class="cell listing quarto-float quarto-figure quarto-figure-left anchored" data-execution_count="7">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-single-prediction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;7: Classify a single test sequence.
+</figcaption>
+<div aria-describedby="lst-single-prediction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11" data-lst-cap="Classify a single test sequence."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>bash</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>cd <span class="op">~/</span>deeptaxa<span class="op">-</span>workspace</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>mkdir <span class="op">-</span>p outputs<span class="op">/</span>single_sequence</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the first record from the compressed FASTA</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>zcat data<span class="op">/</span>greengenes<span class="op">/</span>gg_2024_09_testing.fna.gz <span class="op">|</span> awk <span class="st">'BEGIN{RS="&gt;"; ORS=""} NR==2 {print "&gt;"$0; exit}'</span> <span class="op">&gt;</span> outputs<span class="op">/</span>single_sequence<span class="op">/</span>single_sequence.fna</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>deeptaxa predict <span class="op">--</span>fasta<span class="op">-</span><span class="bu">file</span> outputs<span class="op">/</span>single_sequence<span class="op">/</span>single_sequence.fna <span class="op">--</span>checkpoint data<span class="op">/</span>models<span class="op">/</span>deeptaxa<span class="op">-</span>full<span class="op">-</span>length<span class="op">-</span>v2.pt <span class="op">--</span>tabular <span class="op">--</span>output<span class="op">-</span><span class="bu">dir</span> outputs<span class="op">/</span>single_sequence</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>2026-07-07 14:50:07,226 - INFO - 
+======================================================================
+          DeepTaxa Prediction Session (v1.2.0)
+--------------------------------------------------
+          Started: 2026-07-07T14:50:07.226947
+======================================================================
+    
+2026-07-07 14:50:09,080 - INFO - Initialized HybridCNNBERTClassifier with CNN: {'embed_dim': 896, 'num_filters': 256, 'kernel_sizes': [3, 5, 7], 'num_conv_layers': 1, 'dropout_prob': 0.2}, BERT hidden_size=896, output_attentions=False
+2026-07-07 14:50:09,145 - INFO - Model loaded from checkpoint: data/models/deeptaxa-full-length-v2.pt with type: hybridcnnbert
+2026-07-07 14:50:09,347 - INFO - Loaded 1 sequences from outputs/single_sequence/single_sequence.fna
+
+Predicting:   0%|          | 0/1 [00:00&lt;?, ?it/s]
+Predicting: 100%|██████████| 1/1 [00:00&lt;00:00,  1.05it/s]
+Predicting: 100%|██████████| 1/1 [00:00&lt;00:00,  1.00it/s]
+2026-07-07 14:50:10,353 - INFO - Saved run UUID to outputs/single_sequence/deeptaxa_uuid.txt
+2026-07-07 14:50:10,353 - INFO - 
+======================================================================
+          DeepTaxa Prediction Summary (v1.2.0)
+--------------------------------------------------
+          Here's a summary of your prediction results:
+          - Total Sequences Processed: 1
+          - Prediction Time: 3.13 seconds
+          - Completed At: 2026-07-07T14:50:10.352490
+======================================================================
+    
+2026-07-07 14:50:10,353 - INFO - Performance Metrics by Taxonomic Rank:
+2026-07-07 14:50:10,353 - INFO - Rank       | Mean Score   | Std Score    | Accuracy     | Top-{top_k} Acc | F1       | Precision    | Recall       | AUC         
+2026-07-07 14:50:10,353 - INFO - ---------------------------------------------------------------------------------------------------------------------------------
+2026-07-07 14:50:10,354 - INFO - domain     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 14:50:10,354 - INFO - phylum     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 14:50:10,354 - INFO - class      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 14:50:10,354 - INFO - order      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 14:50:10,354 - INFO - family     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 14:50:10,354 - INFO - genus      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 14:50:10,354 - INFO - species    | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 14:50:10,674 - INFO - Saved prediction results to: outputs/single_sequence/single_sequence_deeptaxa_predictions.json
+2026-07-07 14:50:10,687 - INFO - Saved tabular prediction results to: outputs/single_sequence/single_sequence_deeptaxa_predictions.tsv
+2026-07-07 14:50:10,687 - INFO - 
+======================================================================
+Thank you for using DeepTaxa 🤗
+======================================================================</code></pre>
+</div>
+</div>
+</figure>
+</div>
+</section>
+<section id="full-test-set-prediction" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="full-test-set-prediction"><span class="header-section-number">3.3</span> Full test set prediction</h3>
+<p>For a systematic evaluation, we classify all 69,335 test sequences. Passing <code>--taxonomy-file</code> tells DeepTaxa to compare each prediction against the known label and report agreement statistics. This step takes approximately 6 minutes on an NVIDIA A40 GPU.</p>
+<div id="lst-full-prediction" class="cell listing quarto-float quarto-figure quarto-figure-left anchored" data-execution_count="8">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-full-prediction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;8: Classify all 69,335 test sequences.
+</figcaption>
+<div aria-describedby="lst-full-prediction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13" data-lst-cap="Classify all 69,335 test sequences."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>bash</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>cd <span class="op">~/</span>deeptaxa<span class="op">-</span>workspace</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>deeptaxa predict <span class="op">--</span>fasta<span class="op">-</span><span class="bu">file</span> data<span class="op">/</span>greengenes<span class="op">/</span>gg_2024_09_testing.fna.gz <span class="op">--</span>taxonomy<span class="op">-</span><span class="bu">file</span> data<span class="op">/</span>greengenes<span class="op">/</span>gg_2024_09_testing.tsv.gz <span class="op">--</span>checkpoint data<span class="op">/</span>models<span class="op">/</span>deeptaxa<span class="op">-</span>full<span class="op">-</span>length<span class="op">-</span>v2.pt <span class="op">--</span>tabular <span class="op">--</span>output<span class="op">-</span><span class="bu">dir</span> outputs<span class="op">/</span>predictions</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</figure>
+</div>
+<p>Verify that the prediction output was saved.</p>
+<div id="lst-verify-prediction" class="cell listing quarto-float quarto-figure quarto-figure-left anchored" data-execution_count="9">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-verify-prediction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;9: Verify prediction output file.
+</figcaption>
+<div aria-describedby="lst-verify-prediction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14" data-lst-cap="Verify prediction output file."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os, glob</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>os.chdir(os.path.expanduser(<span class="st">'~/deeptaxa-workspace'</span>))</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>pred_files <span class="op">=</span> <span class="bu">sorted</span>(glob.glob(<span class="st">'outputs/predictions/*_predictions.tsv'</span>))</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> f <span class="kw">in</span> pred_files:</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    size_mb <span class="op">=</span> os.path.getsize(f) <span class="op">/</span> (<span class="dv">1024</span> <span class="op">*</span> <span class="dv">1024</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span>f<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>size_mb<span class="sc">:.1f}</span><span class="ss"> MB)'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>outputs/predictions/gg_2024_09_testing_deeptaxa_predictions.tsv (26.4 MB)</code></pre>
+</div>
+</div>
+</figure>
+</div>
+</section>
+</section>
+<section id="interpreting-the-results" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="interpreting-the-results"><span class="header-section-number">4</span> Interpreting the results</h2>
+<p>The prediction output is a TSV file with one row per sequence, identified by a <code>sequence_id</code> column. For each of the seven taxonomic ranks, the file then reports:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 38%">
+<col style="width: 61%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>{rank}_predicted</code></td>
+<td>The predicted taxonomy label</td>
+</tr>
+<tr class="even">
+<td><code>{rank}_true</code></td>
+<td>The ground-truth label (if taxonomy file was provided)</td>
+</tr>
+<tr class="odd">
+<td><code>{rank}_raw_score</code></td>
+<td>The softmax probability of the predicted class (confidence)</td>
+</tr>
+<tr class="even">
+<td><code>{rank}_entropy</code></td>
+<td>Shannon entropy of the full probability distribution</td>
+</tr>
+<tr class="odd">
+<td><code>{rank}_agreement</code></td>
+<td>Whether the prediction matches the ground truth</td>
+</tr>
+</tbody>
+</table>
+<p>The cells below load this file and compute summary statistics.</p>
+<p>Load the prediction output into a pandas DataFrame.</p>
+<div id="lst-load-predictions" class="cell listing quarto-float quarto-figure quarto-figure-left anchored" data-execution_count="10">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-load-predictions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;10: Load prediction results into a DataFrame.
+</figcaption>
+<div aria-describedby="lst-load-predictions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16" data-lst-cap="Load prediction results into a DataFrame."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Load predictions ---</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>os.chdir(os.path.expanduser(<span class="st">'~/deeptaxa-workspace'</span>))</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> glob</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>RANKS <span class="op">=</span> [<span class="st">'domain'</span>, <span class="st">'phylum'</span>, <span class="st">'class'</span>, <span class="st">'order'</span>, <span class="st">'family'</span>, <span class="st">'genus'</span>, <span class="st">'species'</span>]</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="bu">sorted</span>(glob.glob(<span class="st">'outputs/predictions/*_predictions.tsv'</span>))[<span class="dv">0</span>], sep<span class="op">=</span><span class="st">'</span><span class="ch">\t</span><span class="st">'</span>)</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Loaded'</span>, <span class="bu">len</span>(df), <span class="st">'predictions'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Loaded 69335 predictions</code></pre>
+</div>
+</div>
+</figure>
+</div>
+<section id="per-rank-accuracy" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="per-rank-accuracy"><span class="header-section-number">4.1</span> Per-rank accuracy</h3>
+<p>Classification accuracy at rank <span class="math inline">\(r\)</span> is the fraction of sequences where the predicted and true labels match:</p>
+<p><span class="math display">\[\text{Accuracy}_r = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}[\hat{y}_{i,r} = y_{i,r}]\]</span></p>
+<p>where <span class="math inline">\(N\)</span> is the number of test sequences, <span class="math inline">\(\hat{y}_{i,r}\)</span> is the predicted label for sequence <span class="math inline">\(i\)</span> at rank <span class="math inline">\(r\)</span>, and <span class="math inline">\(y_{i,r}\)</span> is the true label.</p>
+<p>We expect accuracy to decrease from domain to species. At the domain level, the model distinguishes only Bacteria from Archaea (two classes with large sequence differences). At the species level, it must discriminate among over 16,000 classes, many of which differ by only a handful of nucleotide positions within the variable regions of the 16S gene.</p>
+<p>Compute and plot accuracy at each rank.</p>
+<div id="cell-fig-accuracy-by-rank" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Per-rank accuracy ---</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>accuracies <span class="op">=</span> [accuracy_score(df[<span class="ss">f'</span><span class="sc">{</span>r<span class="sc">}</span><span class="ss">_true'</span>], df[<span class="ss">f'</span><span class="sc">{</span>r<span class="sc">}</span><span class="ss">_predicted'</span>]) <span class="cf">for</span> r <span class="kw">in</span> RANKS]</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>plt.figure()</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>plt.bar(RANKS, accuracies)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Accuracy'</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>plt.ylim(<span class="fl">0.8</span>, <span class="fl">1.02</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>plt.xticks(rotation<span class="op">=</span><span class="dv">0</span>, ha<span class="op">=</span><span class="st">'center'</span>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-accuracy-by-rank" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar chart of classification accuracy for the seven taxonomic ranks from Domain to Species, with bars near 1.0 at the coarse ranks and declining to about 0.93 at Species.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-accuracy-by-rank-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="prediction_files/figure-html/fig-accuracy-by-rank-output-1.png" alt="Bar chart of classification accuracy for the seven taxonomic ranks from Domain to Species, with bars near 1.0 at the coarse ranks and declining to about 0.93 at Species." width="662" height="470" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-accuracy-by-rank-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Classification accuracy at each taxonomic rank, showing the expected decrease from Domain to Species.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The bar chart confirms the expected gradient: accuracy exceeds 99% at Domain through Class, then decreases to approximately 93% at Species. This pattern is consistent across taxonomic classifiers and reflects the fundamental challenge of resolving fine-grained distinctions from a single marker gene.</p>
+</section>
+<section id="prediction-confidence" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="prediction-confidence"><span class="header-section-number">4.2</span> Prediction confidence</h3>
+<p>For each sequence, DeepTaxa reports the maximum softmax probability as a confidence score. The softmax function converts the raw logits <span class="math inline">\(z_1, z_2, \ldots, z_C\)</span> (one per class, where <span class="math inline">\(C\)</span> is the number of classes at that rank) into a probability distribution:</p>
+<p><span class="math display">\[p_c = \frac{e^{z_c}}{\sum_{j=1}^{C} e^{z_j}}\]</span></p>
+<p>The confidence is <span class="math inline">\(\max_c \, p_c\)</span>. A value near 1.0 means the model assigns almost all probability mass to a single class; a value near <span class="math inline">\(1/C\)</span> indicates that mass is spread across many classes and the prediction is unreliable.</p>
+<p>In practice, confidence supports quality filtering: predictions above a threshold are retained while low-confidence predictions are flagged for manual review or excluded from downstream analysis.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>DeepTaxa uses a default confidence threshold of 0.95, chosen because the vast majority of misclassifications fall below this value (see the confidence analysis below). For applications that prioritize recall over precision, the threshold can be lowered; for applications where every retained prediction must be reliable, it should be raised. The best threshold is not universal: it can shift with the amplicon region, the read length, how well the reference database covers your taxa, and how much a given analysis weighs precision against recall, so treat 0.95 as a starting point rather than a fixed rule.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The left panel below uses a logarithmic y-axis to reveal the shape of the distribution below the dominant spike at 1.0. The right panel zooms into sequences with confidence below 0.95, where the separation between correct and incorrect predictions is most visible.</p>
+</div>
+</div>
+<p>Plot the confidence distribution for correct and incorrect species predictions.</p>
+<div id="cell-fig-confidence" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Confidence analysis at species level ---</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>correct <span class="op">=</span> df[<span class="st">'species_predicted'</span>] <span class="op">==</span> df[<span class="st">'species_true'</span>]</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Left: full range, log scale</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>ax1.hist(df.loc[correct, <span class="st">'species_raw_score'</span>], bins<span class="op">=</span><span class="dv">50</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span><span class="st">'Correct'</span>, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>ax1.hist(df.loc[<span class="op">~</span>correct, <span class="st">'species_raw_score'</span>], bins<span class="op">=</span><span class="dv">50</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span><span class="st">'Incorrect'</span>, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>ax1.set_yscale(<span class="st">'log'</span>)</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>ax1.set_xlabel(<span class="st">'Species Confidence'</span>)</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">'Density (log scale)'</span>)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>ax1.legend()</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Right: zoom below 0.95</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>low_correct <span class="op">=</span> df.loc[correct, <span class="st">'species_raw_score'</span>][df.loc[correct, <span class="st">'species_raw_score'</span>] <span class="op">&lt;</span> <span class="fl">0.95</span>]</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>low_incorrect <span class="op">=</span> df.loc[<span class="op">~</span>correct, <span class="st">'species_raw_score'</span>][df.loc[<span class="op">~</span>correct, <span class="st">'species_raw_score'</span>] <span class="op">&lt;</span> <span class="fl">0.95</span>]</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>ax2.hist(low_correct, bins<span class="op">=</span><span class="dv">30</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span><span class="st">'Correct'</span>, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>ax2.hist(low_incorrect, bins<span class="op">=</span><span class="dv">30</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span><span class="st">'Incorrect'</span>, density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>ax2.set_xlabel(<span class="st">'Species Confidence (&lt; 0.95)'</span>)</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">'Density'</span>)</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>ax2.legend()</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-confidence" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two overlaid histograms of species-level prediction confidence. The left panel spans the full 0-to-1 range on a log-scaled density axis, with correct predictions concentrated near 1.0 and incorrect predictions spread lower. The right panel zooms below 0.95, where incorrect predictions dominate.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-confidence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="prediction_files/figure-html/fig-confidence-output-1.png" alt="Two overlaid histograms of species-level prediction confidence. The left panel spans the full 0-to-1 range on a log-scaled density axis, with correct predictions concentrated near 1.0 and incorrect predictions spread lower. The right panel zooms below 0.95, where incorrect predictions dominate." width="949" height="374" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-confidence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Left: confidence distribution for correct and incorrect species predictions (log-scaled density). Right: zoomed view below the 0.95 threshold, where most misclassifications concentrate.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Print confidence summary statistics.</p>
+<div id="lst-confidence-stats" class="cell listing quarto-float quarto-figure quarto-figure-left anchored" data-execution_count="13">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-confidence-stats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;11: Confidence summary statistics.
+</figcaption>
+<div aria-describedby="lst-confidence-stats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20" data-lst-cap="Confidence summary statistics."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Confidence summary statistics ---</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Correct:   mean confidence ='</span>, <span class="bu">round</span>(df.loc[correct, <span class="st">'species_raw_score'</span>].mean(), <span class="dv">3</span>))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Incorrect: mean confidence ='</span>, <span class="bu">round</span>(df.loc[<span class="op">~</span>correct, <span class="st">'species_raw_score'</span>].mean(), <span class="dv">3</span>))</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Incorrect predictions below 0.95:'</span>, <span class="bu">round</span>((df.loc[<span class="op">~</span>correct, <span class="st">'species_raw_score'</span>] <span class="op">&lt;</span> <span class="fl">0.95</span>).mean() <span class="op">*</span> <span class="dv">100</span>, <span class="dv">1</span>), <span class="st">'%'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Correct:   mean confidence = 0.987
+Incorrect: mean confidence = 0.665
+Incorrect predictions below 0.95: 72.9 %</code></pre>
+</div>
+</div>
+</figure>
+</div>
+<p>The histograms show a strong separation: correctly classified sequences cluster near confidence 1.0, while incorrect predictions spread across the full range. The zoomed panel reveals that most incorrect predictions fall below the 0.95 threshold, confirming that confidence filtering is a useful strategy for flagging or removing many unreliable assignments.</p>
+</section>
+<section id="examining-individual-predictions" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="examining-individual-predictions"><span class="header-section-number">4.3</span> Examining individual predictions</h3>
+<p>The table below prints a few correctly and incorrectly classified sequences, showing the true and predicted labels at all seven ranks. This makes error patterns visible: when the model assigns the wrong species, does it at least get the genus right?</p>
+<p>A <code>[+]</code> indicates that the predicted label matches the ground truth at that rank. An <code>[X]</code> indicates disagreement.</p>
+<p>Print three correct and three incorrect species predictions with per-rank agreement markers.</p>
+<div id="lst-example-predictions" class="cell listing quarto-float quarto-figure quarto-figure-left anchored" data-execution_count="14">
+<figure class="quarto-float quarto-float-lst figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-example-predictions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;12: Sample correct and incorrect predictions with per-rank agreement.
+</figcaption>
+<div aria-describedby="lst-example-predictions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22" data-lst-cap="Sample correct and incorrect predictions with per-rank agreement."><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Example predictions ---</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label, mask <span class="kw">in</span> [(<span class="st">'Correct'</span>, correct), (<span class="st">'Incorrect'</span>, <span class="op">~</span>correct)]:</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">==="</span>, label, <span class="st">"species predictions (first 3) ==="</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _, row <span class="kw">in</span> df.loc[mask].head(<span class="dv">3</span>).iterrows():</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Sequence:"</span>, row.get(<span class="st">"sequence_id"</span>, <span class="st">"N/A"</span>))</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> r <span class="kw">in</span> RANKS:</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>            t, p <span class="op">=</span> row.get(<span class="ss">f'</span><span class="sc">{</span>r<span class="sc">}</span><span class="ss">_true'</span>, <span class="st">'?'</span>), row.get(<span class="ss">f'</span><span class="sc">{</span>r<span class="sc">}</span><span class="ss">_predicted'</span>, <span class="st">'?'</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">" "</span>, <span class="st">"[+]"</span> <span class="cf">if</span> t <span class="op">==</span> p <span class="cf">else</span> <span class="st">"[X]"</span>, r <span class="op">+</span> <span class="st">":"</span>, <span class="st">"true="</span> <span class="op">+</span> <span class="bu">str</span>(t) <span class="op">+</span> <span class="st">","</span>, <span class="st">"pred="</span> <span class="op">+</span> <span class="bu">str</span>(p))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== Correct species predictions (first 3) ===
+
+Sequence: MJ031-2-barcode64-umi2692bins-ubs-145
+  [+] domain: true=Bacteria, pred=Bacteria
+  [+] phylum: true=Desulfobacterota_G_459544, pred=Desulfobacterota_G_459544
+  [+] class: true=SM23-61, pred=SM23-61
+  [+] order: true=SM23-61, pred=SM23-61
+  [+] family: true=SM23-61, pred=SM23-61
+  [+] genus: true=SM23-61, pred=SM23-61
+  [+] species: true=SM23-61 sp001304105, pred=SM23-61 sp001304105
+
+Sequence: KY937951
+  [+] domain: true=Bacteria, pred=Bacteria
+  [+] phylum: true=Bacillota_I, pred=Bacillota_I
+  [+] class: true=Bacilli_A, pred=Bacilli_A
+  [+] order: true=Lactobacillales, pred=Lactobacillales
+  [+] family: true=Vagococcaceae, pred=Vagococcaceae
+  [+] genus: true=Vagococcus_B, pred=Vagococcus_B
+  [+] species: true=Vagococcus_B vulneris, pred=Vagococcus_B vulneris
+
+Sequence: MJ006-2-barcode72-umi1971bins-ubs-52
+  [+] domain: true=Bacteria, pred=Bacteria
+  [+] phylum: true=Pseudomonadota, pred=Pseudomonadota
+  [+] class: true=Gammaproteobacteria, pred=Gammaproteobacteria
+  [+] order: true=Enterobacterales_737866, pred=Enterobacterales_737866
+  [+] family: true=Pasteurellaceae, pred=Pasteurellaceae
+  [+] genus: true=Haemophilus_D_735815, pred=Haemophilus_D_735815
+  [+] species: true=Unclassified_Haemophilus_D_735815, pred=Unclassified_Haemophilus_D_735815
+
+=== Incorrect species predictions (first 3) ===
+
+Sequence: MJ020-1-barcode40-umi32720bins-ubs-13
+  [+] domain: true=Bacteria, pred=Bacteria
+  [+] phylum: true=Pseudomonadota, pred=Pseudomonadota
+  [+] class: true=Gammaproteobacteria, pred=Gammaproteobacteria
+  [+] order: true=Francisellales, pred=Francisellales
+  [+] family: true=Francisellaceae, pred=Francisellaceae
+  [X] genus: true=Unclassified_Francisellaceae, pred=Cysteiniphilum
+  [X] species: true=Unclassified_Francisellaceae, pred=Cysteiniphilum marinum
+
+Sequence: G009841605_1
+  [+] domain: true=Bacteria, pred=Bacteria
+  [+] phylum: true=Chloroflexota, pred=Chloroflexota
+  [+] class: true=Dehalococcoidia, pred=Dehalococcoidia
+  [+] order: true=SAR202, pred=SAR202
+  [X] family: true=VXLM01, pred=B3-Chlor
+  [X] genus: true=VXLM01, pred=UBA11996
+  [X] species: true=VXLM01 sp009841605, pred=Bin90 sp002238855
+
+Sequence: RS-GCF-014654365.1-NZ-BNAY01000027.1
+  [+] domain: true=Bacteria, pred=Bacteria
+  [+] phylum: true=Actinomycetota, pred=Actinomycetota
+  [+] class: true=Actinomycetes, pred=Actinomycetes
+  [+] order: true=Mycobacteriales, pred=Mycobacteriales
+  [+] family: true=Pseudonocardiaceae, pred=Pseudonocardiaceae
+  [X] genus: true=Amycolatopsis_D_380379, pred=Amycolatopsis_D_380435
+  [X] species: true=Amycolatopsis_D_380400 oliviviridis, pred=Amycolatopsis_D_380435 alba</code></pre>
+</div>
+</div>
+</figure>
+</div>
+<p>In most incorrect cases, the species label differs but the genus and family remain correct. This indicates that the model makes taxonomically shallow errors, confusing closely related species rather than assigning sequences to distant lineages.</p>
+</section>
+</section>
+<section id="summary" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="summary"><span class="header-section-number">5</span> Summary</h2>
+<p>DeepTaxa classified 69,335 held-out 16S rRNA sequences with 93.0% species-level accuracy and 92.1% weighted F1-score. Performance exceeds 99% from Domain through Class, and decreases gradually at finer ranks as the number of target classes grows and the distinguishing sequence features become subtler.</p>
+<p>Prediction confidence strongly separates correct from incorrect classifications (mean 0.987 vs.&nbsp;0.665), supporting the default confidence threshold of 0.95 as a practical starting point for flagging potentially unreliable predictions.</p>
+<p>For training a model on custom reference data, see the <a href="./training.html">training tutorial</a>. For a deeper analysis of error patterns, calibration, and generalization to novel taxa, see the <a href="./analysis.html">analysis tutorial</a>.</p>
+</section>
+<section id="concepts-used-in-this-tutorial" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="concepts-used-in-this-tutorial"><span class="header-section-number">6</span> Concepts used in this tutorial</h2>
+<p>This tutorial uses several standard terms: accuracy, the 16S rRNA gene, the taxonomic hierarchy, softmax, and byte-pair encoding. See the <a href="./glossary.html">Glossary</a> for short definitions.</p>
+</section>
+<section id="key-references" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="key-references"><span class="header-section-number">7</span> Key references</h2>
+<p>This tutorial uses the Greengenes 2 reference database <span class="citation" data-cites="mcdonald2024greengenes">(<span class="nocase">McDonald et al.</span>, 2024)</span> and the DNABERT-2 tokenizer <span class="citation" data-cites="zhou2024dnabert2">(Zhou et al., 2024)</span>. See the <a href="./references.html">References</a> page for the complete bibliography.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="https://github.com/systems-genomics-lab/deeptaxa">DeepTaxa</a> — Systems Genomics Lab</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
