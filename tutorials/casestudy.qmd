@@ -12,12 +12,6 @@ open-graph:
 twitter-card:
   image: https://systems-genomics-lab.github.io/deeptaxa/casestudy/social_card.jpg
   card-style: summary_large_image
-format:
-  html:
-    toc: false
-    theme: lumen
-    number-sections: false
-    fig-cap-location: bottom
 execute:
   warning: false
   message: false
