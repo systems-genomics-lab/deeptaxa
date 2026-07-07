@@ -12,6 +12,8 @@ the [GitHub releases](https://github.com/systems-genomics-lab/deeptaxa/releases)
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-07-07
+
 ### Added
 
 - `--tokenizer-revision` pins the tokenizer to a specific Hugging Face commit,
@@ -41,8 +43,13 @@ the [GitHub releases](https://github.com/systems-genomics-lab/deeptaxa/releases)
   map is built in one pass and the one-hot encoder uses a byte lookup table.
 - The per-epoch layer-weights HDF5 export drops from gzip level 9 to 4, which is
   much faster to write for a negligible size difference.
+- The prediction summary drops a redundant introductory line, leaving the header
+  and the run details.
 
 ### Fixed
+
+- The top-k accuracy column header in the per-rank metrics table now shows the
+  configured value of `k` instead of a literal placeholder.
 
 - Gradient accumulation now accumulates across the whole window instead of
   clearing gradients on every micro-batch, so `--accum-steps` greater than 1
