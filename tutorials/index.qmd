@@ -28,11 +28,26 @@ The tutorials are independent but build on each other conceptually. For new user
 - Python 3.10 or later
 - A CUDA-capable GPU is strongly recommended for training; CPU training is possible but roughly an order of magnitude slower, with the exact ratio depending on the CPU model and core count. Prediction and analysis can run on CPU, though at reduced throughput.
 
-Install DeepTaxa and the packages required for plotting and evaluation:
+Install DeepTaxa and the packages used for plotting and evaluation. Most users should install from PyPI; Bioconda is convenient for Conda-based toolchains, and a source install is for the latest development version or code changes.
+
+Option 1, PyPI (recommended):
 
 ```bash
-pip install deeptaxa-rrna
-pip install matplotlib scikit-learn
+python -m pip install deeptaxa-rrna
+python -m pip install matplotlib scikit-learn
+```
+
+Option 2, Bioconda:
+
+```bash
+conda install -c bioconda deeptaxa-rrna
+```
+
+Option 3, source (development version or code changes):
+
+```bash
+git clone https://github.com/systems-genomics-lab/deeptaxa.git
+cd deeptaxa && python -m pip install .
 ```
 
 DeepTaxa is distributed as `deeptaxa-rrna` on PyPI and Bioconda because the name `deeptaxa` was already taken by an unrelated package; the import package and the command-line tool are both `deeptaxa`.
