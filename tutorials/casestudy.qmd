@@ -2,27 +2,11 @@
 title: "Reanalysis of an ALS Gut Microbiome with DeepTaxa: A Case Study"
 subtitle: "Classifying amplicon sequence variants with DeepTaxa, validating against SILVA, and reproducing the original findings"
 keywords: [16S rRNA, DeepTaxa, taxonomic classification, gut microbiome, amyotrophic lateral sclerosis, amplicon sequence variants, SILVA]
-image: https://systems-genomics-lab.github.io/deeptaxa/casestudy/social_card.jpg
-image-alt: "Illustration of the gut-brain axis linking a brain and a gut through neurotransmitter and metabolite structures"
-open-graph:
-  image: https://systems-genomics-lab.github.io/deeptaxa/casestudy/social_card.jpg
-  image-width: 1200
-  image-height: 630
-  image-alt: "Illustration of the gut-brain axis linking a brain and a gut through neurotransmitter and metabolite structures"
-twitter-card:
-  image: https://systems-genomics-lab.github.io/deeptaxa/casestudy/social_card.jpg
-  card-style: summary_large_image
 execute:
   warning: false
   message: false
   echo: false
 ---
-
-![](casestudy/gut_brain_axis.jpg){fig-alt="Illustration of the gut-brain axis: a glowing brain and gut linked by signaling streams with microbiome cells" fig-align="center" width="100%"}
-
-::: {.text-center}
-<small>A stylized illustration of the gut-brain axis, used to introduce the case study. The image is illustrative and is not a data-derived result.</small>
-:::
 
 ::: {.callout-note appearance="simple"}
 **Objective.** Reanalyze a published ALS gut-microbiome dataset with DeepTaxa, validate the genus calls against an independent SILVA classification, and test whether species-level caution is warranted for this dataset.
