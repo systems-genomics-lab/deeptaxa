@@ -98,7 +98,7 @@ List the downloaded files.
 #| label: lst-list-training-data
 #| lst-cap: "Verify training data files."
 %%bash
-ls -lh ~/deeptaxa-workspace/data/greengenes/
+cd ~/deeptaxa-workspace && ls -lh data/greengenes/
 ```
 
 To confirm that the downloads are intact, compare each file against its published
