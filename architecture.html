@@ -325,7 +325,7 @@ window.Quarto = {
   <li><a href="#multi-rank-loss-aggregation" id="toc-multi-rank-loss-aggregation" class="nav-link" data-scroll-target="#multi-rank-loss-aggregation"><span class="header-section-number">8.2</span> Multi-rank loss aggregation</a></li>
   </ul></li>
   <li><a href="#training-configuration" id="toc-training-configuration" class="nav-link" data-scroll-target="#training-configuration"><span class="header-section-number">9</span> Training configuration</a></li>
-  <li><a href="#advanced-developer-notes-extending-deeptaxa" id="toc-advanced-developer-notes-extending-deeptaxa" class="nav-link" data-scroll-target="#advanced-developer-notes-extending-deeptaxa"><span class="header-section-number">10</span> Advanced developer notes: extending DeepTaxa</a>
+  <li><a href="#extending-deeptaxa" id="toc-extending-deeptaxa" class="nav-link" data-scroll-target="#extending-deeptaxa"><span class="header-section-number">10</span> Extending DeepTaxa</a>
   <ul class="collapse">
   <li><a href="#applying-deeptaxa-to-other-marker-genes" id="toc-applying-deeptaxa-to-other-marker-genes" class="nav-link" data-scroll-target="#applying-deeptaxa-to-other-marker-genes"><span class="header-section-number">10.1</span> Applying DeepTaxa to other marker genes</a></li>
   <li><a href="#adding-a-new-taxonomic-rank" id="toc-adding-a-new-taxonomic-rank" class="nav-link" data-scroll-target="#adding-a-new-taxonomic-rank"><span class="header-section-number">10.2</span> Adding a new taxonomic rank</a></li>
@@ -334,8 +334,6 @@ window.Quarto = {
   <li><a href="#implementing-hierarchical-loss-consistency" id="toc-implementing-hierarchical-loss-consistency" class="nav-link" data-scroll-target="#implementing-hierarchical-loss-consistency"><span class="header-section-number">10.5</span> Implementing hierarchical loss consistency</a></li>
   </ul></li>
   <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">11</span> Summary</a></li>
-  <li><a href="#concepts-used-in-this-tutorial" id="toc-concepts-used-in-this-tutorial" class="nav-link" data-scroll-target="#concepts-used-in-this-tutorial"><span class="header-section-number">12</span> Concepts used in this tutorial</a></li>
-  <li><a href="#key-references" id="toc-key-references" class="nav-link" data-scroll-target="#key-references"><span class="header-section-number">13</span> Key references</a></li>
   </ul>
 </nav>
     </div>
@@ -528,7 +526,7 @@ Species     0.0849    0.8931           0.9203       0.8428</code></pre>
 </section>
 <section id="input-representation" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="input-representation"><span class="header-section-number">3</span> Input representation</h2>
-<p>DeepTaxa converts raw nucleotide sequences into integer token IDs using DNABERT-2’s byte-pair encoding (BPE) tokenizer <span class="citation" data-cites="zhou2024dnabert2">(Zhou et al., 2024)</span>. BPE learns a vocabulary of 4,096 subword tokens from DNA sequences, capturing frequently occurring k-mers as single tokens. Sequences are truncated or padded to a fixed length of 512 tokens.</p>
+<p>DeepTaxa converts raw nucleotide sequences into integer token IDs using DNABERT-2’s byte-pair encoding (BPE) tokenizer <a href="./references.html#ref-zhou2024dnabert2"><span class="citation" data-cites="zhou2024dnabert2">(Zhou et al., 2024)</span></a>. BPE learns a vocabulary of 4,096 subword tokens from DNA sequences, capturing frequently occurring k-mers as single tokens. Sequences are truncated or padded to a fixed length of 512 tokens.</p>
 <p>Load the tokenizer and tokenize a short sequence to see the encoding in action.</p>
 <div id="tokenize-example" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Tokenize a sample sequence ---</span></span>
@@ -734,7 +732,7 @@ Total   :                      25,046,931 parameters in classification heads</co
 <h2 data-number="8" class="anchored" data-anchor-id="loss-function"><span class="header-section-number">8</span> Loss function</h2>
 <section id="cross-entropy-and-focal-loss" class="level3" data-number="8.1">
 <h3 data-number="8.1" class="anchored" data-anchor-id="cross-entropy-and-focal-loss"><span class="header-section-number">8.1</span> Cross-entropy and focal loss</h3>
-<p>DeepTaxa uses cross-entropy loss by default. For datasets with extreme class imbalance, the optional focal loss (<code>--loss-type focal</code>) <span class="citation" data-cites="lin2017focal">(Lin et al., 2017)</span> modifies the loss by introducing a factor that down-weights well-classified examples, allowing abundant classes to contribute less to the gradient signal:</p>
+<p>DeepTaxa uses cross-entropy loss by default. For datasets with extreme class imbalance, the optional focal loss (<code>--loss-type focal</code>) <a href="./references.html#ref-lin2017focal"><span class="citation" data-cites="lin2017focal">(Lin et al., 2017)</span></a> modifies the loss by introducing a factor that down-weights well-classified examples, allowing abundant classes to contribute less to the gradient signal:</p>
 <p><span class="math display">\[\text{FL}(p_t) = -(1 - p_t)^\gamma \log(p_t)\]</span></p>
 <p>where <span class="math inline">\(p_t\)</span> is the predicted probability of the true class and <span class="math inline">\(\gamma\)</span> is the focusing parameter. When <span class="math inline">\(\gamma = 0\)</span>, focal loss reduces to standard cross-entropy. At the default <span class="math inline">\(\gamma = 2\)</span>, an example classified with 90% confidence receives a loss weight of only <span class="math inline">\((1 - 0.9)^2 = 0.01\)</span>, effectively removing it from the gradient signal and letting the optimizer concentrate on harder cases.</p>
 <p>The following plot compares focal loss to standard cross-entropy across different values of <span class="math inline">\(\gamma\)</span>.</p>
@@ -826,11 +824,6 @@ Figure&nbsp;1: Focal loss versus standard cross-entropy as a function of predict
 <h2 data-number="9" class="anchored" data-anchor-id="training-configuration"><span class="header-section-number">9</span> Training configuration</h2>
 <p>The training pipeline uses standard practices for transformer-based models:</p>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 35%">
-<col style="width: 29%">
-<col style="width: 35%">
-</colgroup>
 <thead>
 <tr class="header">
 <th>Component</th>
@@ -842,7 +835,7 @@ Figure&nbsp;1: Focal loss versus standard cross-entropy as a function of predict
 <tr class="odd">
 <td>Optimizer</td>
 <td>AdamW (lr=5e-4, decay=0.01)</td>
-<td>Decoupled weight decay; standard for transformers <span class="citation" data-cites="loshchilov2019adamw">(Loshchilov &amp; Hutter, 2019)</span></td>
+<td>Decoupled weight decay; standard for transformers <a href="./references.html#ref-loshchilov2019adamw"><span class="citation" data-cites="loshchilov2019adamw">(Loshchilov &amp; Hutter, 2019)</span></a></td>
 </tr>
 <tr class="even">
 <td>LR schedule</td>
@@ -874,9 +867,8 @@ Figure&nbsp;1: Focal loss versus standard cross-entropy as a function of predict
 <p>The learning rate follows a triangular schedule: it increases linearly from zero to the base rate over the first 10% of training steps (warmup), then decreases linearly back to zero over the remaining 90% (decay). This schedule stabilizes early training when the randomly initialized classification heads produce large, noisy gradients, and gradually anneals the step size for fine-grained convergence.</p>
 <p>For details on running a training job, interpreting loss curves, and using early stopping, see the <a href="./training.html">training tutorial</a>.</p>
 </section>
-<section id="advanced-developer-notes-extending-deeptaxa" class="level2" data-number="10">
-<h2 data-number="10" class="anchored" data-anchor-id="advanced-developer-notes-extending-deeptaxa"><span class="header-section-number">10</span> Advanced developer notes: extending DeepTaxa</h2>
-<p>The extensions below are for developers who want to adapt the architecture. Each one requires retraining the model and validating it independently. None of them applies to the released DeepTaxa checkpoints, which are trained on 16S rRNA with the seven ranks described above.</p>
+<section id="extending-deeptaxa" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="extending-deeptaxa"><span class="header-section-number">10</span> Extending DeepTaxa</h2>
 <section id="applying-deeptaxa-to-other-marker-genes" class="level3" data-number="10.1">
 <h3 data-number="10.1" class="anchored" data-anchor-id="applying-deeptaxa-to-other-marker-genes"><span class="header-section-number">10.1</span> Applying DeepTaxa to other marker genes</h3>
 <p>Although the tutorials use 16S rRNA sequences throughout, the model architecture is not specific to the 16S gene. The CNN kernels, Transformer attention, and BPE tokenizer operate on raw nucleotide strings regardless of their biological origin. Any marker gene with a reference database mapping sequences to hierarchical labels can be used as training data. Candidates include:</p>
@@ -922,14 +914,6 @@ Figure&nbsp;1: Focal loss versus standard cross-entropy as a function of predict
 <h2 data-number="11" class="anchored" data-anchor-id="summary"><span class="header-section-number">11</span> Summary</h2>
 <p>DeepTaxa’s hybrid architecture combines convolutional feature extraction (local motifs at multiple scales) with transformer-based attention (global sequence context), fused through learnable weights with a residual connection for gradient stability. The released checkpoints train with cross-entropy loss, and an optional focal loss is available for the long-tailed class distribution inherent to microbial taxonomy databases. Independent per-rank classification heads allow parallel predictions across all seven taxonomic levels.</p>
 <p>For running predictions, see the <a href="./prediction.html">prediction tutorial</a>. For training and evaluation, see the <a href="./training.html">training tutorial</a> and <a href="./analysis.html">analysis tutorial</a>.</p>
-</section>
-<section id="concepts-used-in-this-tutorial" class="level2" data-number="12">
-<h2 data-number="12" class="anchored" data-anchor-id="concepts-used-in-this-tutorial"><span class="header-section-number">12</span> Concepts used in this tutorial</h2>
-<p>This tutorial uses several standard terms: base pairs, convolutional filters and kernel sizes, ReLU, dropout, residual connections, self-attention, byte-pair encoding, focal loss, mixed-precision training, and gradient accumulation. See the <a href="./glossary.html">Glossary</a> for short definitions.</p>
-</section>
-<section id="key-references" class="level2" data-number="13">
-<h2 data-number="13" class="anchored" data-anchor-id="key-references"><span class="header-section-number">13</span> Key references</h2>
-<p>This tutorial references the DNABERT-2 tokenizer <span class="citation" data-cites="zhou2024dnabert2">(Zhou et al., 2024)</span>, the AdamW optimizer <span class="citation" data-cites="loshchilov2019adamw">(Loshchilov &amp; Hutter, 2019)</span>, and focal loss <span class="citation" data-cites="lin2017focal">(Lin et al., 2017)</span>. See the <a href="./references.html">References</a> page for the complete bibliography.</p>
 
 
 </section>

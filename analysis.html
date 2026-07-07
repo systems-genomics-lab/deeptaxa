@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Taxonomic Classification of 16S rRNA Sequences with DeepTaxa – DeepTaxa Tutorials</title>
+<title>Analyzing DeepTaxa Model Performance – DeepTaxa Tutorials</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -351,25 +351,6 @@ window.Quarto = {
   <li><a href="#interpretation-4" id="toc-interpretation-4" class="nav-link" data-scroll-target="#interpretation-4"><span class="header-section-number">8.2</span> Interpretation</a></li>
   </ul></li>
   <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">9</span> Summary</a></li>
-  <li><a href="#concepts-used-in-this-tutorial" id="toc-concepts-used-in-this-tutorial" class="nav-link" data-scroll-target="#concepts-used-in-this-tutorial"><span class="header-section-number">10</span> Concepts used in this tutorial</a></li>
-  <li><a href="#key-references" id="toc-key-references" class="nav-link" data-scroll-target="#key-references"><span class="header-section-number">11</span> Key references</a></li>
-  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup"><span class="header-section-number">12</span> Setup</a></li>
-  <li><a href="#data-and-model" id="toc-data-and-model" class="nav-link" data-scroll-target="#data-and-model"><span class="header-section-number">13</span> Data and model</a></li>
-  <li><a href="#running-predictions" id="toc-running-predictions" class="nav-link" data-scroll-target="#running-predictions"><span class="header-section-number">14</span> Running predictions</a>
-  <ul class="collapse">
-  <li><a href="#how-prediction-works" id="toc-how-prediction-works" class="nav-link" data-scroll-target="#how-prediction-works"><span class="header-section-number">14.1</span> How prediction works</a></li>
-  <li><a href="#single-sequence-prediction" id="toc-single-sequence-prediction" class="nav-link" data-scroll-target="#single-sequence-prediction"><span class="header-section-number">14.2</span> Single-sequence prediction</a></li>
-  <li><a href="#full-test-set-prediction" id="toc-full-test-set-prediction" class="nav-link" data-scroll-target="#full-test-set-prediction"><span class="header-section-number">14.3</span> Full test set prediction</a></li>
-  </ul></li>
-  <li><a href="#interpreting-the-results" id="toc-interpreting-the-results" class="nav-link" data-scroll-target="#interpreting-the-results"><span class="header-section-number">15</span> Interpreting the results</a>
-  <ul class="collapse">
-  <li><a href="#per-rank-accuracy" id="toc-per-rank-accuracy" class="nav-link" data-scroll-target="#per-rank-accuracy"><span class="header-section-number">15.1</span> Per-rank accuracy</a></li>
-  <li><a href="#prediction-confidence" id="toc-prediction-confidence" class="nav-link" data-scroll-target="#prediction-confidence"><span class="header-section-number">15.2</span> Prediction confidence</a></li>
-  <li><a href="#examining-individual-predictions" id="toc-examining-individual-predictions" class="nav-link" data-scroll-target="#examining-individual-predictions"><span class="header-section-number">15.3</span> Examining individual predictions</a></li>
-  </ul></li>
-  <li><a href="#summary-1" id="toc-summary-1" class="nav-link" data-scroll-target="#summary-1"><span class="header-section-number">16</span> Summary</a></li>
-  <li><a href="#concepts-used-in-this-tutorial-1" id="toc-concepts-used-in-this-tutorial-1" class="nav-link" data-scroll-target="#concepts-used-in-this-tutorial-1"><span class="header-section-number">17</span> Concepts used in this tutorial</a></li>
-  <li><a href="#key-references-1" id="toc-key-references-1" class="nav-link" data-scroll-target="#key-references-1"><span class="header-section-number">18</span> Key references</a></li>
   </ul>
 </nav>
     </div>
@@ -378,8 +359,8 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Taxonomic Classification of 16S rRNA Sequences with DeepTaxa</h1>
-<p class="subtitle lead">Running the pre-trained model and interpreting per-rank predictions and confidence scores</p>
+<h1 class="title">Analyzing DeepTaxa Model Performance</h1>
+<p class="subtitle lead">Per-rank metrics, confusion patterns, embeddings, calibration, and novel-taxa detection</p>
 </div>
 
 
@@ -537,13 +518,13 @@ Table&nbsp;1: Per-rank classification metrics: accuracy, macro F1, and weighted 
 <style type="text/css">
 </style>
 
-<table id="T_e8ed1" class="cell caption-top table table-sm table-striped small">
+<table id="T_d7886" class="cell caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
 <th class="blank level0" data-quarto-table-cell-role="th">&nbsp;</th>
-<th id="T_e8ed1_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Accuracy</th>
-<th id="T_e8ed1_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Macro F1</th>
-<th id="T_e8ed1_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Weighted F1</th>
+<th id="T_d7886_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">Accuracy</th>
+<th id="T_d7886_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Macro F1</th>
+<th id="T_d7886_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">Weighted F1</th>
 </tr>
 <tr class="even">
 <th class="index_name level0" data-quarto-table-cell-role="th">Rank</th>
@@ -554,46 +535,46 @@ Table&nbsp;1: Per-rank classification metrics: accuracy, macro F1, and weighted 
 </thead>
 <tbody>
 <tr class="odd">
-<th id="T_e8ed1_level0_row0" class="row_heading level0 row0" data-quarto-table-cell-role="th">Domain</th>
-<td id="T_e8ed1_row0_col0" class="data row0 col0">0.9998</td>
-<td id="T_e8ed1_row0_col1" class="data row0 col1">0.9943</td>
-<td id="T_e8ed1_row0_col2" class="data row0 col2">0.9998</td>
+<th id="T_d7886_level0_row0" class="row_heading level0 row0" data-quarto-table-cell-role="th">Domain</th>
+<td id="T_d7886_row0_col0" class="data row0 col0">0.9998</td>
+<td id="T_d7886_row0_col1" class="data row0 col1">0.9943</td>
+<td id="T_d7886_row0_col2" class="data row0 col2">0.9998</td>
 </tr>
 <tr class="even">
-<th id="T_e8ed1_level0_row1" class="row_heading level0 row1" data-quarto-table-cell-role="th">Phylum</th>
-<td id="T_e8ed1_row1_col0" class="data row1 col0">0.9969</td>
-<td id="T_e8ed1_row1_col1" class="data row1 col1">0.8655</td>
-<td id="T_e8ed1_row1_col2" class="data row1 col2">0.9967</td>
+<th id="T_d7886_level0_row1" class="row_heading level0 row1" data-quarto-table-cell-role="th">Phylum</th>
+<td id="T_d7886_row1_col0" class="data row1 col0">0.9969</td>
+<td id="T_d7886_row1_col1" class="data row1 col1">0.8655</td>
+<td id="T_d7886_row1_col2" class="data row1 col2">0.9967</td>
 </tr>
 <tr class="odd">
-<th id="T_e8ed1_level0_row2" class="row_heading level0 row2" data-quarto-table-cell-role="th">Class</th>
-<td id="T_e8ed1_row2_col0" class="data row2 col0">0.9963</td>
-<td id="T_e8ed1_row2_col1" class="data row2 col1">0.8202</td>
-<td id="T_e8ed1_row2_col2" class="data row2 col2">0.9959</td>
+<th id="T_d7886_level0_row2" class="row_heading level0 row2" data-quarto-table-cell-role="th">Class</th>
+<td id="T_d7886_row2_col0" class="data row2 col0">0.9963</td>
+<td id="T_d7886_row2_col1" class="data row2 col1">0.8202</td>
+<td id="T_d7886_row2_col2" class="data row2 col2">0.9959</td>
 </tr>
 <tr class="even">
-<th id="T_e8ed1_level0_row3" class="row_heading level0 row3" data-quarto-table-cell-role="th">Order</th>
-<td id="T_e8ed1_row3_col0" class="data row3 col0">0.9904</td>
-<td id="T_e8ed1_row3_col1" class="data row3 col1">0.7991</td>
-<td id="T_e8ed1_row3_col2" class="data row3 col2">0.9893</td>
+<th id="T_d7886_level0_row3" class="row_heading level0 row3" data-quarto-table-cell-role="th">Order</th>
+<td id="T_d7886_row3_col0" class="data row3 col0">0.9904</td>
+<td id="T_d7886_row3_col1" class="data row3 col1">0.7991</td>
+<td id="T_d7886_row3_col2" class="data row3 col2">0.9893</td>
 </tr>
 <tr class="odd">
-<th id="T_e8ed1_level0_row4" class="row_heading level0 row4" data-quarto-table-cell-role="th">Family</th>
-<td id="T_e8ed1_row4_col0" class="data row4 col0">0.9861</td>
-<td id="T_e8ed1_row4_col1" class="data row4 col1">0.7925</td>
-<td id="T_e8ed1_row4_col2" class="data row4 col2">0.9842</td>
+<th id="T_d7886_level0_row4" class="row_heading level0 row4" data-quarto-table-cell-role="th">Family</th>
+<td id="T_d7886_row4_col0" class="data row4 col0">0.9861</td>
+<td id="T_d7886_row4_col1" class="data row4 col1">0.7925</td>
+<td id="T_d7886_row4_col2" class="data row4 col2">0.9842</td>
 </tr>
 <tr class="even">
-<th id="T_e8ed1_level0_row5" class="row_heading level0 row5" data-quarto-table-cell-role="th">Genus</th>
-<td id="T_e8ed1_row5_col0" class="data row5 col0">0.9686</td>
-<td id="T_e8ed1_row5_col1" class="data row5 col1">0.7816</td>
-<td id="T_e8ed1_row5_col2" class="data row5 col2">0.9641</td>
+<th id="T_d7886_level0_row5" class="row_heading level0 row5" data-quarto-table-cell-role="th">Genus</th>
+<td id="T_d7886_row5_col0" class="data row5 col0">0.9686</td>
+<td id="T_d7886_row5_col1" class="data row5 col1">0.7816</td>
+<td id="T_d7886_row5_col2" class="data row5 col2">0.9641</td>
 </tr>
 <tr class="odd">
-<th id="T_e8ed1_level0_row6" class="row_heading level0 row6" data-quarto-table-cell-role="th">Species</th>
-<td id="T_e8ed1_row6_col0" class="data row6 col0">0.9298</td>
-<td id="T_e8ed1_row6_col1" class="data row6 col1">0.6755</td>
-<td id="T_e8ed1_row6_col2" class="data row6 col2">0.9213</td>
+<th id="T_d7886_level0_row6" class="row_heading level0 row6" data-quarto-table-cell-role="th">Species</th>
+<td id="T_d7886_row6_col0" class="data row6 col0">0.9298</td>
+<td id="T_d7886_row6_col1" class="data row6 col1">0.6755</td>
+<td id="T_d7886_row6_col2" class="data row6 col2">0.9213</td>
 </tr>
 </tbody>
 </table>
@@ -630,7 +611,7 @@ Figure&nbsp;1: Accuracy and weighted F1-score at each taxonomic rank, showing th
 </div>
 </div>
 <p>The consistent decrease from Domain to Species reflects two compounding factors. First, the number of target classes increases by four orders of magnitude (from 2 at Domain to over 16,000 at Species). Second, the sequence differences between closely related species are confined to short variable regions within the 16S gene, making finer distinctions inherently harder.</p>
-<p>The gap between macro F1 (shown in the table above) and weighted F1 indicates that the model performs well on abundant species but struggles with rare ones. This is expected given the long-tailed class distribution in the training data (<span class="citation" data-cites="sokolova2009f1">Sokolova &amp; Lapalme (2009)</span>).</p>
+<p>The gap between macro F1 (shown in the table above) and weighted F1 indicates that the model performs well on abundant species but struggles with rare ones. This is expected given the long-tailed class distribution in the training data (<a href="./references.html#ref-sokolova2009f1"><span class="citation" data-cites="sokolova2009f1">Sokolova &amp; Lapalme (2009)</span></a>).</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1231,7 +1212,7 @@ Tip
 <p>DeepTaxa reports a confidence score for each prediction: the maximum probability from the softmax output. The softmax function converts the raw model outputs (logits) <span class="math inline">\(z_1, z_2, \ldots, z_C\)</span> (one per class, where <span class="math inline">\(C\)</span> is the number of classes at the given rank) into a probability distribution:</p>
 <p><span class="math display">\[p_c = \frac{e^{z_c}}{\sum_{j=1}^{C} e^{z_j}}\]</span></p>
 <p>The confidence is <span class="math inline">\(\max_c \, p_c\)</span>. A score of 0.99 means the model assigns 99% of its probability mass to a single class.</p>
-<p>But confidence alone is not enough. A model that reports 90% confidence should be correct approximately 90% of the time. When this correspondence holds, the model is said to be <strong>well-calibrated</strong>. The <strong>Expected Calibration Error</strong> (ECE) <span class="citation" data-cites="guo2017calibration">(Guo et al., 2017)</span> quantifies the degree of miscalibration by binning predictions by confidence and measuring the average gap between confidence and accuracy within each bin:</p>
+<p>But confidence alone is not enough. A model that reports 90% confidence should be correct approximately 90% of the time. When this correspondence holds, the model is said to be <strong>well-calibrated</strong>. The <strong>Expected Calibration Error</strong> (ECE) <a href="./references.html#ref-guo2017calibration"><span class="citation" data-cites="guo2017calibration">(Guo et al., 2017)</span></a> quantifies the degree of miscalibration by binning predictions by confidence and measuring the average gap between confidence and accuracy within each bin:</p>
 <p><span class="math display">\[\text{ECE} = \sum_{b=1}^{B} \frac{|B_b|}{n} \left| \text{acc}(B_b) - \text{conf}(B_b) \right|\]</span></p>
 <p>where <span class="math inline">\(n\)</span> is the total number of predictions, <span class="math inline">\(B_b\)</span> is the set of predictions in bin <span class="math inline">\(b\)</span>, <span class="math inline">\(|B_b|/n\)</span> is the fraction of predictions falling in that bin, <span class="math inline">\(\text{acc}(B_b)\)</span> is the fraction correct, and <span class="math inline">\(\text{conf}(B_b)\)</span> is the mean confidence. An ECE of zero indicates perfect calibration.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -1323,7 +1304,7 @@ Incorrect: mean confidence = 0.665</code></pre>
 </section>
 <section id="interpretation-2" class="level3" data-number="6.2">
 <h3 data-number="6.2" class="anchored" data-anchor-id="interpretation-2"><span class="header-section-number">6.2</span> Interpretation</h3>
-<p>The confidence histograms reveal a strong separation between correct and incorrect predictions. Correctly classified sequences cluster near 1.0, while misclassified sequences spread across a much wider range. The reliability diagram shows that the model is reasonably well-calibrated: the bars track the diagonal, indicating that when the model reports high confidence, it is usually right. The low ECE value confirms this quantitatively <span class="citation" data-cites="guo2017calibration">(Guo et al., 2017)</span>. Together, these results support confidence-based filtering as a practical strategy for flagging unreliable predictions in downstream analyses.</p>
+<p>The confidence histograms reveal a strong separation between correct and incorrect predictions. Correctly classified sequences cluster near 1.0, while misclassified sequences spread across a much wider range. The reliability diagram shows that the model is reasonably well-calibrated: the bars track the diagonal, indicating that when the model reports high confidence, it is usually right. The low ECE value confirms this quantitatively <a href="./references.html#ref-guo2017calibration"><span class="citation" data-cites="guo2017calibration">(Guo et al., 2017)</span></a>. Together, these results support confidence-based filtering as a practical strategy for flagging unreliable predictions in downstream analyses.</p>
 </section>
 <section id="calibration-across-all-ranks" class="level3" data-number="6.3">
 <h3 data-number="6.3" class="anchored" data-anchor-id="calibration-across-all-ranks"><span class="header-section-number">6.3</span> Calibration across all ranks</h3>
@@ -1610,407 +1591,8 @@ Tip
 <li><strong>The model generalizes to novel species at higher ranks</strong>, correctly assigning the phylum for roughly 96% of sequences whose true species was absent from the training vocabulary.</li>
 </ol>
 <p>For running predictions with the pre-trained model, see the <a href="./prediction.html">prediction tutorial</a>. For training a model on custom data, see the <a href="./training.html">training tutorial</a>.</p>
-</section>
-<section id="concepts-used-in-this-tutorial" class="level2" data-number="10">
-<h2 data-number="10" class="anchored" data-anchor-id="concepts-used-in-this-tutorial"><span class="header-section-number">10</span> Concepts used in this tutorial</h2>
-<p>This tutorial uses several standard terms: accuracy, precision and recall, F1, the confusion matrix, calibration and ECE, embeddings, cosine similarity, the Jaccard index, t-SNE, and open-set classification. See the <a href="./glossary.html">Glossary</a> for short definitions.</p>
-</section>
-<section id="key-references" class="level2" data-number="11">
-<h2 data-number="11" class="anchored" data-anchor-id="key-references"><span class="header-section-number">11</span> Key references</h2>
-<p>This tutorial uses standard evaluation metrics <span class="citation" data-cites="sokolova2009f1">(Sokolova &amp; Lapalme, 2009)</span> and calibration analysis <span class="citation" data-cites="guo2017calibration">(Guo et al., 2017)</span>. See the <a href="./references.html">References</a> page for the complete bibliography.</p>
 
 
-<div class="callout callout-style-simple callout-note">
-<div class="callout-body d-flex">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-body-container">
-<p><strong>Objective.</strong> Classify a set of 16S rRNA sequences with a pre-trained DeepTaxa model and interpret the per-rank taxonomic predictions and confidence scores.</p>
-<p><strong>Prerequisites.</strong> DeepTaxa (<code>pip install deeptaxa-rrna</code>), Python 3.10 or later, and PyTorch 2.4 or later. A CUDA-capable GPU is optional; prediction also runs on CPU.</p>
-<p><strong>Inputs.</strong> A FASTA file of 16S sequences and a pre-trained model checkpoint (about 306 MB), plus an optional ground-truth taxonomy file for evaluation. <strong>Outputs.</strong> A per-rank taxonomy TSV with confidence and entropy columns, along with accuracy and confidence summary figures. <strong>Runtime.</strong> A few minutes; the full test-set prediction takes about 6 minutes on an NVIDIA A40 GPU.</p>
-<p><em>Last validated July 2026.</em></p>
-</div>
-</div>
-</div>
-<p>The 16S ribosomal RNA gene is a roughly 1,500-nucleotide region present in all bacteria and archaea. Because portions of this gene evolve slowly while others accumulate mutations rapidly, it serves as a molecular clock for placing organisms within the tree of life. Sequencing the 16S gene from an environmental sample and assigning each read to a taxonomic lineage is one of the foundational tasks in microbial ecology and clinical microbiome research <span class="citation" data-cites="mcdonald2024greengenes">(<span class="nocase">McDonald et al.</span>, 2024)</span>.</p>
-<p>DeepTaxa is a hybrid deep learning model that classifies 16S sequences into a seven-rank taxonomic hierarchy: Domain, Phylum, Class, Order, Family, Genus, and Species. It combines convolutional neural networks (for detecting local sequence motifs) with a Transformer encoder (for capturing long-range dependencies across the full gene), and produces independent predictions at each rank along with confidence scores.</p>
-<p>This tutorial walks through the prediction workflow: loading a pre-trained model, classifying a set of test sequences, and interpreting the results. The companion tutorials cover <a href="./training.html">model training</a> and <a href="./analysis.html">in-depth performance analysis</a>.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The code cells below are designed to be read in order. To run them, copy the commands into a terminal or Jupyter session on a machine with a CUDA-capable GPU.</p>
-</div>
-</div>
-</section>
-<section id="setup" class="level2" data-number="12">
-<h2 data-number="12" class="anchored" data-anchor-id="setup"><span class="header-section-number">12</span> Setup</h2>
-<p>The following cells configure the Python environment and verify GPU availability. DeepTaxa uses mixed-precision inference on CUDA GPUs, which reduces memory usage and increases throughput compared to CPU-only execution.</p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Tip
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The PATH modification and GPU verification below are specific to containerized environments (e.g., Vast.ai, Docker) where the system Python differs from the virtual environment. If you are running on a local machine with CUDA already configured, skip ahead to the installation step.</p>
-</div>
-</div>
-<pre class="{python}"><code>#| eval: true
-#| label: lst-setup-path
-#| lst-cap: "Configure PATH for containerized environments."
-# Configure PATH so bash cells find the GPU-enabled Python
-import os
-os.environ['PATH'] = '/venv/main/bin:' + os.environ['PATH']</code></pre>
-<p>Check that PyTorch detects the GPU. The output should show <code>True</code>, the device count, and the GPU model name.</p>
-<pre class="{python}"><code>#| eval: true
-#| label: lst-setup-gpu
-#| lst-cap: "Verify GPU availability."
-import torch
-print(torch.cuda.is_available())
-print(torch.cuda.device_count())
-print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'No GPU')</code></pre>
-<p>Install DeepTaxa from PyPI, along with the optional libraries for evaluation and plotting. DeepTaxa is distributed as <code>deeptaxa-rrna</code>; after installation the command-line tool is <code>deeptaxa</code>. Bioconda is an alternative for Conda-based toolchains (<code>conda install -c bioconda deeptaxa-rrna</code>).</p>
-<pre class="{python}"><code>#| eval: true
-#| label: lst-install-deeptaxa
-#| lst-cap: "Install DeepTaxa from PyPI."
-#| output: false
-%%bash
-mkdir -p ~/deeptaxa-workspace
-python -m pip install -q deeptaxa-rrna
-python -m pip install -q matplotlib scikit-learn</code></pre>
-<p>Confirm the installation.</p>
-<pre class="{python}"><code>#| eval: true
-#| label: lst-deeptaxa-version
-#| lst-cap: "Verify DeepTaxa installation."
-%%bash
-deeptaxa --version</code></pre>
-</section>
-<section id="data-and-model" class="level2" data-number="13">
-<h2 data-number="13" class="anchored" data-anchor-id="data-and-model"><span class="header-section-number">13</span> Data and model</h2>
-<p>DeepTaxa ships a pre-trained checkpoint on <a href="https://huggingface.co/systems-genomics-lab/deeptaxa">Hugging Face</a>. This checkpoint was trained on approximately 277,000 full-length 16S sequences from the <a href="https://huggingface.co/datasets/systems-genomics-lab/greengenes">Greengenes 2</a> reference database (release 2024.09), covering over 16,000 species across 129 bacterial and archaeal phyla.</p>
-<p>The test set contains 69,335 sequences held out from training. Each sequence carries a known ground-truth taxonomy, enabling direct measurement of classification accuracy. The commands below place all files under a shared workspace directory:</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 24%">
-<col style="width: 52%">
-<col style="width: 24%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>File</th>
-<th>Description</th>
-<th>Size</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>data/models/deeptaxa-full-length-v2.pt</code></td>
-<td>Pre-trained model checkpoint</td>
-<td>~306 MB</td>
-</tr>
-<tr class="even">
-<td><code>data/greengenes/gg_2024_09_testing.fna.gz</code></td>
-<td>Test sequences (FASTA, compressed)</td>
-<td>~65 MB</td>
-</tr>
-<tr class="odd">
-<td><code>data/greengenes/gg_2024_09_testing.tsv.gz</code></td>
-<td>Ground-truth taxonomy (TSV, compressed)</td>
-<td>~1.5 MB</td>
-</tr>
-</tbody>
-</table>
-<p>Download the pre-trained checkpoint and the test data from Hugging Face.</p>
-<pre class="{python}"><code>#| eval: true
-#| label: lst-download-data
-#| lst-cap: "Download model checkpoint and test data."
-#| output: false
-%%bash
-cd ~/deeptaxa-workspace
-mkdir -p data/models data/greengenes
-test -f data/models/deeptaxa-full-length-v2.pt || curl -L -o data/models/deeptaxa-full-length-v2.pt https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-full-length-v2.pt
-test -f data/greengenes/gg_2024_09_testing.fna.gz || curl -L -o data/greengenes/gg_2024_09_testing.fna.gz https://huggingface.co/datasets/systems-genomics-lab/greengenes/resolve/main/gg_2024_09_testing.fna.gz
-test -f data/greengenes/gg_2024_09_testing.tsv.gz || curl -L -o data/greengenes/gg_2024_09_testing.tsv.gz https://huggingface.co/datasets/systems-genomics-lab/greengenes/resolve/main/gg_2024_09_testing.tsv.gz</code></pre>
-<p>List the downloaded files.</p>
-<pre class="{python}"><code>#| eval: true
-#| label: lst-list-data
-#| lst-cap: "Verify downloaded files."
-%%bash
-cd ~/deeptaxa-workspace &amp;&amp; du -h data/models/* data/greengenes/*</code></pre>
-<p>To confirm that the downloads are intact, compare each file against its published SHA-256 checksum. The following commands write the expected values to a file and verify them; every line should report <code>OK</code>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/deeptaxa-workspace</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&gt;</span> data/CHECKSUMS.sha256 <span class="op">&lt;&lt;'EOF'</span></span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="st">b924500450ba623e26c7a023bf7246c0d4fb61787e8aa8d720d7ad35c3c6dfb4  data/models/deeptaxa-full-length-v2.pt</span></span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="st">d79347cb231edc72371c20daa8384581a1e6fbb9fa8ad6e172a3eecba29b5709  data/greengenes/gg_2024_09_testing.fna.gz</span></span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="st">d5268e7980ce81a39a521e22ff6078f622843c792682e7f95519188475c6d6bb  data/greengenes/gg_2024_09_testing.tsv.gz</span></span>
-<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
-<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sha256sum</span> <span class="at">-c</span> data/CHECKSUMS.sha256</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="running-predictions" class="level2" data-number="14">
-<h2 data-number="14" class="anchored" data-anchor-id="running-predictions"><span class="header-section-number">14</span> Running predictions</h2>
-<section id="how-prediction-works" class="level3" data-number="14.1">
-<h3 data-number="14.1" class="anchored" data-anchor-id="how-prediction-works"><span class="header-section-number">14.1</span> How prediction works</h3>
-<p>When DeepTaxa receives a DNA sequence, it processes it through four stages:</p>
-<pre class="{mermaid}"><code>%%| echo: false
-flowchart LR
-    A[DNA Sequence] --&gt; B[BPE Tokenizer]
-    B --&gt; C[CNN Pathway]
-    B --&gt; D[Transformer Pathway]
-    C --&gt; E[Fusion]
-    D --&gt; E
-    E --&gt; F[7 Classification Heads]
-    F --&gt; G[Domain ... Species]
-    style A fill:#f5efe4,stroke:#7a6343
-    style B fill:#f5efe4,stroke:#7a6343
-    style C fill:#d6efe8,stroke:#1f6b4f
-    style D fill:#d8e4f0,stroke:#2a5278
-    style E fill:#e4dced,stroke:#5a3d75
-    style F fill:#f0e2d6,stroke:#994a2a
-    style G fill:#f0e2d6,stroke:#994a2a</code></pre>
-<ol type="1">
-<li><p><strong>Tokenization.</strong> The raw nucleotide string is split into subword tokens using DNABERT-2 <span class="citation" data-cites="zhou2024dnabert2">(Zhou et al., 2024)</span>’s byte-pair encoding (BPE) vocabulary (4,096 tokens). This is analogous to how language models tokenize text into word pieces rather than individual characters.</p></li>
-<li><p><strong>Feature extraction.</strong> The token sequence passes through two parallel pathways: a set of convolutional filters that detect local motifs (256 filters at each of three kernel widths: 3, 5, and 7 tokens), and a Transformer encoder (4 layers, 7 attention heads) that models dependencies across the full 512-token window.</p></li>
-<li><p><strong>Fusion.</strong> The outputs of both pathways are combined through a learnable scalar fusion weight and passed through a dropout layer.</p></li>
-<li><p><strong>Classification.</strong> Seven independent linear heads produce probability distributions over the classes at each taxonomic rank. The predicted class is the one with the highest probability, and that probability serves as the confidence score.</p></li>
-</ol>
-</section>
-<section id="single-sequence-prediction" class="level3" data-number="14.2">
-<h3 data-number="14.2" class="anchored" data-anchor-id="single-sequence-prediction"><span class="header-section-number">14.2</span> Single-sequence prediction</h3>
-<p>To verify the setup, we extract one sequence from the test set and classify it. The <code>--tabular</code> flag requests tab-separated output with columns for the predicted label, confidence score, and entropy at each rank.</p>
-<pre class="{python}"><code>#| eval: true
-#| label: lst-single-prediction
-#| lst-cap: "Classify a single test sequence."
-%%bash
-cd ~/deeptaxa-workspace
-mkdir -p outputs/single_sequence
-# Extract the first record from the compressed FASTA
-zcat data/greengenes/gg_2024_09_testing.fna.gz | awk 'BEGIN{RS="&gt;"; ORS=""} NR==2 {print "&gt;"$0; exit}' &gt; outputs/single_sequence/single_sequence.fna
-deeptaxa predict --fasta-file outputs/single_sequence/single_sequence.fna --checkpoint data/models/deeptaxa-full-length-v2.pt --tabular --output-dir outputs/single_sequence</code></pre>
-</section>
-<section id="full-test-set-prediction" class="level3" data-number="14.3">
-<h3 data-number="14.3" class="anchored" data-anchor-id="full-test-set-prediction"><span class="header-section-number">14.3</span> Full test set prediction</h3>
-<p>For a systematic evaluation, we classify all 69,335 test sequences. Passing <code>--taxonomy-file</code> tells DeepTaxa to compare each prediction against the known label and report agreement statistics. This step takes approximately 6 minutes on an NVIDIA A40 GPU.</p>
-<pre class="{python}"><code>#| eval: true
-#| label: lst-full-prediction
-#| lst-cap: "Classify all 69,335 test sequences."
-#| output: false
-%%bash
-cd ~/deeptaxa-workspace
-deeptaxa predict --fasta-file data/greengenes/gg_2024_09_testing.fna.gz --taxonomy-file data/greengenes/gg_2024_09_testing.tsv.gz --checkpoint data/models/deeptaxa-full-length-v2.pt --tabular --output-dir outputs/predictions</code></pre>
-<p>Verify that the prediction output was saved.</p>
-<pre class="{python}"><code>#| eval: true
-#| label: lst-verify-prediction
-#| lst-cap: "Verify prediction output file."
-import os, glob
-os.chdir(os.path.expanduser('~/deeptaxa-workspace'))
-pred_files = sorted(glob.glob('outputs/predictions/*_predictions.tsv'))
-for f in pred_files:
-    size_mb = os.path.getsize(f) / (1024 * 1024)
-    print(f'{f} ({size_mb:.1f} MB)')</code></pre>
-</section>
-</section>
-<section id="interpreting-the-results" class="level2" data-number="15">
-<h2 data-number="15" class="anchored" data-anchor-id="interpreting-the-results"><span class="header-section-number">15</span> Interpreting the results</h2>
-<p>The prediction output is a TSV file with one row per sequence, identified by a <code>sequence_id</code> column. For each of the seven taxonomic ranks, the file then reports:</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 38%">
-<col style="width: 61%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Column</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>{rank}_predicted</code></td>
-<td>The predicted taxonomy label</td>
-</tr>
-<tr class="even">
-<td><code>{rank}_true</code></td>
-<td>The ground-truth label (if taxonomy file was provided)</td>
-</tr>
-<tr class="odd">
-<td><code>{rank}_raw_score</code></td>
-<td>The softmax probability of the predicted class (confidence)</td>
-</tr>
-<tr class="even">
-<td><code>{rank}_entropy</code></td>
-<td>Shannon entropy of the full probability distribution</td>
-</tr>
-<tr class="odd">
-<td><code>{rank}_agreement</code></td>
-<td>Whether the prediction matches the ground truth</td>
-</tr>
-</tbody>
-</table>
-<p>The cells below load this file and compute summary statistics.</p>
-<p>Load the prediction output into a pandas DataFrame.</p>
-<pre class="{python}"><code>#| eval: true
-#| label: lst-load-predictions
-#| lst-cap: "Load prediction results into a DataFrame."
-# --- Load predictions ---
-import os
-os.chdir(os.path.expanduser('~/deeptaxa-workspace'))
-
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score
-import glob
-
-RANKS = ['domain', 'phylum', 'class', 'order', 'family', 'genus', 'species']
-
-df = pd.read_csv(sorted(glob.glob('outputs/predictions/*_predictions.tsv'))[0], sep='\t')
-print('Loaded', len(df), 'predictions')</code></pre>
-<section id="per-rank-accuracy" class="level3" data-number="15.1">
-<h3 data-number="15.1" class="anchored" data-anchor-id="per-rank-accuracy"><span class="header-section-number">15.1</span> Per-rank accuracy</h3>
-<p>Classification accuracy at rank <span class="math inline">\(r\)</span> is the fraction of sequences where the predicted and true labels match:</p>
-<p><span class="math display">\[\text{Accuracy}_r = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}[\hat{y}_{i,r} = y_{i,r}]\]</span></p>
-<p>where <span class="math inline">\(N\)</span> is the number of test sequences, <span class="math inline">\(\hat{y}_{i,r}\)</span> is the predicted label for sequence <span class="math inline">\(i\)</span> at rank <span class="math inline">\(r\)</span>, and <span class="math inline">\(y_{i,r}\)</span> is the true label.</p>
-<p>We expect accuracy to decrease from domain to species. At the domain level, the model distinguishes only Bacteria from Archaea (two classes with large sequence differences). At the species level, it must discriminate among over 16,000 classes, many of which differ by only a handful of nucleotide positions within the variable regions of the 16S gene.</p>
-<p>Compute and plot accuracy at each rank.</p>
-<pre class="{python}"><code>#| eval: true
-#| label: fig-accuracy-by-rank
-#| fig-cap: "Classification accuracy at each taxonomic rank, showing the expected decrease from Domain to Species."
-#| fig-alt: "Bar chart of classification accuracy for the seven taxonomic ranks from Domain to Species, with bars near 1.0 at the coarse ranks and declining to about 0.93 at Species."
-# --- Per-rank accuracy ---
-accuracies = [accuracy_score(df[f'{r}_true'], df[f'{r}_predicted']) for r in RANKS]
-
-plt.figure()
-plt.bar(RANKS, accuracies)
-plt.ylabel('Accuracy')
-plt.ylim(0.8, 1.02)
-plt.xticks(rotation=0, ha='center')
-plt.tight_layout()
-plt.show()</code></pre>
-<p>The bar chart confirms the expected gradient: accuracy exceeds 99% at Domain through Class, then decreases to approximately 93% at Species. This pattern is consistent across taxonomic classifiers and reflects the fundamental challenge of resolving fine-grained distinctions from a single marker gene.</p>
-</section>
-<section id="prediction-confidence" class="level3" data-number="15.2">
-<h3 data-number="15.2" class="anchored" data-anchor-id="prediction-confidence"><span class="header-section-number">15.2</span> Prediction confidence</h3>
-<p>For each sequence, DeepTaxa reports the maximum softmax probability as a confidence score. The softmax function converts the raw logits <span class="math inline">\(z_1, z_2, \ldots, z_C\)</span> (one per class, where <span class="math inline">\(C\)</span> is the number of classes at that rank) into a probability distribution:</p>
-<p><span class="math display">\[p_c = \frac{e^{z_c}}{\sum_{j=1}^{C} e^{z_j}}\]</span></p>
-<p>The confidence is <span class="math inline">\(\max_c \, p_c\)</span>. A value near 1.0 means the model assigns almost all probability mass to a single class; a value near <span class="math inline">\(1/C\)</span> indicates that mass is spread across many classes and the prediction is unreliable.</p>
-<p>In practice, confidence supports quality filtering: predictions above a threshold are retained while low-confidence predictions are flagged for manual review or excluded from downstream analysis.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>DeepTaxa uses a default confidence threshold of 0.95, chosen because the vast majority of misclassifications fall below this value (see the confidence analysis below). For applications that prioritize recall over precision, the threshold can be lowered; for applications where every retained prediction must be reliable, it should be raised. The best threshold is not universal: it can shift with the amplicon region, the read length, how well the reference database covers your taxa, and how much a given analysis weighs precision against recall, so treat 0.95 as a starting point rather than a fixed rule.</p>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Tip
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The left panel below uses a logarithmic y-axis to reveal the shape of the distribution below the dominant spike at 1.0. The right panel zooms into sequences with confidence below 0.95, where the separation between correct and incorrect predictions is most visible.</p>
-</div>
-</div>
-<p>Plot the confidence distribution for correct and incorrect species predictions.</p>
-<pre class="{python}"><code>#| eval: true
-#| label: fig-confidence
-#| fig-cap: "Left: confidence distribution for correct and incorrect species predictions (log-scaled density). Right: zoomed view below the 0.95 threshold, where most misclassifications concentrate."
-#| fig-alt: "Two overlaid histograms of species-level prediction confidence. The left panel spans the full 0-to-1 range on a log-scaled density axis, with correct predictions concentrated near 1.0 and incorrect predictions spread lower. The right panel zooms below 0.95, where incorrect predictions dominate."
-# --- Confidence analysis at species level ---
-correct = df['species_predicted'] == df['species_true']
-
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
-
-# Left: full range, log scale
-ax1.hist(df.loc[correct, 'species_raw_score'], bins=50, alpha=0.7, label='Correct', density=True)
-ax1.hist(df.loc[~correct, 'species_raw_score'], bins=50, alpha=0.7, label='Incorrect', density=True)
-ax1.set_yscale('log')
-ax1.set_xlabel('Species Confidence')
-ax1.set_ylabel('Density (log scale)')
-ax1.legend()
-
-# Right: zoom below 0.95
-low_correct = df.loc[correct, 'species_raw_score'][df.loc[correct, 'species_raw_score'] &lt; 0.95]
-low_incorrect = df.loc[~correct, 'species_raw_score'][df.loc[~correct, 'species_raw_score'] &lt; 0.95]
-ax2.hist(low_correct, bins=30, alpha=0.7, label='Correct', density=True)
-ax2.hist(low_incorrect, bins=30, alpha=0.7, label='Incorrect', density=True)
-ax2.set_xlabel('Species Confidence (&lt; 0.95)')
-ax2.set_ylabel('Density')
-ax2.legend()
-
-plt.tight_layout()
-plt.show()</code></pre>
-<p>Print confidence summary statistics.</p>
-<pre class="{python}"><code>#| eval: true
-#| label: lst-confidence-stats
-#| lst-cap: "Confidence summary statistics."
-# --- Confidence summary statistics ---
-print('Correct:   mean confidence =', round(df.loc[correct, 'species_raw_score'].mean(), 3))
-print('Incorrect: mean confidence =', round(df.loc[~correct, 'species_raw_score'].mean(), 3))
-print('Incorrect predictions below 0.95:', round((df.loc[~correct, 'species_raw_score'] &lt; 0.95).mean() * 100, 1), '%')</code></pre>
-<p>The histograms show a strong separation: correctly classified sequences cluster near confidence 1.0, while incorrect predictions spread across the full range. The zoomed panel reveals that most incorrect predictions fall below the 0.95 threshold, confirming that confidence filtering is a useful strategy for flagging or removing many unreliable assignments.</p>
-</section>
-<section id="examining-individual-predictions" class="level3" data-number="15.3">
-<h3 data-number="15.3" class="anchored" data-anchor-id="examining-individual-predictions"><span class="header-section-number">15.3</span> Examining individual predictions</h3>
-<p>The table below prints a few correctly and incorrectly classified sequences, showing the true and predicted labels at all seven ranks. This makes error patterns visible: when the model assigns the wrong species, does it at least get the genus right?</p>
-<p>A <code>[+]</code> indicates that the predicted label matches the ground truth at that rank. An <code>[X]</code> indicates disagreement.</p>
-<p>Print three correct and three incorrect species predictions with per-rank agreement markers.</p>
-<pre class="{python}"><code>#| eval: true
-#| label: lst-example-predictions
-#| lst-cap: "Sample correct and incorrect predictions with per-rank agreement."
-# --- Example predictions ---
-for label, mask in [('Correct', correct), ('Incorrect', ~correct)]:
-    print("\n===", label, "species predictions (first 3) ===")
-    for _, row in df.loc[mask].head(3).iterrows():
-        print("\nSequence:", row.get("sequence_id", "N/A"))
-        for r in RANKS:
-            t, p = row.get(f'{r}_true', '?'), row.get(f'{r}_predicted', '?')
-            print(" ", "[+]" if t == p else "[X]", r + ":", "true=" + str(t) + ",", "pred=" + str(p))</code></pre>
-<p>In most incorrect cases, the species label differs but the genus and family remain correct. This indicates that the model makes taxonomically shallow errors, confusing closely related species rather than assigning sequences to distant lineages.</p>
-</section>
-</section>
-<section id="summary-1" class="level2" data-number="16">
-<h2 data-number="16" class="anchored" data-anchor-id="summary-1"><span class="header-section-number">16</span> Summary</h2>
-<pre class="{python}"><code>#| echo: false
-# --- Summary statistics computed from this run (used in the prose below) ---
-from sklearn.metrics import f1_score
-n_eval = len(df)
-species_accuracy = (df['species_predicted'] == df['species_true']).mean() * 100
-species_f1 = f1_score(df['species_true'], df['species_predicted'],
-                      average='weighted', zero_division=0) * 100
-conf_correct = df.loc[correct, 'species_raw_score'].mean()
-conf_incorrect = df.loc[~correct, 'species_raw_score'].mean()</code></pre>
-<p>DeepTaxa classified <code>{python} f"{n_eval:,}"</code> held-out 16S rRNA sequences with <code>{python} f"{species_accuracy:.1f}"</code>% species-level accuracy and <code>{python} f"{species_f1:.1f}"</code>% weighted F1-score. Performance exceeds 99% from Domain through Class, and decreases gradually at finer ranks as the number of target classes grows and the distinguishing sequence features become subtler.</p>
-<p>Prediction confidence strongly separates correct from incorrect classifications (mean <code>{python} f"{conf_correct:.3f}"</code> vs.&nbsp;<code>{python} f"{conf_incorrect:.3f}"</code>), supporting the default confidence threshold of 0.95 as a practical starting point for flagging potentially unreliable predictions.</p>
-<p>For training a model on custom reference data, see the <a href="./training.html">training tutorial</a>. For a deeper analysis of error patterns, calibration, and generalization to novel taxa, see the <a href="./analysis.html">analysis tutorial</a>.</p>
-</section>
-<section id="concepts-used-in-this-tutorial-1" class="level2" data-number="17">
-<h2 data-number="17" class="anchored" data-anchor-id="concepts-used-in-this-tutorial-1"><span class="header-section-number">17</span> Concepts used in this tutorial</h2>
-<p>This tutorial uses several standard terms: accuracy, the 16S rRNA gene, the taxonomic hierarchy, softmax, and byte-pair encoding. See the <a href="./glossary.html">Glossary</a> for short definitions.</p>
-</section>
-<section id="key-references-1" class="level2" data-number="18">
-<h2 data-number="18" class="anchored" data-anchor-id="key-references-1"><span class="header-section-number">18</span> Key references</h2>
-<p>This tutorial uses the Greengenes 2 reference database <span class="citation" data-cites="mcdonald2024greengenes">(<span class="nocase">McDonald et al.</span>, 2024)</span> and the DNABERT-2 tokenizer <span class="citation" data-cites="zhou2024dnabert2">(Zhou et al., 2024)</span>. See the <a href="./references.html">References</a> page for the complete bibliography.</p>
 </section>
 
 </main> <!-- /main -->

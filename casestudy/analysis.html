@@ -423,11 +423,11 @@ Table&nbsp;1: Sample pairing. Nine ALS patients, each matched to a spouse contro
 </div>
 </figure>
 </div>
-<p>The dataset was published by <span class="citation" data-cites="hertzberg2021als">Hertzberg et al. (2021)</span>, BioProject <a href="https://www.ncbi.nlm.nih.gov/bioproject/PRJNA566436">PRJNA566436</a>. This is a reanalysis of that cohort with an independent classification method.</p>
+<p>The dataset was published by <a href="../../../../../../references.qmd#ref-hertzberg2021als"><span class="citation" data-cites="hertzberg2021als">Hertzberg et al. (2021)</span></a>, BioProject <a href="https://www.ncbi.nlm.nih.gov/bioproject/PRJNA566436">PRJNA566436</a>. This is a reanalysis of that cohort with an independent classification method.</p>
 </section>
 <section id="reproducing-the-inputs" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Reproducing the inputs</h1>
-<p>The analysis below runs from the ASV table and the taxonomy tables committed under <a href="https://github.com/systems-genomics-lab/deeptaxa/tree/main/tutorials/casestudy/data"><code>data/</code></a>, so the notebook reproduces without rerunning anything upstream. Those inputs are themselves reproducible from the public raw reads: the 18 runs are on the Sequence Read Archive, with the run accessions in the first column of <a href="https://github.com/systems-genomics-lab/deeptaxa/blob/main/tutorials/casestudy/data/samples.tsv"><code>data/samples.tsv</code></a> (and in <a href="#tbl-samples" class="quarto-xref">Table&nbsp;1</a>). The steps are summarized below; the runnable scripts for the compute-heavy parts and the full tool versions are in <a href="https://github.com/systems-genomics-lab/deeptaxa/tree/main/tutorials/casestudy/pipeline"><code>pipeline/</code></a>.</p>
+<p>The analysis below runs from the ASV table and the taxonomy tables committed under <a href="https://github.com/systems-genomics-lab/deeptaxa/tree/main/tutorials/casestudy/data"><code>data/</code></a>, so the notebook reproduces without rerunning anything upstream. Those inputs are themselves reproducible from the public raw reads: the 18 runs are on the Sequence Read Archive, with the run accessions in the first column of <a href="https://github.com/systems-genomics-lab/deeptaxa/blob/main/tutorials/casestudy/data/samples.tsv"><code>data/samples.tsv</code></a> (and in <a href="../../../../../../references.qmd#ref-tbl-samples"><span class="quarto-xref">Table&nbsp;1</span></a>). The steps are summarized below; the runnable scripts for the compute-heavy parts and the full tool versions are in <a href="https://github.com/systems-genomics-lab/deeptaxa/tree/main/tutorials/casestudy/pipeline"><code>pipeline/</code></a>.</p>
 <p>The raw reads are fetched with the SRA Toolkit:</p>
 <div id="lst-fetch" class="bash listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
@@ -446,7 +446,7 @@ Listing&nbsp;1: Fetch the raw reads from the SRA with the SRA Toolkit.
 </div>
 <section id="asv-inference-dada2" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="asv-inference-dada2"><span class="header-section-number">2.1</span> ASV inference (DADA2)</h2>
-<p>The raw paired-end reads were denoised into ASVs with DADA2 1.40.0. DADA2 performs its own quality filtering <span class="citation" data-cites="callahan2016dada2">(Callahan et al., 2016)</span>, so no separate trimming step is used on this route: it filters each read to an expected-error budget of 2 with no length truncation, learns the error model, denoises with pseudo-pooling, merges the read pairs, and removes chimeras. Of 229,204 input read pairs, 99.8 percent passed filtering and 178,378 (77.8 percent) survived as non-chimeric reads, yielding <strong>276 V4 ASVs</strong>. The full script is <a href="https://github.com/systems-genomics-lab/deeptaxa/blob/main/tutorials/casestudy/pipeline/01_dada2_asv.R"><code>pipeline/01_dada2_asv.R</code></a>.</p>
+<p>The raw paired-end reads were denoised into ASVs with DADA2 1.40.0. DADA2 performs its own quality filtering <a href="../../../../../../references.qmd#ref-callahan2016dada2"><span class="citation" data-cites="callahan2016dada2">(Callahan et al., 2016)</span></a>, so no separate trimming step is used on this route: it filters each read to an expected-error budget of 2 with no length truncation, learns the error model, denoises with pseudo-pooling, merges the read pairs, and removes chimeras. Of 229,204 input read pairs, 99.8 percent passed filtering and 178,378 (77.8 percent) survived as non-chimeric reads, yielding <strong>276 V4 ASVs</strong>. The full script is <a href="https://github.com/systems-genomics-lab/deeptaxa/blob/main/tutorials/casestudy/pipeline/01_dada2_asv.R"><code>pipeline/01_dada2_asv.R</code></a>.</p>
 <div id="lst-dada2" class="r listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-dada2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -464,7 +464,7 @@ Listing&nbsp;2: Denoise the reads into ASVs with DADA2: filtering, error learnin
 </section>
 <section id="taxonomic-classification-deeptaxa-and-silva" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="taxonomic-classification-deeptaxa-and-silva"><span class="header-section-number">2.2</span> Taxonomic classification (DeepTaxa and SILVA)</h2>
-<p>The ASVs were classified with the DeepTaxa checkpoint <span class="citation" data-cites="salah2026deeptaxa">(Salah et al., 2026)</span>, which is trained for the V4 region these reads cover. On these amplicons it assigns a genus to 99 percent of reads at high confidence (mean 0.985). DeepTaxa inference is deterministic; re-running it yields a byte-identical taxonomy.</p>
+<p>The ASVs were classified with the DeepTaxa checkpoint <a href="../../../../../../references.qmd#ref-salah2026deeptaxa"><span class="citation" data-cites="salah2026deeptaxa">(Salah et al., 2026)</span></a>, which is trained for the V4 region these reads cover. On these amplicons it assigns a genus to 99 percent of reads at high confidence (mean 0.985). DeepTaxa inference is deterministic; re-running it yields a byte-identical taxonomy.</p>
 <div id="lst-predict" class="bash listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-predict-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -476,13 +476,13 @@ Listing&nbsp;3: Classify the ASVs with DeepTaxa.
 </div>
 </figure>
 </div>
-<p>The checkpoint is published at <a href="https://huggingface.co/systems-genomics-lab/deeptaxa">huggingface.co/systems-genomics-lab/deeptaxa</a>, and the tabular output (<code>out/asv_seqs_deeptaxa_predictions.tsv</code>) is committed as <a href="https://github.com/systems-genomics-lab/deeptaxa/blob/main/tutorials/casestudy/data/asv_taxonomy.tsv"><code>data/asv_taxonomy.tsv</code></a>. High confidence reflects how well the input matches the model’s training regime and is not by itself evidence of correctness, so the same ASVs were also classified independently with the SILVA v138 reference <span class="citation" data-cites="quast2013silva">(Quast et al., 2013)</span> (<a href="https://github.com/systems-genomics-lab/deeptaxa/blob/main/tutorials/casestudy/pipeline/02_classify_silva.R"><code>pipeline/02_classify_silva.R</code></a>) as a cross-check.</p>
+<p>The checkpoint is published at <a href="https://huggingface.co/systems-genomics-lab/deeptaxa">huggingface.co/systems-genomics-lab/deeptaxa</a>, and the tabular output (<code>out/asv_seqs_deeptaxa_predictions.tsv</code>) is committed as <a href="https://github.com/systems-genomics-lab/deeptaxa/blob/main/tutorials/casestudy/data/asv_taxonomy.tsv"><code>data/asv_taxonomy.tsv</code></a>. High confidence reflects how well the input matches the model’s training regime and is not by itself evidence of correctness, so the same ASVs were also classified independently with the SILVA v138 reference <a href="../../../../../../references.qmd#ref-quast2013silva"><span class="citation" data-cites="quast2013silva">(Quast et al., 2013)</span></a> (<a href="https://github.com/systems-genomics-lab/deeptaxa/blob/main/tutorials/casestudy/pipeline/02_classify_silva.R"><code>pipeline/02_classify_silva.R</code></a>) as a cross-check.</p>
 </section>
 </section>
 <section id="setup-and-data-loading" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Setup and data loading</h1>
 <p>All sections below execute from the committed files.</p>
-<div id="c46d4989" class="cell" data-execution_count="1">
+<div id="1a742149" class="cell" data-execution_count="1">
 <div id="lst-setup" class="python cell-code listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-setup-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -529,7 +529,7 @@ Listing&nbsp;4: Load the sample sheet, ASV count table, and DeepTaxa taxonomy, a
 <section id="validation-against-silva" class="level1" data-number="4">
 <h1 data-number="4"><span class="header-section-number">4</span> Validation against SILVA</h1>
 <p>The SILVA classification of the same ASVs provides an independent check on the DeepTaxa genus calls. Because DeepTaxa reports GTDB names and SILVA reports NCBI names, genus labels are harmonized (GTDB suffixes removed, a small set of documented synonyms mapped) before comparison.</p>
-<div id="c75d3fb0" class="cell" data-execution_count="2">
+<div id="3fa0d38b" class="cell" data-execution_count="2">
 <div id="lst-concordance" class="python cell-code listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-concordance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -584,7 +584,7 @@ Genus named by DeepTaxa where SILVA abstains: 60 ASVs, 17.5% of reads</code></pr
 </div>
 </div>
 <p>DeepTaxa and SILVA agree on the genus of about 94 percent of reads, and DeepTaxa resolves a genus name for an additional 17.5 percent of reads that SILVA leaves at a higher rank. The genera that carry the clinical findings below are examined individually:</p>
-<div id="0cd1213e" class="cell" data-execution_count="3">
+<div id="870b246b" class="cell" data-execution_count="3">
 <div id="lst-silva-genera" class="python cell-code listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-silva-genera-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -689,7 +689,7 @@ Listing&nbsp;6: For each clinically relevant genus, tabulate how SILVA classifie
 <section id="alpha-diversity" class="level1" data-number="5">
 <h1 data-number="5"><span class="header-section-number">5</span> Alpha diversity</h1>
 <p>Within-sample diversity is compared within matched pairs (paired Wilcoxon signed-rank test). These metrics are computed from the ASV count table and do not depend on the taxonomic classifier.</p>
-<div id="773411a5" class="cell" data-execution_count="4">
+<div id="58b94f95" class="cell" data-execution_count="4">
 <div id="lst-alpha" class="python cell-code listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-alpha-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -796,12 +796,12 @@ Figure&nbsp;1: Alpha diversity by group, paired. Gray lines join each ALS patien
 </div>
 </div>
 </div>
-<p>ALS communities are significantly more diverse than their matched controls (<a href="#fig-alpha" class="quarto-xref">Figure&nbsp;1</a>): observed ASVs and Shannon diversity, p = 0.020; Simpson diversity, p = 0.027.</p>
+<p>ALS communities are significantly more diverse than their matched controls (<a href="../../../../../../references.qmd#ref-fig-alpha"><span class="quarto-xref">Figure&nbsp;1</span></a>): observed ASVs and Shannon diversity, p = 0.020; Simpson diversity, p = 0.027.</p>
 </section>
 <section id="beta-diversity" class="level1" data-number="6">
 <h1 data-number="6"><span class="header-section-number">6</span> Beta diversity</h1>
-<p>Between-sample structure is summarized with Bray-Curtis dissimilarity, tested by a permutational analysis of variance (PERMANOVA, 9,999 permutations) and visualized by principal coordinates analysis. The PERMANOVA is implemented directly here, following <span class="citation" data-cites="anderson2001permanova">Anderson (2001)</span>, and uses the fixed random seed set above. Because the design is paired, the test is run two ways: with unrestricted permutation of group labels, matching the original study, and with permutation restricted to within matched pairs, which respects the paired structure.</p>
-<div id="607300eb" class="cell" data-execution_count="6">
+<p>Between-sample structure is summarized with Bray-Curtis dissimilarity, tested by a permutational analysis of variance (PERMANOVA, 9,999 permutations) and visualized by principal coordinates analysis. The PERMANOVA is implemented directly here, following <a href="../../../../../../references.qmd#ref-anderson2001permanova"><span class="citation" data-cites="anderson2001permanova">Anderson (2001)</span></a>, and uses the fixed random seed set above. Because the design is paired, the test is run two ways: with unrestricted permutation of group labels, matching the original study, and with permutation restricted to within matched pairs, which respects the paired structure.</p>
+<div id="9de52abf" class="cell" data-execution_count="6">
 <div id="lst-permanova" class="python cell-code listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-permanova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -892,12 +892,12 @@ Figure&nbsp;2: Principal coordinates analysis of Bray-Curtis dissimilarity. ALS 
 </div>
 </div>
 </div>
-<p>The ALS and control communities differ significantly (<a href="#fig-pcoa" class="quarto-xref">Figure&nbsp;2</a>): unrestricted PERMANOVA p = 0.015, matching the original study’s approach, and the within-pair restricted test, appropriate to the paired design, is stronger at p = 0.004. As with alpha diversity, this result is computed from the count table and is independent of the classifier.</p>
+<p>The ALS and control communities differ significantly (<a href="../../../../../../references.qmd#ref-fig-pcoa"><span class="quarto-xref">Figure&nbsp;2</span></a>): unrestricted PERMANOVA p = 0.015, matching the original study’s approach, and the within-pair restricted test, appropriate to the paired design, is stronger at p = 0.004. As with alpha diversity, this result is computed from the count table and is independent of the classifier.</p>
 </section>
 <section id="differential-abundance" class="level1" data-number="7">
 <h1 data-number="7"><span class="header-section-number">7</span> Differential abundance</h1>
 <p>Taxa are collapsed to each rank, with any ASV below the 0.5 confidence threshold flagged as unclassified, and compared within pairs (paired Wilcoxon test, Benjamini-Hochberg false discovery rate per rank). Because the V4 model assigns 99 percent of reads at genus, many genera can be tested.</p>
-<div id="9a28ff17" class="cell" data-execution_count="8">
+<div id="907fbf82" class="cell" data-execution_count="8">
 <div id="lst-diffabund" class="python cell-code listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-diffabund-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -941,7 +941,7 @@ Listing&nbsp;9: Helpers to collapse ASVs to a taxonomic rank and test each taxon
 </div>
 <section id="class" class="level2" data-number="7.1">
 <h2 data-number="7.1" class="anchored" data-anchor-id="class"><span class="header-section-number">7.1</span> Class</h2>
-<div id="5b9b2d82" class="cell" data-execution_count="9">
+<div id="f71d4c2c" class="cell" data-execution_count="9">
 <div id="lst-class" class="python cell-code listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-class-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1039,7 +1039,7 @@ Listing&nbsp;10: Differential abundance at the class rank (top six by p-value).
 </div>
 </div>
 </div>
-<p>Clostridia, the dominant Firmicutes class, is enriched in ALS (36.0 versus 23.0 percent of reads, p = 0.027), as is Gammaproteobacteria; Negativicutes trends in the opposite direction. The same signal appears at the phylum rank as Bacillota_A (<a href="#fig-phylum" class="quarto-xref">Figure&nbsp;3</a>).</p>
+<p>Clostridia, the dominant Firmicutes class, is enriched in ALS (36.0 versus 23.0 percent of reads, p = 0.027), as is Gammaproteobacteria; Negativicutes trends in the opposite direction. The same signal appears at the phylum rank as Bacillota_A (<a href="../../../../../../references.qmd#ref-fig-phylum"><span class="quarto-xref">Figure&nbsp;3</span></a>).</p>
 <div id="cell-fig-phylum" class="cell" data-execution_count="10">
 <details open="" class="code-fold">
 <summary>Code</summary>
@@ -1073,7 +1073,7 @@ Figure&nbsp;3: Mean phylum composition by group. ALS communities carry proportio
 </section>
 <section id="genus" class="level2" data-number="7.2">
 <h2 data-number="7.2" class="anchored" data-anchor-id="genus"><span class="header-section-number">7.2</span> Genus</h2>
-<div id="50501113" class="cell" data-execution_count="11">
+<div id="fe2c6c48" class="cell" data-execution_count="11">
 <div id="lst-genus" class="python cell-code listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-genus-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1183,7 +1183,7 @@ Listing&nbsp;11: Genera differing nominally (p &lt; 0.05) between ALS and contro
 </div>
 </div>
 <p>The ALS-enriched genera are members of the Lachnospiraceae and related Clostridia (<em>Agathobacter</em>, <em>Blautia</em>, <em>Dorea</em>, <em>Mediterraneibacter</em>, <em>Acetatifactor</em>, <em>Hominicoprocola</em>), together with <em>Parasutterella</em>. <em>Agathobacter</em> is a well-known butyrate producer. As shown in the SILVA validation above, all of these except <em>Acetatifactor</em> and <em>Hominicoprocola</em> are confirmed by an independent classifier; those two remain DeepTaxa-specific. The genus-level differences are nominally significant but do not survive false discovery rate correction at nine pairs (FDR about 0.34), so they are hypothesis-generating rather than confirmed.</p>
-<div id="a93783fb" class="cell" data-execution_count="12">
+<div id="1126f01c" class="cell" data-execution_count="12">
 <div id="lst-prevotella" class="python cell-code listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-prevotella-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1254,7 +1254,7 @@ Listing&nbsp;12: Per-pair summary for Prevotella and Phocaeicola, including how 
 </section>
 <section id="firmicutes-to-bacteroidetes-ratio" class="level1" data-number="8">
 <h1 data-number="8"><span class="header-section-number">8</span> Firmicutes-to-Bacteroidetes ratio</h1>
-<div id="d59010bf" class="cell" data-execution_count="13">
+<div id="54380c1e" class="cell" data-execution_count="13">
 <div id="lst-fb" class="python cell-code listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-fb-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1282,7 +1282,7 @@ Listing&nbsp;13: Firmicutes-to-Bacteroidetes ratio per sample, tested within pai
 </section>
 <section id="functional-prediction-picrust2" class="level1" data-number="9">
 <h1 data-number="9"><span class="header-section-number">9</span> Functional prediction (PICRUSt2)</h1>
-<p>The original study’s strongest functional claim was that ALS patients lacked butyrate-metabolism genes. We tested this by predicting gene content from the ASVs with PICRUSt2 2.5.2 <span class="citation" data-cites="douglas2020picrust2">(Douglas et al., 2020)</span> (mean nearest-sequenced-taxon index 0.124, no ASVs dropped).</p>
+<p>The original study’s strongest functional claim was that ALS patients lacked butyrate-metabolism genes. We tested this by predicting gene content from the ASVs with PICRUSt2 2.5.2 <a href="../../../../../../references.qmd#ref-douglas2020picrust2"><span class="citation" data-cites="douglas2020picrust2">(Douglas et al., 2020)</span></a> (mean nearest-sequenced-taxon index 0.124, no ASVs dropped).</p>
 <div id="lst-picrust" class="bash listing quarto-float quarto-figure quarto-figure-left anchored">
 <figure class="quarto-float quarto-float-lst figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-lst" id="lst-picrust-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1294,7 +1294,7 @@ Listing&nbsp;14: Predict gene-family content from the ASVs with PICRUSt2.
 </div>
 </figure>
 </div>
-<p>Butyrate genes are present in all 18 samples, with only a weak, non-significant trend (<a href="#tbl-butyrate" class="quarto-xref">Table&nbsp;2</a>):</p>
+<p>Butyrate genes are present in all 18 samples, with only a weak, non-significant trend (<a href="../../../../../../references.qmd#ref-tbl-butyrate"><span class="quarto-xref">Table&nbsp;2</span></a>):</p>
 <div id="tbl-butyrate" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-butyrate-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1405,7 +1405,7 @@ Table&nbsp;3: Comparison with the original study’s testable findings.
 </div>
 </figure>
 </div>
-<p>Two of the original study’s three testable findings are recovered here (<a href="#tbl-reproduction" class="quarto-xref">Table&nbsp;3</a>), in the same direction and now resting on classification that an independent reference confirms; with nine pairs they are consistent rather than conclusive. The functional butyrate claim is not recovered under PICRUSt2.</p>
+<p>Two of the original study’s three testable findings are recovered here (<a href="../../../../../../references.qmd#ref-tbl-reproduction"><span class="quarto-xref">Table&nbsp;3</span></a>), in the same direction and now resting on classification that an independent reference confirms; with nine pairs they are consistent rather than conclusive. The functional butyrate claim is not recovered under PICRUSt2.</p>
 </section>
 <section id="summary" class="level1" data-number="11">
 <h1 data-number="11"><span class="header-section-number">11</span> Summary</h1>

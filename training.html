@@ -326,8 +326,6 @@ window.Quarto = {
   <li><a href="#checkpoint-inspection" id="toc-checkpoint-inspection" class="nav-link" data-scroll-target="#checkpoint-inspection"><span class="header-section-number">5</span> Checkpoint inspection</a></li>
   <li><a href="#prediction-on-the-test-set" id="toc-prediction-on-the-test-set" class="nav-link" data-scroll-target="#prediction-on-the-test-set"><span class="header-section-number">6</span> Prediction on the test set</a></li>
   <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">7</span> Summary</a></li>
-  <li><a href="#concepts-used-in-this-tutorial" id="toc-concepts-used-in-this-tutorial" class="nav-link" data-scroll-target="#concepts-used-in-this-tutorial"><span class="header-section-number">8</span> Concepts used in this tutorial</a></li>
-  <li><a href="#key-references" id="toc-key-references" class="nav-link" data-scroll-target="#key-references"><span class="header-section-number">9</span> Key references</a></li>
   </ul>
 </nav>
     </div>
@@ -869,7 +867,7 @@ Figure&nbsp;3: Validation F1-score by taxonomic rank over training epochs. Highe
 <p>After each evaluation epoch, DeepTaxa saves a checkpoint file (<code>.pt</code>) containing everything needed to resume training or run inference:</p>
 <ul>
 <li><strong>Model weights</strong>: all learnable parameters (convolutional filters, attention matrices, classification heads), required for inference and for resuming training.</li>
-<li><strong>Optimizer state</strong>: the AdamW <span class="citation" data-cites="loshchilov2019adamw">(Loshchilov &amp; Hutter, 2019)</span> momentum buffers, which accumulate the running mean and variance of recent gradients for each parameter; without these, resumption restarts momentum from zero, slowing convergence.</li>
+<li><strong>Optimizer state</strong>: the AdamW <a href="./references.html#ref-loshchilov2019adamw"><span class="citation" data-cites="loshchilov2019adamw">(Loshchilov &amp; Hutter, 2019)</span></a> momentum buffers, which accumulate the running mean and variance of recent gradients for each parameter; without these, resumption restarts momentum from zero, slowing convergence.</li>
 <li><strong>Scheduler state</strong>: the current position in the learning rate warmup and decay schedule; without it, the learning rate resets to its initial value rather than continuing from where training left off.</li>
 <li><strong>GradScaler state</strong>: the mixed-precision loss scaling factor, which preserves numerical stability for FP16 gradients across resumed runs.</li>
 <li><strong>Label encoders</strong>: the mapping between taxonomy strings (e.g., “Pseudomonadota”) and integer class indices, required to decode model output back to human-readable labels at inference time.</li>
@@ -890,12 +888,12 @@ Listing&nbsp;8: Inspect the final checkpoint.
 <pre><code>Run UUID: 2026_07_06T00_44_23_1a2ac4db_c74a_4296_a156_b39de4d3cace</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>2026-07-07 19:17:26,411 - INFO - 
+<pre><code>2026-07-07 21:04:25,298 - INFO - 
 ======================================================================
           DeepTaxa Model Description (v1.3.0)
 --------------------------------------------------
           Checkpoint: outputs/training/checkpoints/deeptaxa_2026_07_06T00_44_23_1a2ac4db_c74a_4296_a156_b39de4d3cace_epoch10.pt
-          Timestamp: 2026-07-07T19:17:26.411706
+          Timestamp: 2026-07-07T21:04:25.298456
 ======================================================================
 
 Model Details:
@@ -1027,14 +1025,6 @@ Rank      Accuracy  Weighted F1
 <p>This tutorial covered the full training lifecycle: preparing data, configuring and launching a training run, inspecting checkpoints, interpreting loss curves and per-rank F1 trajectories, and evaluating the trained model on held-out test data.</p>
 <p>The training run demonstrated here follows the same procedure, data, seed, and architecture used to produce the published DeepTaxa checkpoints (10 epochs on the full Greengenes dataset). The v2 release trains this configuration under five seeds; its five-seed mean is 92.95% species-level accuracy and a weighted F1-score of 0.9208.</p>
 <p>For prediction with the published pre-trained model, see the <a href="./prediction.html">prediction tutorial</a>. For in-depth analysis of model behavior, see the <a href="./analysis.html">analysis tutorial</a>.</p>
-</section>
-<section id="concepts-used-in-this-tutorial" class="level2" data-number="8">
-<h2 data-number="8" class="anchored" data-anchor-id="concepts-used-in-this-tutorial"><span class="header-section-number">8</span> Concepts used in this tutorial</h2>
-<p>This tutorial uses several standard terms: the epoch, overfitting, cross-entropy loss, and the learning-rate schedule. See the <a href="./glossary.html">Glossary</a> for short definitions.</p>
-</section>
-<section id="key-references" class="level2" data-number="9">
-<h2 data-number="9" class="anchored" data-anchor-id="key-references"><span class="header-section-number">9</span> Key references</h2>
-<p>This tutorial trains on the Greengenes 2 database <span class="citation" data-cites="mcdonald2024greengenes">(<span class="nocase">McDonald et al.</span>, 2024)</span> with the AdamW optimizer <span class="citation" data-cites="loshchilov2019adamw">(Loshchilov &amp; Hutter, 2019)</span>. See the <a href="./references.html">References</a> page for the complete bibliography.</p>
 
 
 </section>
