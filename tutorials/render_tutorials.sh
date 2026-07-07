@@ -25,11 +25,11 @@ echo "Done"
 echo ""
 
 # Render order matters. prediction runs first because it creates
-# ~/deeptaxa-workspace, clones DeepTaxa, and downloads the checkpoint that
+# ~/deeptaxa-workspace, installs DeepTaxa, and downloads the checkpoint that
 # architecture and analysis load; running them before prediction fails. training
-# is self-contained but slow (~2.5 h), so it runs last and strands nothing.
+# renders from saved outputs rather than running a full training job.
 # Per-tutorial failures are reported but do not abort the whole run.
-TUTORIALS="index prediction architecture analysis validation casestudy training qiime2 ensemble glossary"
+TUTORIALS="index prediction architecture analysis validation casestudy training qiime2 ensemble glossary references"
 FAILED=""
 
 for tutorial in $TUTORIALS; do
