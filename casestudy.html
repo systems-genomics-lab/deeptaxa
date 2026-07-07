@@ -24,7 +24,27 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -45,7 +65,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-717509a77493095b47d39ac7ef6fe000.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-482db2502be4e79ccbba6954410fcff1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -78,6 +98,19 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-diagram/mermaid-init.js"></script>
 <link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 <!-- Cloudflare Web Analytics --><script defer="" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;814105493de84c40bfe298120ac18d08&quot;}"></script><!-- End Cloudflare Web Analytics -->
+<script>
+// Point inline citation links at the central References page while keeping
+// the on-page (hidden) bibliography that feeds the hover popups.
+window.addEventListener('load', function () {
+  var probe = document.querySelector('link[href*="site_libs/"], script[src*="site_libs/"]');
+  var prefix = '';
+  if (probe) { var u = probe.getAttribute('href') || probe.getAttribute('src'); prefix = u.substring(0, u.indexOf('site_libs/')); }
+  document.querySelectorAll('a[role="doc-biblioref"]').forEach(function (a) {
+    var frag = a.hash;
+    if (frag && frag.indexOf('#ref-') === 0) a.setAttribute('href', prefix + 'references.html' + frag);
+  });
+});
+</script>
 
 
 </head>
@@ -307,7 +340,7 @@ ul.task-list li input[type="checkbox"] {
 <h2 data-number="1" class="anchored" data-anchor-id="summary"><span class="header-section-number">1</span> Summary</h2>
 <p>Short-read 16S amplicons are easy to generate but difficult to classify confidently below the genus rank, and the common advice is to treat species-level calls as unreliable. This case study reanalyzes a published amyotrophic lateral sclerosis (ALS) gut-microbiome dataset with DeepTaxa and evaluates whether that caution is warranted for this dataset. Using the region-matched DeepTaxa checkpoint, 99 percent of reads receive a genus-level assignment, with a mean genus confidence of 0.985. Because a confidence score is not the same as accuracy, the same amplicon sequence variants (ASVs) were independently classified with SILVA: the two methods agree on the genus of about 94 percent of reads. On that basis, the reanalysis recovers the original study’s community-level differences in the same direction and revisits a functional claim that does not hold here. With only nine pairs, these observations are consistent rather than conclusive.</p>
 <p>The full pipeline, code, statistics, and figures are in the companion <a href="casestudy/analysis.html">analysis notebook</a>.</p>
-<p>The reanalysis follows the pipeline in <a href="./references.html#ref-fig-cs-pipeline"><span class="quarto-xref">Figure&nbsp;1</span></a>, from the raw reads to a comparison with the original study.</p>
+<p>The reanalysis follows the pipeline in <a href="#fig-cs-pipeline" class="quarto-xref">Figure&nbsp;1</a>, from the raw reads to a comparison with the original study.</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div id="fig-cs-pipeline" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -349,21 +382,21 @@ Figure&nbsp;1: The reanalysis pipeline. DADA2 denoises the raw V4 reads into amp
 <section id="the-dataset-and-the-question" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="the-dataset-and-the-question"><span class="header-section-number">2</span> The dataset and the question</h2>
 <p>The data come from a study in which each ALS patient was paired with their spouse as a control, so that cases and controls share diet, household, and environment. The deposited runs cover 9 of the 10 matched pairs, sequenced as 16S rRNA V4 amplicons (515F/806R) on an Illumina MiSeq. The paired design suits a within-subject comparison, and the prior characterization of the cohort makes it a useful test of whether a neural 16S classifier can deliver reliable calls on short reads.</p>
-<p>The dataset was published by <a href="./references.html#ref-hertzberg2021als"><span class="citation" data-cites="hertzberg2021als">Hertzberg et al. (2021)</span></a> and is openly deposited under BioProject <a href="https://www.ncbi.nlm.nih.gov/bioproject/PRJNA566436">PRJNA566436</a>, which holds de-identified 16S sequencing data with no personal health information. The reanalysis below is a methodological demonstration and is not intended as clinical guidance.</p>
+<p>The dataset was published by <span class="citation" data-cites="hertzberg2021als">Hertzberg et al. (<a href="#ref-hertzberg2021als" role="doc-biblioref">2021</a>)</span> and is openly deposited under BioProject <a href="https://www.ncbi.nlm.nih.gov/bioproject/PRJNA566436">PRJNA566436</a>, which holds de-identified 16S sequencing data with no personal health information. The reanalysis below is a methodological demonstration and is not intended as clinical guidance.</p>
 </section>
 <section id="classifying-with-deeptaxa" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="classifying-with-deeptaxa"><span class="header-section-number">3</span> Classifying with DeepTaxa</h2>
-<p>These reads are V4, so the analysis uses the DeepTaxa checkpoint <a href="./references.html#ref-salah2026deeptaxa"><span class="citation" data-cites="salah2026deeptaxa">(Salah et al., 2026)</span></a>. It assigns a genus to 99 percent of reads at high confidence (mean 0.985). High confidence is not the same as accuracy, however, because it reflects how well the input matches the model’s training regime. The next section checks the calls against an independent reference.</p>
+<p>These reads are V4, so the analysis uses the DeepTaxa checkpoint <span class="citation" data-cites="salah2026deeptaxa">(<a href="#ref-salah2026deeptaxa" role="doc-biblioref">Salah et al., 2026</a>)</span>. It assigns a genus to 99 percent of reads at high confidence (mean 0.985). High confidence is not the same as accuracy, however, because it reflects how well the input matches the model’s training regime. The next section checks the calls against an independent reference.</p>
 </section>
 <section id="confirming-the-calls-against-silva" class="level2" data-number="4">
 <h2 data-number="4" class="anchored" data-anchor-id="confirming-the-calls-against-silva"><span class="header-section-number">4</span> Confirming the calls against SILVA</h2>
-<p>To test correctness rather than confidence, the 276 ASVs were independently classified with the SILVA v138 reference <a href="./references.html#ref-quast2013silva"><span class="citation" data-cites="quast2013silva">(Quast et al., 2013)</span></a>. After harmonizing GTDB and NCBI names, DeepTaxa and SILVA agree on the genus of about 94 percent of reads, and DeepTaxa assigns a genus name to a further 17.5 percent of reads that SILVA leaves at a higher rank. The genera underlying the findings below are confirmed individually: <em>Prevotella</em>, <em>Blautia</em>, <em>Agathobacter</em>, <em>Parasutterella</em>, and <em>Dorea</em> match directly, while <em>Phocaeicola</em> and <em>Mediterraneibacter</em> match SILVA through documented synonyms (<em>Bacteroides</em> and the <em>[Ruminococcus] torques</em> group, respectively). Two genera, <em>Acetatifactor</em> and <em>Hominicoprocola</em>, fall where SILVA stops at uncultured placeholders and are therefore not independently confirmed.</p>
+<p>To test correctness rather than confidence, the 276 ASVs were independently classified with the SILVA v138 reference <span class="citation" data-cites="quast2013silva">(<a href="#ref-quast2013silva" role="doc-biblioref">Quast et al., 2013</a>)</span>. After harmonizing GTDB and NCBI names, DeepTaxa and SILVA agree on the genus of about 94 percent of reads, and DeepTaxa assigns a genus name to a further 17.5 percent of reads that SILVA leaves at a higher rank. The genera underlying the findings below are confirmed individually: <em>Prevotella</em>, <em>Blautia</em>, <em>Agathobacter</em>, <em>Parasutterella</em>, and <em>Dorea</em> match directly, while <em>Phocaeicola</em> and <em>Mediterraneibacter</em> match SILVA through documented synonyms (<em>Bacteroides</em> and the <em>[Ruminococcus] torques</em> group, respectively). Two genera, <em>Acetatifactor</em> and <em>Hominicoprocola</em>, fall where SILVA stops at uncultured placeholders and are therefore not independently confirmed.</p>
 </section>
 <section id="what-the-data-show" class="level2" data-number="5">
 <h2 data-number="5" class="anchored" data-anchor-id="what-the-data-show"><span class="header-section-number">5</span> What the data show</h2>
 <p>Two of the findings are independent of the classifier because they are computed directly from the ASV count table:</p>
 <ul>
-<li><strong>ALS gut communities are more diverse</strong> (<a href="./references.html#ref-fig-cs-alpha"><span class="quarto-xref">Figure&nbsp;2</span></a>). Observed richness and Shannon diversity are higher in ALS than in matched controls (p = 0.020), as is Simpson diversity (p = 0.027).</li>
+<li><strong>ALS gut communities are more diverse</strong> (<a href="#fig-cs-alpha" class="quarto-xref">Figure&nbsp;2</a>). Observed richness and Shannon diversity are higher in ALS than in matched controls (p = 0.020), as is Simpson diversity (p = 0.027).</li>
 <li><strong>The communities are structurally distinct.</strong> A Bray-Curtis PERMANOVA separates ALS from control (p = 0.015, or p = 0.004 when permutations are restricted to the matched pairs), with a clear gradient on the first principal coordinate.</li>
 </ul>
 <div id="cell-fig-cs-alpha" class="cell" data-execution_count="1">
@@ -390,7 +423,7 @@ Figure&nbsp;2: Within-sample (alpha) diversity, ALS versus matched spouse contro
 </section>
 <section id="comparison-with-the-original-study" class="level2" data-number="6">
 <h2 data-number="6" class="anchored" data-anchor-id="comparison-with-the-original-study"><span class="header-section-number">6</span> Comparison with the original study</h2>
-<p>The reanalysis is consistent with the original study’s community-level observations, now resting on a classification that an independent reference confirms: ALS communities are more diverse and structurally distinct from their matched controls. The depletion of <em>Prevotella</em> runs in the same direction but does not reach significance here. The strongest functional claim of the original study, that ALS patients lacked butyrate-metabolism genes, is not recovered here. A PICRUSt2 prediction <a href="./references.html#ref-douglas2020picrust2"><span class="citation" data-cites="douglas2020picrust2">(Douglas et al., 2020)</span></a> finds those genes present in every sample, with only a weak, non-significant trend toward lower butyrate-kinase-route capacity in ALS. That comparison is the most fragile on either side, since it is a taxonomy-to-genome inference, and would require shotgun metagenomics to settle.</p>
+<p>The reanalysis is consistent with the original study’s community-level observations, now resting on a classification that an independent reference confirms: ALS communities are more diverse and structurally distinct from their matched controls. The depletion of <em>Prevotella</em> runs in the same direction but does not reach significance here. The strongest functional claim of the original study, that ALS patients lacked butyrate-metabolism genes, is not recovered here. A PICRUSt2 prediction <span class="citation" data-cites="douglas2020picrust2">(<a href="#ref-douglas2020picrust2" role="doc-biblioref">Douglas et al., 2020</a>)</span> finds those genes present in every sample, with only a weak, non-significant trend toward lower butyrate-kinase-route capacity in ALS. That comparison is the most fragile on either side, since it is a taxonomy-to-genome inference, and would require shotgun metagenomics to settle.</p>
 </section>
 <section id="takeaway" class="level2" data-number="7">
 <h2 data-number="7" class="anchored" data-anchor-id="takeaway"><span class="header-section-number">7</span> Takeaway</h2>
@@ -401,9 +434,23 @@ Figure&nbsp;2: Within-sample (alpha) diversity, ALS versus matched spouse contro
 <p>The companion <a href="casestudy/analysis.html">analysis notebook</a> runs the ALS versus control analysis from the committed ASV table and taxonomy tables, including the SILVA cross-check. For full reproducibility from the raw reads, the scripts in <a href="https://github.com/systems-genomics-lab/deeptaxa/tree/main/tutorials/casestudy/pipeline"><code>casestudy/pipeline/</code></a> download the 18 runs from the Sequence Read Archive and regenerate every table (ASV inference with DADA2, classification with DeepTaxa and SILVA), so the case study can be reproduced from step zero; the committed data lets readers skip straight to the analysis. The DeepTaxa checkpoints are published at <a href="https://huggingface.co/systems-genomics-lab/deeptaxa">huggingface.co/systems-genomics-lab/deeptaxa</a>.</p>
 
 
+
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-douglas2020picrust2" class="csl-entry" role="listitem">
+Douglas, G. M., Maffei, V. J., Zaneveld, J. R., Yurgel, S. N., Brown, J. R., Taylor, C. M., Huttenhower, C., &amp; Langille, M. G. I. (2020). <span>PICRUSt2</span> for prediction of metagenome functions. <em>Nature Biotechnology</em>, <em>38</em>(6), 685–688. <a href="https://doi.org/10.1038/s41587-020-0548-6">https://doi.org/10.1038/s41587-020-0548-6</a>
+</div>
+<div id="ref-hertzberg2021als" class="csl-entry" role="listitem">
+Hertzberg, V. S., Singh, H., Fournier, C. N., Moustafa, A., Polak, M., Kuelbs, C. A., Torralba, M. G., Tansey, M. G., Nelson, K. E., &amp; Glass, J. D. (2021). Gut microbiome differences between amyotrophic lateral sclerosis patients and spouse controls. <em>Amyotrophic Lateral Sclerosis and Frontotemporal Degeneration</em>, <em>23</em>(1-2), 91–99. <a href="https://doi.org/10.1080/21678421.2021.1904994">https://doi.org/10.1080/21678421.2021.1904994</a>
+</div>
+<div id="ref-quast2013silva" class="csl-entry" role="listitem">
+Quast, C., Pruesse, E., Yilmaz, P., Gerken, J., Schweer, T., Yarza, P., Peplies, J., &amp; Glöckner, F. O. (2013). The <span>SILVA</span> ribosomal <span>RNA</span> gene database project: Improved data processing and web-based tools. <em>Nucleic Acids Research</em>, <em>41</em>(D1), D590–D596. <a href="https://doi.org/10.1093/nar/gks1219">https://doi.org/10.1093/nar/gks1219</a>
+</div>
+<div id="ref-salah2026deeptaxa" class="csl-entry" role="listitem">
+Salah, R., AbdElaal, K. R., Ghonaim, L., Awe, O. I., &amp; Moustafa, A. (2026). <span>DeepTaxa</span>: A hybrid <span>CNN</span>-<span>BERT</span> framework for <span>16S</span> <span class="nocase">rRNA</span> taxonomic classification. <em>Bioinformatics Advances</em>, <em>6</em>(1), vbag166. <a href="https://doi.org/10.1093/bioadv/vbag166">https://doi.org/10.1093/bioadv/vbag166</a>
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

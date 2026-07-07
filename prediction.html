@@ -58,7 +58,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -79,7 +99,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-717509a77493095b47d39ac7ef6fe000.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-482db2502be4e79ccbba6954410fcff1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -112,6 +132,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-diagram/mermaid-init.js"></script>
 <link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 <!-- Cloudflare Web Analytics --><script defer="" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;814105493de84c40bfe298120ac18d08&quot;}"></script><!-- End Cloudflare Web Analytics -->
+<script>
+// Point inline citation links at the central References page while keeping
+// the on-page (hidden) bibliography that feeds the hover popups.
+window.addEventListener('load', function () {
+  var probe = document.querySelector('link[href*="site_libs/"], script[src*="site_libs/"]');
+  var prefix = '';
+  if (probe) { var u = probe.getAttribute('href') || probe.getAttribute('src'); prefix = u.substring(0, u.indexOf('site_libs/')); }
+  document.querySelectorAll('a[role="doc-biblioref"]').forEach(function (a) {
+    var frag = a.hash;
+    if (frag && frag.indexOf('#ref-') === 0) a.setAttribute('href', prefix + 'references.html' + frag);
+  });
+});
+</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -366,7 +399,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>The 16S ribosomal RNA gene is a roughly 1,500-nucleotide region present in all bacteria and archaea. Because portions of this gene evolve slowly while others accumulate mutations rapidly, it serves as a molecular clock for placing organisms within the tree of life. Sequencing the 16S gene from an environmental sample and assigning each read to a taxonomic lineage is one of the foundational tasks in microbial ecology and clinical microbiome research <a href="./references.html#ref-mcdonald2024greengenes"><span class="citation" data-cites="mcdonald2024greengenes">(<span class="nocase">McDonald et al.</span>, 2024)</span></a>.</p>
+<p>The 16S ribosomal RNA gene is a roughly 1,500-nucleotide region present in all bacteria and archaea. Because portions of this gene evolve slowly while others accumulate mutations rapidly, it serves as a molecular clock for placing organisms within the tree of life. Sequencing the 16S gene from an environmental sample and assigning each read to a taxonomic lineage is one of the foundational tasks in microbial ecology and clinical microbiome research <span class="citation" data-cites="mcdonald2024greengenes">(<a href="#ref-mcdonald2024greengenes" role="doc-biblioref"><span class="nocase">McDonald et al.</span>, 2024</a>)</span>.</p>
 <p>DeepTaxa is a hybrid deep learning model that classifies 16S sequences into a seven-rank taxonomic hierarchy: Domain, Phylum, Class, Order, Family, Genus, and Species. It combines convolutional neural networks (for detecting local sequence motifs) with a Transformer encoder (for capturing long-range dependencies across the full gene), and produces independent predictions at each rank along with confidence scores.</p>
 <p>This tutorial walks through the prediction workflow: loading a pre-trained model, classifying a set of test sequences, and interpreting the results. The companion tutorials cover <a href="./training.html">model training</a> and <a href="./analysis.html">in-depth performance analysis</a>.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -575,7 +608,7 @@ Listing&nbsp;6: Verify downloaded files.
 </div>
 </div>
 <ol type="1">
-<li><p><strong>Tokenization.</strong> The raw nucleotide string is split into subword tokens using DNABERT-2 <a href="./references.html#ref-zhou2024dnabert2"><span class="citation" data-cites="zhou2024dnabert2">(Zhou et al., 2024)</span></a>’s byte-pair encoding (BPE) vocabulary (4,096 tokens). This is analogous to how language models tokenize text into word pieces rather than individual characters.</p></li>
+<li><p><strong>Tokenization.</strong> The raw nucleotide string is split into subword tokens using DNABERT-2 <span class="citation" data-cites="zhou2024dnabert2">(<a href="#ref-zhou2024dnabert2" role="doc-biblioref">Zhou et al., 2024</a>)</span>’s byte-pair encoding (BPE) vocabulary (4,096 tokens). This is analogous to how language models tokenize text into word pieces rather than individual characters.</p></li>
 <li><p><strong>Feature extraction.</strong> The token sequence passes through two parallel pathways: a set of convolutional filters that detect local motifs (256 filters at each of three kernel widths: 3, 5, and 7 tokens), and a Transformer encoder (4 layers, 7 attention heads) that models dependencies across the full 512-token window.</p></li>
 <li><p><strong>Fusion.</strong> The outputs of both pathways are combined through a learnable scalar fusion weight and passed through a dropout layer.</p></li>
 <li><p><strong>Classification.</strong> Seven independent linear heads produce probability distributions over the classes at each taxonomic rank. The predicted class is the one with the highest probability, and that probability serves as the confidence score.</p></li>
@@ -960,9 +993,17 @@ Sequence: RS-GCF-014654365.1-NZ-BNAY01000027.1
 <p>For training a model on custom reference data, see the <a href="./training.html">training tutorial</a>. For a deeper analysis of error patterns, calibration, and generalization to novel taxa, see the <a href="./analysis.html">analysis tutorial</a>.</p>
 
 
+
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-mcdonald2024greengenes" class="csl-entry" role="listitem">
+<span class="nocase">McDonald, D., Jiang, Y., Balaban, M., Cantrell, K., Zhu, Q., Gonzalez, A., Morton, J. T., Nicolaou, G., Parks, D. H., Karst, S. M., et al.</span> (2024). Greengenes2 unifies microbial data in a single reference tree. <em>Nature Biotechnology</em>, <em>42</em>, 715–718. <a href="https://doi.org/10.1038/s41587-023-01845-1">https://doi.org/10.1038/s41587-023-01845-1</a>
+</div>
+<div id="ref-zhou2024dnabert2" class="csl-entry" role="listitem">
+Zhou, Z., Ji, Y., Li, W., Dutta, P., Davuluri, R., &amp; Liu, H. (2024). <em><span>DNABERT-2</span>: Efficient foundation model and benchmark for multi-species genome</em>. <a href="https://arxiv.org/abs/2306.15006">https://arxiv.org/abs/2306.15006</a>
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

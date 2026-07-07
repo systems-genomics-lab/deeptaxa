@@ -58,7 +58,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -79,7 +99,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-717509a77493095b47d39ac7ef6fe000.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-482db2502be4e79ccbba6954410fcff1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -112,6 +132,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <!-- Cloudflare Web Analytics --><script defer="" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;814105493de84c40bfe298120ac18d08&quot;}"></script><!-- End Cloudflare Web Analytics -->
+<script>
+// Point inline citation links at the central References page while keeping
+// the on-page (hidden) bibliography that feeds the hover popups.
+window.addEventListener('load', function () {
+  var probe = document.querySelector('link[href*="site_libs/"], script[src*="site_libs/"]');
+  var prefix = '';
+  if (probe) { var u = probe.getAttribute('href') || probe.getAttribute('src'); prefix = u.substring(0, u.indexOf('site_libs/')); }
+  document.querySelectorAll('a[role="doc-biblioref"]').forEach(function (a) {
+    var frag = a.hash;
+    if (frag && frag.indexOf('#ref-') === 0) a.setAttribute('href', prefix + 'references.html' + frag);
+  });
+});
+</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -611,7 +644,7 @@ Figure&nbsp;1: Accuracy and weighted F1-score at each taxonomic rank, showing th
 </div>
 </div>
 <p>The consistent decrease from Domain to Species reflects two compounding factors. First, the number of target classes increases by four orders of magnitude (from 2 at Domain to over 16,000 at Species). Second, the sequence differences between closely related species are confined to short variable regions within the 16S gene, making finer distinctions inherently harder.</p>
-<p>The gap between macro F1 (shown in the table above) and weighted F1 indicates that the model performs well on abundant species but struggles with rare ones. This is expected given the long-tailed class distribution in the training data (<a href="./references.html#ref-sokolova2009f1"><span class="citation" data-cites="sokolova2009f1">Sokolova &amp; Lapalme (2009)</span></a>).</p>
+<p>The gap between macro F1 (shown in the table above) and weighted F1 indicates that the model performs well on abundant species but struggles with rare ones. This is expected given the long-tailed class distribution in the training data (<span class="citation" data-cites="sokolova2009f1">Sokolova &amp; Lapalme (<a href="#ref-sokolova2009f1" role="doc-biblioref">2009</a>)</span>).</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1212,7 +1245,7 @@ Tip
 <p>DeepTaxa reports a confidence score for each prediction: the maximum probability from the softmax output. The softmax function converts the raw model outputs (logits) <span class="math inline">\(z_1, z_2, \ldots, z_C\)</span> (one per class, where <span class="math inline">\(C\)</span> is the number of classes at the given rank) into a probability distribution:</p>
 <p><span class="math display">\[p_c = \frac{e^{z_c}}{\sum_{j=1}^{C} e^{z_j}}\]</span></p>
 <p>The confidence is <span class="math inline">\(\max_c \, p_c\)</span>. A score of 0.99 means the model assigns 99% of its probability mass to a single class.</p>
-<p>But confidence alone is not enough. A model that reports 90% confidence should be correct approximately 90% of the time. When this correspondence holds, the model is said to be <strong>well-calibrated</strong>. The <strong>Expected Calibration Error</strong> (ECE) <a href="./references.html#ref-guo2017calibration"><span class="citation" data-cites="guo2017calibration">(Guo et al., 2017)</span></a> quantifies the degree of miscalibration by binning predictions by confidence and measuring the average gap between confidence and accuracy within each bin:</p>
+<p>But confidence alone is not enough. A model that reports 90% confidence should be correct approximately 90% of the time. When this correspondence holds, the model is said to be <strong>well-calibrated</strong>. The <strong>Expected Calibration Error</strong> (ECE) <span class="citation" data-cites="guo2017calibration">(<a href="#ref-guo2017calibration" role="doc-biblioref">Guo et al., 2017</a>)</span> quantifies the degree of miscalibration by binning predictions by confidence and measuring the average gap between confidence and accuracy within each bin:</p>
 <p><span class="math display">\[\text{ECE} = \sum_{b=1}^{B} \frac{|B_b|}{n} \left| \text{acc}(B_b) - \text{conf}(B_b) \right|\]</span></p>
 <p>where <span class="math inline">\(n\)</span> is the total number of predictions, <span class="math inline">\(B_b\)</span> is the set of predictions in bin <span class="math inline">\(b\)</span>, <span class="math inline">\(|B_b|/n\)</span> is the fraction of predictions falling in that bin, <span class="math inline">\(\text{acc}(B_b)\)</span> is the fraction correct, and <span class="math inline">\(\text{conf}(B_b)\)</span> is the mean confidence. An ECE of zero indicates perfect calibration.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -1304,7 +1337,7 @@ Incorrect: mean confidence = 0.665</code></pre>
 </section>
 <section id="interpretation-2" class="level3" data-number="6.2">
 <h3 data-number="6.2" class="anchored" data-anchor-id="interpretation-2"><span class="header-section-number">6.2</span> Interpretation</h3>
-<p>The confidence histograms reveal a strong separation between correct and incorrect predictions. Correctly classified sequences cluster near 1.0, while misclassified sequences spread across a much wider range. The reliability diagram shows that the model is reasonably well-calibrated: the bars track the diagonal, indicating that when the model reports high confidence, it is usually right. The low ECE value confirms this quantitatively <a href="./references.html#ref-guo2017calibration"><span class="citation" data-cites="guo2017calibration">(Guo et al., 2017)</span></a>. Together, these results support confidence-based filtering as a practical strategy for flagging unreliable predictions in downstream analyses.</p>
+<p>The confidence histograms reveal a strong separation between correct and incorrect predictions. Correctly classified sequences cluster near 1.0, while misclassified sequences spread across a much wider range. The reliability diagram shows that the model is reasonably well-calibrated: the bars track the diagonal, indicating that when the model reports high confidence, it is usually right. The low ECE value confirms this quantitatively <span class="citation" data-cites="guo2017calibration">(<a href="#ref-guo2017calibration" role="doc-biblioref">Guo et al., 2017</a>)</span>. Together, these results support confidence-based filtering as a practical strategy for flagging unreliable predictions in downstream analyses.</p>
 </section>
 <section id="calibration-across-all-ranks" class="level3" data-number="6.3">
 <h3 data-number="6.3" class="anchored" data-anchor-id="calibration-across-all-ranks"><span class="header-section-number">6.3</span> Calibration across all ranks</h3>
@@ -1593,9 +1626,17 @@ Tip
 <p>For running predictions with the pre-trained model, see the <a href="./prediction.html">prediction tutorial</a>. For training a model on custom data, see the <a href="./training.html">training tutorial</a>.</p>
 
 
+
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-guo2017calibration" class="csl-entry" role="listitem">
+Guo, C., Pleiss, G., Sun, Y., &amp; Weinberger, K. Q. (2017). On calibration of modern neural networks. <em>International Conference on Machine Learning (ICML)</em>, 1321–1330. <a href="https://arxiv.org/abs/1706.04599">https://arxiv.org/abs/1706.04599</a>
+</div>
+<div id="ref-sokolova2009f1" class="csl-entry" role="listitem">
+Sokolova, M., &amp; Lapalme, G. (2009). A systematic analysis of performance measures for classification tasks. <em>Information Processing &amp; Management</em>, <em>45</em>(4), 427–437. <a href="https://doi.org/10.1016/j.ipm.2009.03.002">https://doi.org/10.1016/j.ipm.2009.03.002</a>
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

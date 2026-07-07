@@ -58,7 +58,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -78,7 +98,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-717509a77493095b47d39ac7ef6fe000.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-482db2502be4e79ccbba6954410fcff1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -108,6 +128,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 <!-- Cloudflare Web Analytics --><script defer="" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;814105493de84c40bfe298120ac18d08&quot;}"></script><!-- End Cloudflare Web Analytics -->
+<script>
+// Point inline citation links at the central References page while keeping
+// the on-page (hidden) bibliography that feeds the hover popups.
+window.addEventListener('load', function () {
+  var probe = document.querySelector('link[href*="site_libs/"], script[src*="site_libs/"]');
+  var prefix = '';
+  if (probe) { var u = probe.getAttribute('href') || probe.getAttribute('src'); prefix = u.substring(0, u.indexOf('site_libs/')); }
+  document.querySelectorAll('a[role="doc-biblioref"]').forEach(function (a) {
+    var frag = a.hash;
+    if (frag && frag.indexOf('#ref-') === 0) a.setAttribute('href', prefix + 'references.html' + frag);
+  });
+});
+</script>
 
 
 </head>
@@ -406,7 +439,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><a href="https://huggingface.co/datasets/systems-genomics-lab/greengenes">Training data (Greengenes 2)</a></li>
 <li><a href="https://github.com/systems-genomics-lab/deeptaxa/issues">Issue tracker</a></li>
 <li><a href="https://github.com/systems-genomics-lab/deeptaxa/blob/main/LICENSE">License (MIT)</a></li>
-<li>DeepTaxa manuscript <a href="./references.html#ref-salah2026deeptaxa"><span class="citation" data-cites="salah2026deeptaxa">(Salah et al., 2026)</span></a></li>
+<li>DeepTaxa manuscript <span class="citation" data-cites="salah2026deeptaxa">(<a href="#ref-salah2026deeptaxa" role="doc-biblioref">Salah et al., 2026</a>)</span></li>
 </ul>
 </section>
 <section id="troubleshooting" class="level2" data-number="5">
@@ -421,7 +454,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="how-to-cite" class="level2" data-number="6">
 <h2 data-number="6" class="anchored" data-anchor-id="how-to-cite"><span class="header-section-number">6</span> How to cite</h2>
-<p>If you use DeepTaxa in your work, please cite the manuscript <a href="./references.html#ref-salah2026deeptaxa"><span class="citation" data-cites="salah2026deeptaxa">(Salah et al., 2026)</span></a>:</p>
+<p>If you use DeepTaxa in your work, please cite the manuscript <span class="citation" data-cites="salah2026deeptaxa">(<a href="#ref-salah2026deeptaxa" role="doc-biblioref">Salah et al., 2026</a>)</span>:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bibtex code-with-copy"><code class="sourceCode bibtex"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="va">@article</span>{<span class="ot">salah2026deeptaxa</span>,</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span>   = {{DeepTaxa}: A Hybrid {CNN}-{BERT} Framework for {16S} {rRNA} Taxonomic Classification},</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span>  = {Salah, Rana and AbdElaal, Khlood R. and Ghonaim, Lobna and Awe, Olaitan I. and Moustafa, Ahmed},</span>
@@ -434,9 +467,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
+
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-salah2026deeptaxa" class="csl-entry" role="listitem">
+Salah, R., AbdElaal, K. R., Ghonaim, L., Awe, O. I., &amp; Moustafa, A. (2026). <span>DeepTaxa</span>: A hybrid <span>CNN</span>-<span>BERT</span> framework for <span>16S</span> <span class="nocase">rRNA</span> taxonomic classification. <em>Bioinformatics Advances</em>, <em>6</em>(1), vbag166. <a href="https://doi.org/10.1093/bioadv/vbag166">https://doi.org/10.1093/bioadv/vbag166</a>
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

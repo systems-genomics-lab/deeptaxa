@@ -58,7 +58,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -79,7 +99,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-717509a77493095b47d39ac7ef6fe000.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-482db2502be4e79ccbba6954410fcff1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -109,6 +129,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 <!-- Cloudflare Web Analytics --><script defer="" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;814105493de84c40bfe298120ac18d08&quot;}"></script><!-- End Cloudflare Web Analytics -->
+<script>
+// Point inline citation links at the central References page while keeping
+// the on-page (hidden) bibliography that feeds the hover popups.
+window.addEventListener('load', function () {
+  var probe = document.querySelector('link[href*="site_libs/"], script[src*="site_libs/"]');
+  var prefix = '';
+  if (probe) { var u = probe.getAttribute('href') || probe.getAttribute('src'); prefix = u.substring(0, u.indexOf('site_libs/')); }
+  document.querySelectorAll('a[role="doc-biblioref"]').forEach(function (a) {
+    var frag = a.hash;
+    if (frag && frag.indexOf('#ref-') === 0) a.setAttribute('href', prefix + 'references.html' + frag);
+  });
+});
+</script>
 
 
 </head>
@@ -332,7 +365,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Taxonomic classification turns 16S reads into named organisms, the foundation of a microbiome study: which taxa are present, how abundant they are, and how communities differ between samples or conditions. Those conclusions are only as reliable as the names behind them, so before applying a classifier to study samples it is worth running it on a community whose composition is already known. Here DeepTaxa <a href="./references.html#ref-salah2026deeptaxa"><span class="citation" data-cites="salah2026deeptaxa">(Salah et al., 2026)</span></a> is checked against the ZymoBIOMICS mock community, sequenced two ways: over the V3-V4 amplicon, the region most often used on Illumina platforms, and over the full-length 16S gene on PacBio, which resolves finer, species-level detail. Both are public ZymoBIOMICS runs in the Sequence Read Archive: the V3-V4 reads are run <a href="https://www.ncbi.nlm.nih.gov/sra/SRR35133066">SRR35133066</a> and the full-length reads are run <a href="https://www.ncbi.nlm.nih.gov/sra/SRR38028391">SRR38028391</a>.</p>
+<p>Taxonomic classification turns 16S reads into named organisms, the foundation of a microbiome study: which taxa are present, how abundant they are, and how communities differ between samples or conditions. Those conclusions are only as reliable as the names behind them, so before applying a classifier to study samples it is worth running it on a community whose composition is already known. Here DeepTaxa <span class="citation" data-cites="salah2026deeptaxa">(<a href="#ref-salah2026deeptaxa" role="doc-biblioref">Salah et al., 2026</a>)</span> is checked against the ZymoBIOMICS mock community, sequenced two ways: over the V3-V4 amplicon, the region most often used on Illumina platforms, and over the full-length 16S gene on PacBio, which resolves finer, species-level detail. Both are public ZymoBIOMICS runs in the Sequence Read Archive: the V3-V4 reads are run <a href="https://www.ncbi.nlm.nih.gov/sra/SRR35133066">SRR35133066</a> and the full-length reads are run <a href="https://www.ncbi.nlm.nih.gov/sra/SRR38028391">SRR38028391</a>.</p>
 <section id="when-to-use-this-tutorial" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="when-to-use-this-tutorial"><span class="header-section-number">1</span> When to use this tutorial</h2>
 <p>Use this tutorial to check DeepTaxa on data whose composition is already known. It differs from the <a href="./prediction.html">prediction tutorial</a>, which classifies unknown sequences, and from the <a href="./analysis.html">analysis tutorial</a>, which studies model behavior in depth.</p>
@@ -423,7 +456,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="results-and-how-to-read-them" class="level2" data-number="8">
 <h2 data-number="8" class="anchored" data-anchor-id="results-and-how-to-read-them"><span class="header-section-number">8</span> Results and how to read them</h2>
-<p>At the genus rank, both DeepTaxa and the reference method recovered all eight expected genera and agreed on the genus of essentially every read, so they are indistinguishable there. The reference method here is DADA2 <a href="./references.html#ref-callahan2016dada2"><span class="citation" data-cites="callahan2016dada2">(Callahan et al., 2016)</span></a> with the SILVA v138 database <a href="./references.html#ref-quast2013silva"><span class="citation" data-cites="quast2013silva">(Quast et al., 2013)</span></a>, abbreviated DADA2 + SILVA: SILVA is the reference database, and DADA2 is the classifier, which uses a naive Bayes model for the genus and exact matching for the species.</p>
+<p>At the genus rank, both DeepTaxa and the reference method recovered all eight expected genera and agreed on the genus of essentially every read, so they are indistinguishable there. The reference method here is DADA2 <span class="citation" data-cites="callahan2016dada2">(<a href="#ref-callahan2016dada2" role="doc-biblioref">Callahan et al., 2016</a>)</span> with the SILVA v138 database <span class="citation" data-cites="quast2013silva">(<a href="#ref-quast2013silva" role="doc-biblioref">Quast et al., 2013</a>)</span>, abbreviated DADA2 + SILVA: SILVA is the reference database, and DADA2 is the classifier, which uses a naive Bayes model for the genus and exact matching for the species.</p>
 <p>The methods differ at the species rank, and the difference is not the same in the two regions. DADA2 + SILVA assigns a species only on an exact, unambiguous match. In this mock-community benchmark that gives the reference method very high precision, but it also leaves many reads unresolved at the species level: it otherwise stays at the genus, declining to name a species rather than naming one incorrectly. On the short V3-V4 region this caution is severe, and DeepTaxa resolves far more reads to an exact species than the reference does. On the full-length gene the two are close on exact matches, and DeepTaxa’s advantage there is coverage, not exactness.</p>
 <p>That coverage is mostly close relatives that 16S cannot separate, such as the <em>Bacillus subtilis</em> group or <em>Shigella</em> for <em>Escherichia coli</em>, which the figure credits in red. None of DeepTaxa’s species calls on the expected mock organisms is an unrelated error; every such miss is a near neighbor of the correct species within the same genus. A few near neighbors are not credited, however: on some ASVs the reference resolves the true species, for example <em>Salmonella enterica</em>, which DeepTaxa labels <em>Salmonella bongori</em>, and these are counted as misses, so the figure does not reward DeepTaxa where the reference outperforms it. The net trade-off is that DeepTaxa commits to a species far more often than the reference, at the cost of being occasionally wrong by one near neighbor, while the reference abstains rather than committing. In practice, the genus-level profiles that most 16S analyses rest on are reliable here from either method, while species-level claims should be treated with the caution this comparison shows.</p>
 <div id="cell-fig-species" class="cell" data-execution_count="1">
@@ -496,12 +529,12 @@ Figure&nbsp;1: Reads correctly identified to species in the two datasets. The ge
 <h2 data-number="11" class="anchored" data-anchor-id="troubleshooting"><span class="header-section-number">11</span> Troubleshooting</h2>
 <p>If expected taxa are missing, confirm that the FASTA holds the right ASVs and that the checkpoint matches the sequenced region.</p>
 <p>If many species calls look wrong, check the matching genus calls and the near-neighbor relationships first; some species mismatches reflect the limited resolution of the 16S region rather than a real failure.</p>
-<p>If DeepTaxa and DADA2 + SILVA disagree on names, check for synonymy and database-version differences. DeepTaxa reports the GTDB names used by Greengenes2 <a href="./references.html#ref-mcdonald2024greengenes"><span class="citation" data-cites="mcdonald2024greengenes">(<span class="nocase">McDonald et al.</span>, 2024)</span></a>, which renames or splits several genera relative to the NCBI names on most reference materials; <em>Lactobacillus fermentum</em>, for instance, becomes <em>Limosilactobacillus</em>. Both notebooks include a short function that reconciles the names before scoring.</p>
+<p>If DeepTaxa and DADA2 + SILVA disagree on names, check for synonymy and database-version differences. DeepTaxa reports the GTDB names used by Greengenes2 <span class="citation" data-cites="mcdonald2024greengenes">(<a href="#ref-mcdonald2024greengenes" role="doc-biblioref"><span class="nocase">McDonald et al.</span>, 2024</a>)</span>, which renames or splits several genera relative to the NCBI names on most reference materials; <em>Lactobacillus fermentum</em>, for instance, becomes <em>Limosilactobacillus</em>. Both notebooks include a short function that reconciles the names before scoring.</p>
 <p>If the output is empty, confirm that the FASTA is valid, the sequence identifiers are unique, and the checkpoint loaded correctly.</p>
 </section>
 <section id="practical-points" class="level2" data-number="12">
 <h2 data-number="12" class="anchored" data-anchor-id="practical-points"><span class="header-section-number">12</span> Practical points</h2>
-<p>The most important choice is to match the checkpoint to the sequenced region. The paper <a href="./references.html#ref-salah2026deeptaxa"><span class="citation" data-cites="salah2026deeptaxa">(Salah et al., 2026)</span></a> puts a figure on the cost of getting this wrong: applying the full-length checkpoint to V3-V4 reads lowers species accuracy from 92.96 percent to 60.7 percent, while a checkpoint trained on the V3-V4 window recovers most of the loss. Classify V3-V4 reads with the V3-V4 checkpoint, and full-length reads with the full-length checkpoint.</p>
+<p>The most important choice is to match the checkpoint to the sequenced region. The paper <span class="citation" data-cites="salah2026deeptaxa">(<a href="#ref-salah2026deeptaxa" role="doc-biblioref">Salah et al., 2026</a>)</span> puts a figure on the cost of getting this wrong: applying the full-length checkpoint to V3-V4 reads lowers species accuracy from 92.96 percent to 60.7 percent, while a checkpoint trained on the V3-V4 window recovers most of the loss. Classify V3-V4 reads with the V3-V4 checkpoint, and full-length reads with the full-length checkpoint.</p>
 <p>The confidence score is best read as a measure of how much information the input carries, not as a promise that the call is correct. In the published benchmark a high score corresponds to a strong chance of being correct. The score falls at the finer ranks, and on short or off-region reads, because the marker carries less information there. A low score is the model declining to commit, and filtering it out, for example below 0.5, is reasonable.</p>
 </section>
 <section id="summary" class="level2" data-number="13">
@@ -509,9 +542,23 @@ Figure&nbsp;1: Reads correctly identified to species in the two datasets. The ge
 <p>DeepTaxa recovers all eight expected genera in both regions, matching the reference method at the genus rank. At the species rank it commits far more often than an exact-matching reference, at the cost of occasional near-neighbor calls that 16S cannot separate. Report genus-level recovery as the stable result, and report species-level calls in the four categories above so the limits of 16S resolution are not overinterpreted.</p>
 
 
+
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-callahan2016dada2" class="csl-entry" role="listitem">
+Callahan, B. J., McMurdie, P. J., Rosen, M. J., Han, A. W., Johnson, A. J. A., &amp; Holmes, S. P. (2016). <span>DADA2</span>: High-resolution sample inference from <span>Illumina</span> amplicon data. <em>Nature Methods</em>, <em>13</em>(7), 581–583. <a href="https://doi.org/10.1038/nmeth.3869">https://doi.org/10.1038/nmeth.3869</a>
+</div>
+<div id="ref-mcdonald2024greengenes" class="csl-entry" role="listitem">
+<span class="nocase">McDonald, D., Jiang, Y., Balaban, M., Cantrell, K., Zhu, Q., Gonzalez, A., Morton, J. T., Nicolaou, G., Parks, D. H., Karst, S. M., et al.</span> (2024). Greengenes2 unifies microbial data in a single reference tree. <em>Nature Biotechnology</em>, <em>42</em>, 715–718. <a href="https://doi.org/10.1038/s41587-023-01845-1">https://doi.org/10.1038/s41587-023-01845-1</a>
+</div>
+<div id="ref-quast2013silva" class="csl-entry" role="listitem">
+Quast, C., Pruesse, E., Yilmaz, P., Gerken, J., Schweer, T., Yarza, P., Peplies, J., &amp; Glöckner, F. O. (2013). The <span>SILVA</span> ribosomal <span>RNA</span> gene database project: Improved data processing and web-based tools. <em>Nucleic Acids Research</em>, <em>41</em>(D1), D590–D596. <a href="https://doi.org/10.1093/nar/gks1219">https://doi.org/10.1093/nar/gks1219</a>
+</div>
+<div id="ref-salah2026deeptaxa" class="csl-entry" role="listitem">
+Salah, R., AbdElaal, K. R., Ghonaim, L., Awe, O. I., &amp; Moustafa, A. (2026). <span>DeepTaxa</span>: A hybrid <span>CNN</span>-<span>BERT</span> framework for <span>16S</span> <span class="nocase">rRNA</span> taxonomic classification. <em>Bioinformatics Advances</em>, <em>6</em>(1), vbag166. <a href="https://doi.org/10.1093/bioadv/vbag166">https://doi.org/10.1093/bioadv/vbag166</a>
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

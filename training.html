@@ -58,7 +58,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -79,7 +99,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-717509a77493095b47d39ac7ef6fe000.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-482db2502be4e79ccbba6954410fcff1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -112,6 +132,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-diagram/mermaid-init.js"></script>
 <link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 <!-- Cloudflare Web Analytics --><script defer="" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;814105493de84c40bfe298120ac18d08&quot;}"></script><!-- End Cloudflare Web Analytics -->
+<script>
+// Point inline citation links at the central References page while keeping
+// the on-page (hidden) bibliography that feeds the hover popups.
+window.addEventListener('load', function () {
+  var probe = document.querySelector('link[href*="site_libs/"], script[src*="site_libs/"]');
+  var prefix = '';
+  if (probe) { var u = probe.getAttribute('href') || probe.getAttribute('src'); prefix = u.substring(0, u.indexOf('site_libs/')); }
+  document.querySelectorAll('a[role="doc-biblioref"]').forEach(function (a) {
+    var frag = a.hash;
+    if (frag && frag.indexOf('#ref-') === 0) a.setAttribute('href', prefix + 'references.html' + frag);
+  });
+});
+</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -867,7 +900,7 @@ Figure&nbsp;3: Validation F1-score by taxonomic rank over training epochs. Highe
 <p>After each evaluation epoch, DeepTaxa saves a checkpoint file (<code>.pt</code>) containing everything needed to resume training or run inference:</p>
 <ul>
 <li><strong>Model weights</strong>: all learnable parameters (convolutional filters, attention matrices, classification heads), required for inference and for resuming training.</li>
-<li><strong>Optimizer state</strong>: the AdamW <a href="./references.html#ref-loshchilov2019adamw"><span class="citation" data-cites="loshchilov2019adamw">(Loshchilov &amp; Hutter, 2019)</span></a> momentum buffers, which accumulate the running mean and variance of recent gradients for each parameter; without these, resumption restarts momentum from zero, slowing convergence.</li>
+<li><strong>Optimizer state</strong>: the AdamW <span class="citation" data-cites="loshchilov2019adamw">(<a href="#ref-loshchilov2019adamw" role="doc-biblioref">Loshchilov &amp; Hutter, 2019</a>)</span> momentum buffers, which accumulate the running mean and variance of recent gradients for each parameter; without these, resumption restarts momentum from zero, slowing convergence.</li>
 <li><strong>Scheduler state</strong>: the current position in the learning rate warmup and decay schedule; without it, the learning rate resets to its initial value rather than continuing from where training left off.</li>
 <li><strong>GradScaler state</strong>: the mixed-precision loss scaling factor, which preserves numerical stability for FP16 gradients across resumed runs.</li>
 <li><strong>Label encoders</strong>: the mapping between taxonomy strings (e.g., “Pseudomonadota”) and integer class indices, required to decode model output back to human-readable labels at inference time.</li>
@@ -1027,9 +1060,14 @@ Rank      Accuracy  Weighted F1
 <p>For prediction with the published pre-trained model, see the <a href="./prediction.html">prediction tutorial</a>. For in-depth analysis of model behavior, see the <a href="./analysis.html">analysis tutorial</a>.</p>
 
 
+
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-loshchilov2019adamw" class="csl-entry" role="listitem">
+Loshchilov, I., &amp; Hutter, F. (2019). Decoupled weight decay regularization. <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/1711.05101">https://arxiv.org/abs/1711.05101</a>
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

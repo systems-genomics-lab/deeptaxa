@@ -23,7 +23,27 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -44,7 +64,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-717509a77493095b47d39ac7ef6fe000.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-482db2502be4e79ccbba6954410fcff1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -74,6 +94,19 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 <!-- Cloudflare Web Analytics --><script defer="" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;814105493de84c40bfe298120ac18d08&quot;}"></script><!-- End Cloudflare Web Analytics -->
+<script>
+// Point inline citation links at the central References page while keeping
+// the on-page (hidden) bibliography that feeds the hover popups.
+window.addEventListener('load', function () {
+  var probe = document.querySelector('link[href*="site_libs/"], script[src*="site_libs/"]');
+  var prefix = '';
+  if (probe) { var u = probe.getAttribute('href') || probe.getAttribute('src'); prefix = u.substring(0, u.indexOf('site_libs/')); }
+  document.querySelectorAll('a[role="doc-biblioref"]').forEach(function (a) {
+    var frag = a.hash;
+    if (frag && frag.indexOf('#ref-') === 0) a.setAttribute('href', prefix + 'references.html' + frag);
+  });
+});
+</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -318,7 +351,7 @@ window.Quarto = {
 <section id="model-components" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="model-components"><span class="header-section-number">2</span> Model components</h2>
 <p><strong>Softmax.</strong> The function that converts a vector of raw scores (logits) into a probability distribution: it exponentiates each score and divides by their sum, so the outputs are positive and add to one. The class with the highest softmax value is the model’s prediction, and that value is its confidence.</p>
-<p><strong>Byte-pair encoding (BPE).</strong> A tokenization algorithm that starts from individual characters and iteratively merges the most frequent adjacent pairs into new tokens. Applied to DNA, BPE learns a vocabulary of common k-mers without a fixed k-mer length, letting the model process frequent patterns as single tokens. DNABERT-2 <a href="./references.html#ref-zhou2024dnabert2"><span class="citation" data-cites="zhou2024dnabert2">(Zhou et al., 2024)</span></a> pretrained its BPE tokenizer on multi-species genomes.</p>
+<p><strong>Byte-pair encoding (BPE).</strong> A tokenization algorithm that starts from individual characters and iteratively merges the most frequent adjacent pairs into new tokens. Applied to DNA, BPE learns a vocabulary of common k-mers without a fixed k-mer length, letting the model process frequent patterns as single tokens. DNABERT-2 <span class="citation" data-cites="zhou2024dnabert2">(<a href="#ref-zhou2024dnabert2" role="doc-biblioref">Zhou et al., 2024</a>)</span> pretrained its BPE tokenizer on multi-species genomes.</p>
 <p><strong>Convolutional neural network (CNN).</strong> A network built from convolutional filters that slide across the input and detect local patterns. In DeepTaxa the CNN branch captures short sequence motifs.</p>
 <p><strong>Convolutional filter.</strong> A small matrix of learnable weights that slides across the input and computes a dot product at each position, producing a value that reflects how strongly the local pattern matches the filter. A bank of filters produces a multi-channel feature map.</p>
 <p><strong>Kernel size.</strong> The number of consecutive positions a convolutional filter covers in one step. A kernel of size 3 scans three nucleotides at a time; using several kernel sizes in parallel lets the model detect patterns at multiple scales.</p>
@@ -349,7 +382,7 @@ window.Quarto = {
 <p><strong>Confusion matrix.</strong> A table cross-tabulating true labels against predicted labels. Diagonal entries are correct classifications and off-diagonal entries are errors; normalizing each row by its sum converts counts to per-class recall.</p>
 <p><strong>Confidence score.</strong> The probability a model assigns to its chosen class, that is, the largest softmax value. DeepTaxa reports it per rank and can trim a lineage at a confidence threshold.</p>
 <p><strong>Entropy.</strong> A measure of how spread out a probability distribution is. Low entropy means the model concentrates its probability on one class (a confident call); high entropy means the probability is spread across many classes (an uncertain call).</p>
-<p><strong>Calibration and Expected Calibration Error (ECE).</strong> A model is calibrated when its stated confidence matches how often it is right: calls made at 0.9 confidence should be correct about 90 percent of the time. ECE summarizes miscalibration as the average gap between confidence and accuracy across confidence bins, weighted by how many predictions fall in each bin (<a href="./references.html#ref-guo2017calibration"><span class="citation" data-cites="guo2017calibration">Guo et al. (2017)</span></a>); lower is better.</p>
+<p><strong>Calibration and Expected Calibration Error (ECE).</strong> A model is calibrated when its stated confidence matches how often it is right: calls made at 0.9 confidence should be correct about 90 percent of the time. ECE summarizes miscalibration as the average gap between confidence and accuracy across confidence bins, weighted by how many predictions fall in each bin (<span class="citation" data-cites="guo2017calibration">Guo et al. (<a href="#ref-guo2017calibration" role="doc-biblioref">2017</a>)</span>); lower is better.</p>
 <p><strong>Cosine similarity.</strong> A measure of the angle between two vectors, from -1 (opposite) through 0 (orthogonal) to 1 (identical direction). In embedding spaces it quantifies how similar two representations are regardless of magnitude.</p>
 <p><strong>Jaccard index.</strong> The size of the intersection divided by the size of the union of two sets. Applied to the sets of k-mers from two DNA sequences, it estimates how much sequence content they share, from 0 (no overlap) to 1 (identical).</p>
 <p><strong>t-SNE (t-distributed stochastic neighbor embedding).</strong> A dimensionality-reduction algorithm that projects high-dimensional data such as embeddings onto two dimensions while preserving local neighborhood structure, which makes it well suited for revealing cluster structure in learned representations.</p>
@@ -362,9 +395,17 @@ window.Quarto = {
 <p><strong>Bias and variance.</strong> Two sources of a model’s error. Bias is the part that persists no matter how the model is trained; variance is the part that changes from one training run to the next. Averaging several models reduces variance while leaving bias unchanged, which is why an ensemble of identically configured seeds helps.</p>
 
 
+
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-guo2017calibration" class="csl-entry" role="listitem">
+Guo, C., Pleiss, G., Sun, Y., &amp; Weinberger, K. Q. (2017). On calibration of modern neural networks. <em>International Conference on Machine Learning (ICML)</em>, 1321–1330. <a href="https://arxiv.org/abs/1706.04599">https://arxiv.org/abs/1706.04599</a>
+</div>
+<div id="ref-zhou2024dnabert2" class="csl-entry" role="listitem">
+Zhou, Z., Ji, Y., Li, W., Dutta, P., Davuluri, R., &amp; Liu, H. (2024). <em><span>DNABERT-2</span>: Efficient foundation model and benchmark for multi-species genome</em>. <a href="https://arxiv.org/abs/2306.15006">https://arxiv.org/abs/2306.15006</a>
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

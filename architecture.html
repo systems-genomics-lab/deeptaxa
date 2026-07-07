@@ -58,7 +58,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -79,7 +99,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-717509a77493095b47d39ac7ef6fe000.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-482db2502be4e79ccbba6954410fcff1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -112,6 +132,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-diagram/mermaid-init.js"></script>
 <link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 <!-- Cloudflare Web Analytics --><script defer="" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;814105493de84c40bfe298120ac18d08&quot;}"></script><!-- End Cloudflare Web Analytics -->
+<script>
+// Point inline citation links at the central References page while keeping
+// the on-page (hidden) bibliography that feeds the hover popups.
+window.addEventListener('load', function () {
+  var probe = document.querySelector('link[href*="site_libs/"], script[src*="site_libs/"]');
+  var prefix = '';
+  if (probe) { var u = probe.getAttribute('href') || probe.getAttribute('src'); prefix = u.substring(0, u.indexOf('site_libs/')); }
+  document.querySelectorAll('a[role="doc-biblioref"]').forEach(function (a) {
+    var frag = a.hash;
+    if (frag && frag.indexOf('#ref-') === 0) a.setAttribute('href', prefix + 'references.html' + frag);
+  });
+});
+</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -526,7 +559,7 @@ Species     0.0849    0.8931           0.9203       0.8428</code></pre>
 </section>
 <section id="input-representation" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="input-representation"><span class="header-section-number">3</span> Input representation</h2>
-<p>DeepTaxa converts raw nucleotide sequences into integer token IDs using DNABERT-2’s byte-pair encoding (BPE) tokenizer <a href="./references.html#ref-zhou2024dnabert2"><span class="citation" data-cites="zhou2024dnabert2">(Zhou et al., 2024)</span></a>. BPE learns a vocabulary of 4,096 subword tokens from DNA sequences, capturing frequently occurring k-mers as single tokens. Sequences are truncated or padded to a fixed length of 512 tokens.</p>
+<p>DeepTaxa converts raw nucleotide sequences into integer token IDs using DNABERT-2’s byte-pair encoding (BPE) tokenizer <span class="citation" data-cites="zhou2024dnabert2">(<a href="#ref-zhou2024dnabert2" role="doc-biblioref">Zhou et al., 2024</a>)</span>. BPE learns a vocabulary of 4,096 subword tokens from DNA sequences, capturing frequently occurring k-mers as single tokens. Sequences are truncated or padded to a fixed length of 512 tokens.</p>
 <p>Load the tokenizer and tokenize a short sequence to see the encoding in action.</p>
 <div id="tokenize-example" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Tokenize a sample sequence ---</span></span>
@@ -732,7 +765,7 @@ Total   :                      25,046,931 parameters in classification heads</co
 <h2 data-number="8" class="anchored" data-anchor-id="loss-function"><span class="header-section-number">8</span> Loss function</h2>
 <section id="cross-entropy-and-focal-loss" class="level3" data-number="8.1">
 <h3 data-number="8.1" class="anchored" data-anchor-id="cross-entropy-and-focal-loss"><span class="header-section-number">8.1</span> Cross-entropy and focal loss</h3>
-<p>DeepTaxa uses cross-entropy loss by default. For datasets with extreme class imbalance, the optional focal loss (<code>--loss-type focal</code>) <a href="./references.html#ref-lin2017focal"><span class="citation" data-cites="lin2017focal">(Lin et al., 2017)</span></a> modifies the loss by introducing a factor that down-weights well-classified examples, allowing abundant classes to contribute less to the gradient signal:</p>
+<p>DeepTaxa uses cross-entropy loss by default. For datasets with extreme class imbalance, the optional focal loss (<code>--loss-type focal</code>) <span class="citation" data-cites="lin2017focal">(<a href="#ref-lin2017focal" role="doc-biblioref">Lin et al., 2017</a>)</span> modifies the loss by introducing a factor that down-weights well-classified examples, allowing abundant classes to contribute less to the gradient signal:</p>
 <p><span class="math display">\[\text{FL}(p_t) = -(1 - p_t)^\gamma \log(p_t)\]</span></p>
 <p>where <span class="math inline">\(p_t\)</span> is the predicted probability of the true class and <span class="math inline">\(\gamma\)</span> is the focusing parameter. When <span class="math inline">\(\gamma = 0\)</span>, focal loss reduces to standard cross-entropy. At the default <span class="math inline">\(\gamma = 2\)</span>, an example classified with 90% confidence receives a loss weight of only <span class="math inline">\((1 - 0.9)^2 = 0.01\)</span>, effectively removing it from the gradient signal and letting the optimizer concentrate on harder cases.</p>
 <p>The following plot compares focal loss to standard cross-entropy across different values of <span class="math inline">\(\gamma\)</span>.</p>
@@ -824,6 +857,11 @@ Figure&nbsp;1: Focal loss versus standard cross-entropy as a function of predict
 <h2 data-number="9" class="anchored" data-anchor-id="training-configuration"><span class="header-section-number">9</span> Training configuration</h2>
 <p>The training pipeline uses standard practices for transformer-based models:</p>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 35%">
+<col style="width: 29%">
+<col style="width: 35%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Component</th>
@@ -835,7 +873,7 @@ Figure&nbsp;1: Focal loss versus standard cross-entropy as a function of predict
 <tr class="odd">
 <td>Optimizer</td>
 <td>AdamW (lr=5e-4, decay=0.01)</td>
-<td>Decoupled weight decay; standard for transformers <a href="./references.html#ref-loshchilov2019adamw"><span class="citation" data-cites="loshchilov2019adamw">(Loshchilov &amp; Hutter, 2019)</span></a></td>
+<td>Decoupled weight decay; standard for transformers <span class="citation" data-cites="loshchilov2019adamw">(<a href="#ref-loshchilov2019adamw" role="doc-biblioref">Loshchilov &amp; Hutter, 2019</a>)</span></td>
 </tr>
 <tr class="even">
 <td>LR schedule</td>
@@ -916,9 +954,20 @@ Figure&nbsp;1: Focal loss versus standard cross-entropy as a function of predict
 <p>For running predictions, see the <a href="./prediction.html">prediction tutorial</a>. For training and evaluation, see the <a href="./training.html">training tutorial</a> and <a href="./analysis.html">analysis tutorial</a>.</p>
 
 
+
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-lin2017focal" class="csl-entry" role="listitem">
+Lin, T.-Y., Goyal, P., Girshick, R., He, K., &amp; Dollár, P. (2017). Focal loss for dense object detection. <em>IEEE International Conference on Computer Vision (ICCV)</em>, 2980–2988. <a href="https://doi.org/10.1109/ICCV.2017.324">https://doi.org/10.1109/ICCV.2017.324</a>
+</div>
+<div id="ref-loshchilov2019adamw" class="csl-entry" role="listitem">
+Loshchilov, I., &amp; Hutter, F. (2019). Decoupled weight decay regularization. <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/1711.05101">https://arxiv.org/abs/1711.05101</a>
+</div>
+<div id="ref-zhou2024dnabert2" class="csl-entry" role="listitem">
+Zhou, Z., Ji, Y., Li, W., Dutta, P., Davuluri, R., &amp; Liu, H. (2024). <em><span>DNABERT-2</span>: Efficient foundation model and benchmark for multi-species genome</em>. <a href="https://arxiv.org/abs/2306.15006">https://arxiv.org/abs/2306.15006</a>
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
