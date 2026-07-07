@@ -109,7 +109,7 @@ List the downloaded files.
 #| label: lst-list-data
 #| lst-cap: "Verify downloaded files."
 %%bash
-cd ~/deeptaxa-workspace && ls -lh data/models/ data/greengenes/
+cd ~/deeptaxa-workspace && du -h data/models/* data/greengenes/*
 ```
 
 To confirm that the downloads are intact, compare each file against its published
