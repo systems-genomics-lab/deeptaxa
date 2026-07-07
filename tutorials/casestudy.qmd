@@ -197,11 +197,3 @@ checkpoints are published at
 ## Key references
 
 This tutorial reanalyzes an ALS gut-microbiome dataset [@hertzberg2021als] with DeepTaxa [@salah2026deeptaxa], cross-checks against SILVA [@quast2013silva], and revisits a PICRUSt2 functional claim [@douglas2020picrust2]. See the [References](references.qmd) page for the complete bibliography.
-
----
-
-::: {.d-flex .justify-content-between}
-[← Previous: Validation](validation.qmd)
-
-[Next: Training →](training.qmd)
-:::

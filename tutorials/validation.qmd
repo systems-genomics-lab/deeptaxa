@@ -255,11 +255,3 @@ For background on the 16S rRNA gene, mock communities, ASVs, taxonomic ranks, co
 ## Key references
 
 This tutorial uses the DeepTaxa method [@salah2026deeptaxa] and the Greengenes 2 database [@mcdonald2024greengenes], and compares against DADA2 [@callahan2016dada2] with SILVA [@quast2013silva]. See the [References](references.qmd) page for the complete bibliography.
-
----
-
-::: {.d-flex .justify-content-between}
-[← Previous: Prediction](prediction.qmd)
-
-[Next: Case study →](casestudy.qmd)
-:::
