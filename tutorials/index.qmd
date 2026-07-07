@@ -23,6 +23,19 @@ The tutorials are independent but build on each other conceptually. For new user
 
 : {tbl-colwidths="[20,80]"}
 
+## Which tutorial should I use?
+
+Start with the page that matches your goal.
+
+- To classify 16S rRNA sequences with a released checkpoint, use [Prediction](prediction.qmd).
+- To combine the five released seed checkpoints, use [Ensemble](ensemble.qmd).
+- To validate DeepTaxa on known mock communities, use [Validation](validation.qmd).
+- To see a real short-read microbiome reanalysis, use [Case study](casestudy.qmd).
+- To train a model from reference sequences, use [Training](training.qmd).
+- To evaluate model behavior in depth, use [Analysis](analysis.qmd).
+- To understand the model design, use [Architecture](architecture.qmd).
+- To run DeepTaxa inside QIIME 2, use [QIIME 2](qiime2.qmd).
+
 ## Prerequisites
 
 - Python 3.10 or later
