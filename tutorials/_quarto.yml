@@ -10,6 +10,8 @@ website:
         href: index.qmd
       - text: Prediction
         href: prediction.qmd
+      - text: Ensemble
+        href: ensemble.qmd
       - text: Validation
         href: validation.qmd
       - text: Case study

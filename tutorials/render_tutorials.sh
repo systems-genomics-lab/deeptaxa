@@ -29,7 +29,7 @@ echo ""
 # architecture and analysis load; running them before prediction fails. training
 # is self-contained but slow (~2.5 h), so it runs last and strands nothing.
 # Per-tutorial failures are reported but do not abort the whole run.
-TUTORIALS="index prediction architecture analysis validation casestudy training qiime2"
+TUTORIALS="index prediction architecture analysis validation casestudy training qiime2 ensemble"
 FAILED=""
 
 for tutorial in $TUTORIALS; do

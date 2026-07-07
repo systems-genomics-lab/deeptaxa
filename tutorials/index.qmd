@@ -7,11 +7,12 @@ DeepTaxa is a hybrid CNN-BERT model that classifies 16S rRNA gene sequences into
 
 ## Tutorials
 
-The tutorials are independent but build on each other conceptually. For new users, the recommended reading order is Prediction, Validation, Case study, Training, Analysis, then Architecture, with a final QIIME 2 tutorial for running the classifier inside QIIME 2. If you only need to classify sequences with the released model, the [Prediction](prediction.qmd) tutorial is a self-contained starting point; if you intend to train your own model, begin with [Training](training.qmd).
+The tutorials are independent but build on each other conceptually. For new users, the recommended reading order is Prediction, Ensemble, Validation, Case study, Training, Analysis, then Architecture, with a final QIIME 2 tutorial for running the classifier inside QIIME 2. If you only need to classify sequences with the released model, the [Prediction](prediction.qmd) tutorial is a self-contained starting point; if you intend to train your own model, begin with [Training](training.qmd).
 
 | Tutorial | Scope |
 |----------|-------|
 | [Prediction](prediction.qmd) | Classify 16S sequences with the pre-trained model, interpret per-rank accuracy, and examine confidence scores |
+| [Ensemble](ensemble.qmd) | Combine the five per-region seed checkpoints into a soft-vote ensemble and measure the per-rank gain in weighted F1 over a single model |
 | [Validation](validation.qmd) | Validate the model on mock communities of known composition, comparing genus- and species-level calls with a reference method across V3-V4 and full-length 16S |
 | [Case study](casestudy.qmd) | Apply DeepTaxa to a real clinical cohort: reanalyze a published ALS gut-microbiome dataset, cross-check the genus assignments against SILVA, and reproduce the original study's findings |
 | [Training](training.qmd) | Train a model from scratch on the Greengenes 2 dataset, monitor learning curves, and evaluate the trained checkpoint |

@@ -85,7 +85,7 @@ The test set contains 69,335 sequences held out from training. Each sequence car
 
 | File | Description | Size |
 |------|-------------|------|
-| `data/models/deeptaxa-full-length-v1.pt` | Pre-trained model checkpoint | ~306 MB |
+| `data/models/deeptaxa-full-length-v2.pt` | Pre-trained model checkpoint | ~306 MB |
 | `data/greengenes/gg_2024_09_testing.fna.gz` | Test sequences (FASTA, compressed) | ~65 MB |
 | `data/greengenes/gg_2024_09_testing.tsv.gz` | Ground-truth taxonomy (TSV, compressed) | ~1.5 MB |
 
@@ -99,7 +99,7 @@ Download the pre-trained checkpoint and the test data from Hugging Face.
 %%bash
 cd ~/deeptaxa-workspace
 mkdir -p data/models data/greengenes
-test -f data/models/deeptaxa-full-length-v1.pt || curl -L -o data/models/deeptaxa-full-length-v1.pt https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-full-length-v1.pt
+test -f data/models/deeptaxa-full-length-v2.pt || curl -L -o data/models/deeptaxa-full-length-v2.pt https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-full-length-v2.pt
 test -f data/greengenes/gg_2024_09_testing.fna.gz || curl -L -o data/greengenes/gg_2024_09_testing.fna.gz https://huggingface.co/datasets/systems-genomics-lab/greengenes/resolve/main/gg_2024_09_testing.fna.gz
 test -f data/greengenes/gg_2024_09_testing.tsv.gz || curl -L -o data/greengenes/gg_2024_09_testing.tsv.gz https://huggingface.co/datasets/systems-genomics-lab/greengenes/resolve/main/gg_2024_09_testing.tsv.gz
 ```
@@ -121,7 +121,7 @@ verify them; every line should report `OK`.
 ```bash
 cd ~/deeptaxa-workspace
 cat > data/CHECKSUMS.sha256 <<'EOF'
-b924500450ba623e26c7a023bf7246c0d4fb61787e8aa8d720d7ad35c3c6dfb4  data/models/deeptaxa-full-length-v1.pt
+b924500450ba623e26c7a023bf7246c0d4fb61787e8aa8d720d7ad35c3c6dfb4  data/models/deeptaxa-full-length-v2.pt
 d79347cb231edc72371c20daa8384581a1e6fbb9fa8ad6e172a3eecba29b5709  data/greengenes/gg_2024_09_testing.fna.gz
 d5268e7980ce81a39a521e22ff6078f622843c792682e7f95519188475c6d6bb  data/greengenes/gg_2024_09_testing.tsv.gz
 EOF
@@ -174,7 +174,7 @@ cd ~/deeptaxa-workspace
 mkdir -p outputs/single_sequence
 # Extract the first record from the compressed FASTA
 zcat data/greengenes/gg_2024_09_testing.fna.gz | awk 'BEGIN{RS=">"; ORS=""} NR==2 {print ">"$0; exit}' > outputs/single_sequence/single_sequence.fna
-deeptaxa predict --fasta-file outputs/single_sequence/single_sequence.fna --checkpoint data/models/deeptaxa-full-length-v1.pt --tabular --output-dir outputs/single_sequence
+deeptaxa predict --fasta-file outputs/single_sequence/single_sequence.fna --checkpoint data/models/deeptaxa-full-length-v2.pt --tabular --output-dir outputs/single_sequence
 ```
 
 ### Full test set prediction
@@ -188,7 +188,7 @@ For a systematic evaluation, we classify all 69,335 test sequences. Passing `--t
 #| output: false
 %%bash
 cd ~/deeptaxa-workspace
-deeptaxa predict --fasta-file data/greengenes/gg_2024_09_testing.fna.gz --taxonomy-file data/greengenes/gg_2024_09_testing.tsv.gz --checkpoint data/models/deeptaxa-full-length-v1.pt --tabular --output-dir outputs/predictions
+deeptaxa predict --fasta-file data/greengenes/gg_2024_09_testing.fna.gz --taxonomy-file data/greengenes/gg_2024_09_testing.tsv.gz --checkpoint data/models/deeptaxa-full-length-v2.pt --tabular --output-dir outputs/predictions
 ```
 
 Verify that the prediction output was saved.

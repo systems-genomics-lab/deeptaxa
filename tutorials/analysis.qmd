@@ -471,7 +471,7 @@ from torch.utils.data import DataLoader, Subset
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-ckpt = torch.load('data/models/deeptaxa-full-length-v1.pt', map_location=device, weights_only=False)
+ckpt = torch.load('data/models/deeptaxa-full-length-v2.pt', map_location=device, weights_only=False)
 cfg = ckpt.get('model_config', {})
 cnn_cfg = cfg.get('cnn', {})
 bert_cfg = cfg.get('bert', {})
@@ -875,7 +875,7 @@ The analysis below identifies test sequences whose true species was absent from 
 # --- Novel taxa detection: identify novel species ---
 import torch
 
-ckpt = torch.load('data/models/deeptaxa-full-length-v1.pt', map_location='cpu', weights_only=False)
+ckpt = torch.load('data/models/deeptaxa-full-length-v2.pt', map_location='cpu', weights_only=False)
 label2id = ckpt.get('level_label2id', {})
 species_vocab = set(label2id.get('6', label2id.get(6, {})).keys())
 print('Species in training vocabulary:', len(species_vocab))

@@ -172,7 +172,7 @@ Extract and print the CNN layer shapes from the pre-trained checkpoint.
 # --- Inspect CNN layer shapes from checkpoint ---
 import torch
 
-ckpt = torch.load('data/models/deeptaxa-full-length-v1.pt', map_location='cpu', weights_only=False)
+ckpt = torch.load('data/models/deeptaxa-full-length-v2.pt', map_location='cpu', weights_only=False)
 state = ckpt['state_dict']
 cfg = ckpt.get('model_config', {})
 cnn_cfg = cfg.get('cnn', {})

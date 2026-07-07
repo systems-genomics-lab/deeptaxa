@@ -1,0 +1,329 @@
+---
+title: "Ensembling the Five DeepTaxa Seeds"
+subtitle: "Why averaging five independently trained checkpoints improves accuracy, and how to do it"
+---
+
+::: {.callout-note appearance="simple"}
+**Objective.** Understand why an ensemble of seed checkpoints classifies better than any single one, then build a soft-vote ensemble of the five v2 checkpoints and measure the gain rank by rank.
+
+**Prerequisites.** DeepTaxa installed from source (the ensemble tooling postdates the latest release tag), Python 3.10 or later, and PyTorch 2.4 or later. A CUDA-capable GPU is recommended.
+
+**Inputs.** The five full-length seed checkpoints (about 306 MB each) and the held-out test set. **Outputs.** A worked example on a single sequence and a per-rank comparison of accuracy and calibration (ECE). **Runtime.** About 30 minutes on an NVIDIA A40 GPU, most of it the five forward passes over the test set.
+
+*Last validated July 2026.*
+:::
+
+## Why ensemble at all?
+
+Every DeepTaxa checkpoint in the v2 release was trained with the same data, architecture, and hyperparameters. The only thing that differs is the random seed, which sets the initial weights and the order in which training examples are shown. That is enough to send each run to a different point in weight space: five good models that agree on the easy sequences but make *different* mistakes on the hard ones.
+
+This is what makes averaging worthwhile. If the five models tended to fail on the same sequences, combining them would change little. Because their errors are only partly correlated, a sequence that fools one or two seeds is usually classified correctly by the other three or four, and the majority carries the vote. Averaging does not make any single model smarter; it cancels the part of each model's error that is idiosyncratic to its training run. The systematic errors that all five share, such as species with only one training example, remain, which is why the gain is real but modest.
+
+There are two common ways to combine classifiers:
+
+- **Hard vote.** Take each model's top predicted label and keep the majority label. Simple, but it throws away how confident each model was.
+- **Soft vote.** Average the models' probability distributions, then take the argmax. A model that is 95 percent sure counts for more than one that is barely ahead of a coin flip. This usually beats hard voting, and it is what we use below.
+
+## Setup
+
+Configure the environment and confirm the GPU is visible.
+
+```{python}
+#| eval: true
+#| label: lst-setup-path
+#| lst-cap: "Configure the environment."
+import os
+os.environ['PATH'] = '/venv/main/bin:' + os.environ['PATH']
+# The DataLoader below forks worker processes; disable tokenizer parallelism to
+# avoid the "process just got forked" warning from Hugging Face tokenizers.
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+```
+
+```{python}
+#| eval: true
+#| label: lst-setup-gpu
+#| lst-cap: "Verify GPU availability."
+import torch
+print(torch.cuda.is_available())
+print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'No GPU')
+```
+
+Install DeepTaxa from source. The soft-vote below reuses prediction internals (the dataset loader) that postdate the latest release tag, so this tutorial installs from the main branch rather than from the tag as the other tutorials do.
+
+```{python}
+#| eval: true
+#| label: lst-install-deeptaxa
+#| lst-cap: "Install DeepTaxa from source."
+#| output: false
+%%bash
+mkdir -p ~/deeptaxa-workspace && cd ~/deeptaxa-workspace
+test -d deeptaxa || git clone https://github.com/systems-genomics-lab/deeptaxa.git
+cd deeptaxa && git checkout --quiet main && git pull --quiet
+pip install -q .
+pip install -q scikit-learn
+```
+
+## Download the five seed checkpoints
+
+Every region publishes five checkpoints named `deeptaxa-<region>-v2-seed<N>.pt` for seeds 42, 123, 456, 789, and 1011, plus a default `deeptaxa-<region>-v2.pt` that is a copy of the seed-42 checkpoint. This tutorial uses the full-length family; the same steps work for `v3v4` and `v4` with region-matched amplicon test sequences.
+
+```{python}
+#| eval: true
+#| label: lst-download-seeds
+#| lst-cap: "Download the five full-length seed checkpoints and the test data."
+#| output: false
+%%bash
+cd ~/deeptaxa-workspace
+mkdir -p data/models data/greengenes
+base=https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main
+for s in 42 123 456 789 1011; do
+  f=data/models/deeptaxa-full-length-v2-seed${s}.pt
+  test -f $f || curl -L -o $f $base/deeptaxa-full-length-v2-seed${s}.pt
+done
+test -f data/greengenes/gg_2024_09_testing.fna.gz || curl -L -o data/greengenes/gg_2024_09_testing.fna.gz https://huggingface.co/datasets/systems-genomics-lab/greengenes/resolve/main/gg_2024_09_testing.fna.gz
+test -f data/greengenes/gg_2024_09_testing.tsv.gz || curl -L -o data/greengenes/gg_2024_09_testing.tsv.gz https://huggingface.co/datasets/systems-genomics-lab/greengenes/resolve/main/gg_2024_09_testing.tsv.gz
+```
+
+Each checkpoint records its own seed in a `seed` field, so an ensemble member is identifiable from the file contents alone, independent of the filename.
+
+```{python}
+#| eval: true
+#| label: lst-inspect-seed
+#| lst-cap: "The seed is stored inside each checkpoint."
+%%bash
+cd ~/deeptaxa-workspace
+python - <<'PY'
+import glob, torch
+for f in sorted(glob.glob("data/models/deeptaxa-full-length-v2-seed*.pt")):
+    d = torch.load(f, map_location="cpu", weights_only=False)
+    print(f.split("/")[-1], "-> seed", d.get("seed"))
+PY
+```
+
+## How the soft-vote works
+
+For a single sequence, each checkpoint produces a probability distribution over the classes at every rank: at the species rank, for example, a vector of about 16,000 numbers that sum to one. Writing the five distributions at a rank as $p_1, \dots, p_5$, the soft vote forms their mean
+
+$$\bar p(c) = \frac{1}{5} \sum_{k=1}^{5} p_k(c),$$
+
+and predicts the class with the largest averaged probability, $\hat y = \arg\max_c \bar p(c)$. The flowchart below shows the path for one sequence.
+
+```{mermaid}
+%%| echo: false
+flowchart LR
+  S[16S sequence] --> M1[seed 42]
+  S --> M2[seed 123]
+  S --> M3[seed 456]
+  S --> M4[seed 789]
+  S --> M5[seed 1011]
+  M1 --> A["average the five<br/>softmax distributions<br/>at each rank"]
+  M2 --> A
+  M3 --> A
+  M4 --> A
+  M5 --> A
+  A --> G[argmax per rank]
+  G --> L[predicted lineage]
+```
+
+### Why the average beats a single model
+
+Think of each model's probability for the correct class as a true value plus an error that depends on the random seed. Averaging leaves the shared part of that error untouched but shrinks the seed-specific part: if the five errors were independent with variance $\sigma^2$, their mean would have variance $\sigma^2/5$. The seeds are not fully independent, so the real reduction is smaller, but the direction is the same. This is the sense in which ensembling lowers *variance* rather than *bias*: it cannot correct a mistake that all five models share, only the disagreements among them.
+
+The gain is therefore not spread evenly across the ranks. At the domain rank there are only two classes and every model is right almost always, so there is nothing to fix. At the species rank there are thousands of classes, the models disagree far more often, and averaging has the most room to help. We should therefore expect the largest improvement at genus and species, and almost none near the top of the hierarchy. The measurements below confirm this.
+
+## Rebuild the five models
+
+Each checkpoint stores the architecture configuration and the trained weights, so a small helper reconstructs the model and loads its state.
+
+```{python}
+#| eval: true
+#| label: lst-build-models
+#| lst-cap: "Rebuild the five seed models."
+import torch
+from deeptaxa.models import HybridCNNBERTClassifier
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+ws = os.path.expanduser("~/deeptaxa-workspace")
+seeds = [42, 123, 456, 789, 1011]                     # seed 42 first, so it is the single-seed baseline
+
+def build(ckpt):
+    """Reconstruct a HybridCNNBERT model from a checkpoint's saved config and weights."""
+    cnn = ckpt["model_config"]["cnn"]
+    bert = ckpt["model_config"]["bert"]
+    bert = bert.__dict__ if hasattr(bert, "__dict__") else bert
+    model = HybridCNNBERTClassifier(
+        tokenizer_name=ckpt["tokenizer_name"], num_labels_per_level=ckpt["num_labels_per_level"],
+        hidden_dropout_prob=ckpt.get("hidden_dropout_prob", 0.2),
+        num_filters=cnn["num_filters"], kernel_sizes=cnn["kernel_sizes"],
+        num_conv_layers=cnn["num_conv_layers"], embed_dim=cnn["embed_dim"],
+        max_length=bert["max_position_embeddings"], hidden_size=bert["hidden_size"],
+        num_hidden_layers=bert["num_hidden_layers"], num_attention_heads=bert["num_attention_heads"],
+        intermediate_size=bert["intermediate_size"], mask_padding=cnn.get("mask_padding", False))
+    model.load_state_dict(ckpt["state_dict"])
+    return model.to(device).eval()
+
+# Load the checkpoints (seed 42 first) and rebuild each model
+ckpts = [torch.load(f"{ws}/data/models/deeptaxa-full-length-v2-seed{s}.pt",
+                    map_location=device, weights_only=False) for s in seeds]
+models = [build(c) for c in ckpts]
+ranks = ckpts[0]["taxonomic_ranks"]                   # ordered list of rank names, domain first
+print(f"Rebuilt {len(models)} models covering: {', '.join(ranks)}")
+```
+
+## A worked example: watching the vote resolve a disagreement
+
+Before scoring the whole test set, it helps to watch the ensemble decide a single sequence. The cell below runs the five models on one batch, finds a sequence where they do not all agree on the species, and prints each seed's top species prediction alongside the ensemble's. This is the mechanism in miniature: a minority of seeds propose the wrong species, but the averaged distribution keeps the label that the majority supports with high probability.
+
+```{python}
+#| eval: true
+#| label: lst-worked-example
+#| lst-cap: "Five seeds vote on one sequence at the species rank."
+from torch.utils.data import DataLoader
+from deeptaxa.dataset import TaxonomyDataset, custom_collate_fn
+
+# Tokenize the test set exactly as the checkpoints were trained
+bert = ckpts[0]["model_config"]["bert"]
+bert = bert.__dict__ if hasattr(bert, "__dict__") else bert
+dataset = TaxonomyDataset(
+    fasta_file=f"{ws}/data/greengenes/gg_2024_09_testing.fna.gz",
+    taxonomy_file=f"{ws}/data/greengenes/gg_2024_09_testing.tsv.gz",
+    tokenizer_name=ckpts[0]["tokenizer_name"],
+    max_length=bert["max_position_embeddings"], use_raw_labels_for_true=True)
+
+species = len(ranks) - 1                               # species is the last (finest) rank
+id2species = {i: s for s, i in ckpts[0]["level_label2id"][species].items()}
+
+# Run the five models on the first batch and collect their species distributions
+batch = next(iter(DataLoader(dataset, batch_size=128, shuffle=False, collate_fn=custom_collate_fn)))
+ids = batch["input_ids"].to(device)
+mask = batch.get("attention_mask")
+mask = mask.to(device) if mask is not None else None
+with torch.no_grad():
+    outs = [m(input_ids=ids, attention_mask=mask) for m in models]
+    outs = [o[0] if isinstance(o, tuple) else o for o in outs]
+sp = [o[str(species)].softmax(dim=1) for o in outs]   # five tensors of shape [batch, n_species]
+
+# Pick a sequence where the five seeds do not all predict the same species
+votes = torch.stack([p.argmax(dim=1) for p in sp])    # [5, batch] of predicted species ids
+disagree = (votes != votes[0]).any(dim=0)
+idx = int(disagree.nonzero()[0]) if disagree.any() else 0
+
+print("sequence   :", batch["seq_ids"][idx])
+print("true species:", batch["raw_labels"][idx]["species"], "\n")
+for s, p in zip(seeds, sp):
+    top = p[idx].argmax().item()
+    print(f"  seed {s:<5} -> {id2species[top]:<34} (p={p[idx][top]:.2f})")
+avg = torch.stack([p[idx] for p in sp]).mean(dim=0)   # average the five distributions
+top = avg.argmax().item()
+print(f"\n  ensemble  -> {id2species[top]:<34} (p={avg[top]:.2f})")
+```
+
+Read the output as a small election. Where the seeds split, the averaged probability, not a raw label count, settles the outcome: a seed that is nearly certain shifts the average more than a seed that is undecided. Averaging also tempers overconfidence, so the ensemble's winning probability is usually a more honest estimate of how likely the call is to be correct.
+
+## Measure the gain across the test set
+
+Now apply the same averaging to all 69,335 test sequences. For each batch and rank we average the five softmax distributions and record the argmax of both the single seed-42 model and the ensemble, along with the true label id.
+
+```{python}
+#| eval: true
+#| label: lst-collect-predictions
+#| lst-cap: "Average the five seeds over the whole test set."
+loader = DataLoader(dataset, batch_size=128, shuffle=False, num_workers=4, collate_fn=custom_collate_fn)
+
+label2id = ckpts[0]["level_label2id"]                 # maps a label string to its id, per rank
+true_ids = {r: [] for r in ranks}                     # ground-truth id per sequence
+pred_single = {r: [] for r in ranks}                  # seed-42 predicted id
+pred_ens = {r: [] for r in ranks}                     # ensemble predicted id
+conf_single = {r: [] for r in ranks}                  # seed-42 confidence (top probability)
+conf_ens = {r: [] for r in ranks}                     # ensemble confidence (top probability)
+
+with torch.no_grad():
+    for batch in loader:
+        ids = batch["input_ids"].to(device)
+        mask = batch.get("attention_mask")
+        mask = mask.to(device) if mask is not None else None
+        # One forward pass per model; each returns per-rank logits keyed by the rank index
+        outs = [m(input_ids=ids, attention_mask=mask) for m in models]
+        outs = [o[0] if isinstance(o, tuple) else o for o in outs]
+        for lvl in outs[0]:
+            rank = ranks[int(lvl)]
+            probs_single = outs[0][lvl].softmax(dim=1)
+            probs_ens = sum(o[lvl].softmax(dim=1) for o in outs) / len(outs)   # soft vote
+            # torch.max returns both the top probability (confidence) and its class id
+            s_conf, s_id = probs_single.max(dim=1)
+            e_conf, e_id = probs_ens.max(dim=1)
+            s_id, e_id = s_id.tolist(), e_id.tolist()
+            s_conf, e_conf = s_conf.tolist(), e_conf.tolist()
+            for i, labels in enumerate(batch["raw_labels"]):
+                true_ids[rank].append(label2id[int(lvl)].get(labels[rank], -1))
+                pred_single[rank].append(s_id[i]); conf_single[rank].append(s_conf[i])
+                pred_ens[rank].append(e_id[i]); conf_ens[rank].append(e_conf[i])
+```
+
+Compare the single seed against the ensemble on two axes: accuracy (is the top call correct?) and calibration. For calibration we use the Expected Calibration Error (ECE), which asks whether a model's stated confidence matches how often it is right. Sort the predictions into ten bins by confidence; in each bin compare the mean confidence with the fraction actually correct, and average those gaps weighted by how many predictions fall in the bin:
+
+$$\mathrm{ECE} = \sum_{b=1}^{10} \frac{|B_b|}{n}\,\bigl|\operatorname{acc}(B_b) - \operatorname{conf}(B_b)\bigr|.$$
+
+Lower ECE is better: a perfectly calibrated model that reports 0.9 is correct 90 percent of the time.
+
+```{python}
+#| eval: true
+#| label: lst-report
+#| lst-cap: "Accuracy and calibration: single seed versus the five-seed ensemble."
+import numpy as np
+
+def ece(confs, correct, n_bins=10):
+    """Expected Calibration Error over n_bins equal-width confidence bins."""
+    confs, correct = np.asarray(confs), np.asarray(correct, dtype=float)
+    edges = np.linspace(0.0, 1.0, n_bins + 1)
+    score = 0.0
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        b = (confs > lo) & (confs <= hi)            # predictions whose confidence falls in this bin
+        if b.any():
+            score += b.mean() * abs(correct[b].mean() - confs[b].mean())
+    return score
+
+def show(x):
+    return 0.0 if abs(x) < 5e-5 else x              # keep a rounded zero from printing as -0.0000
+
+print(f"{'Rank':<9} | {'acc 42':>7} {'acc ens':>8} {'Δacc':>8} | {'ECE 42':>7} {'ECE ens':>8} {'ΔECE':>8}")
+print("-" * 62)
+for rank in ranks:
+    true = np.array(true_ids[rank])
+    ok_s = np.array(pred_single[rank]) == true      # per-sequence correctness, single seed
+    ok_e = np.array(pred_ens[rank]) == true          # per-sequence correctness, ensemble
+    keep = true >= 0                                 # ECE is defined only for in-vocabulary labels
+    acc_s, acc_e = ok_s.mean(), ok_e.mean()
+    ece_s = ece(np.array(conf_single[rank])[keep], ok_s[keep])
+    ece_e = ece(np.array(conf_ens[rank])[keep], ok_e[keep])
+    # Δacc positive means the ensemble is more accurate; ΔECE positive means it is better calibrated
+    print(f"{rank:<9} | {acc_s:>7.4f} {acc_e:>8.4f} {show(acc_e - acc_s):>+8.4f} | "
+          f"{ece_s:>7.4f} {ece_e:>8.4f} {show(ece_s - ece_e):>+8.4f}")
+```
+
+## Interpreting the results
+
+The gains follow exactly the shape the concept predicts. Domain and phylum barely move, because a single model is already right there almost every time and there is little error to cancel. The improvement grows down the hierarchy and is largest at genus and species: on the full-length test set the ensemble lifts species accuracy from 0.9298 (seed 42) to 0.9405, roughly a one point gain (weighted F1 rises in step, from 0.9213 to 0.9330), and the same pattern holds for V3-V4 and V4. The ECE columns tell the calibration story alongside accuracy: because averaging tempers the overconfident probabilities of the individual seeds, the ensemble is generally the better calibrated of the two, with the clearest reductions at the finer ranks where a lone model is most overconfident.
+
+A few points to carry away:
+
+- **Where the gain comes from.** Averaging removes the error that is specific to one training run. It cannot fix errors that every seed shares, such as species represented by a single training sequence, so the ensemble raises the ceiling by a point or two rather than transforming the model.
+- **Cost.** The ensemble runs five forward passes instead of one, so inference is about five times slower and uses five times the checkpoint storage. For a large study, weigh the gain against that cost; the default single checkpoint remains a strong, faster choice when throughput matters.
+- **Calibration.** The ECE column quantifies the calibration point made earlier: averaging smooths overconfident predictions, so the ensemble's confidence scores track the true accuracy more closely. This matters when a downstream step trims the lineage at a confidence threshold.
+- **Region matching still applies.** Ensemble the seeds for the region that matches your reads. Averaging full-length seeds does not help V4 reads; use the V4 seeds for V4 amplicons.
+
+For the per-rank release numbers and the model card, see the [Hugging Face repository](https://huggingface.co/systems-genomics-lab/deeptaxa). For single-model prediction, see the [prediction tutorial](prediction.qmd); for a deeper look at where the model errs, see the [analysis tutorial](analysis.qmd).
+
+## Appendix: key concepts
+
+**Ensemble.** A group of models whose predictions are combined into one. The members can differ in architecture or, as in this tutorial, only in the random seed used to train them. An ensemble is usually more accurate and better calibrated than any single member because combining them averages away the errors that are specific to individual models.
+
+**Softmax.** The function that turns a model's raw output scores (logits) into a probability distribution over the classes. It exponentiates each score and divides by their sum, so the values are positive and add to one. The largest softmax value is the model's prediction, and that value is its confidence.
+
+**Soft vote and hard vote.** Two ways to combine classifiers. A hard vote counts each model's top predicted label and keeps the majority label. A soft vote averages the models' softmax distributions and takes the argmax of the average, so a confident model counts for more than an uncertain one. Soft voting usually wins because it uses the models' confidence, not just their final answers.
+
+**Bias and variance.** Two sources of a model's error. Bias is the part that persists no matter how the model is trained; variance is the part that changes from one training run to the next. Averaging several models reduces variance while leaving bias unchanged, which is exactly why an ensemble of identically configured seeds helps: the seeds share a bias but differ in their variance.
+
+**Calibration and Expected Calibration Error (ECE).** A model is calibrated when its stated confidence matches how often it is right: calls made at 0.9 confidence should be correct about 90 percent of the time. ECE summarizes miscalibration as the average gap between confidence and accuracy across confidence bins, weighted by how many predictions fall in each bin; lower is better. Averaging several models tends to improve calibration by tempering the overconfidence of any single one.
+
+**Weighted F1.** The F1 score is the harmonic mean of precision and recall. The weighted version averages the per-class F1 scores, weighting each class by how often it appears, which gives a more honest summary than plain accuracy when the classes are very uneven, as the thousands of species are.

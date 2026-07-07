@@ -103,7 +103,7 @@ confidence (mean 0.985). DeepTaxa inference is deterministic; re-running it yiel
 byte-identical taxonomy.
 
 ```{#lst-predict .bash lst-cap="Classify the ASVs with DeepTaxa."}
-deeptaxa predict --fasta-file asv_seqs.fasta --checkpoint deeptaxa-v4-v1.pt \
+deeptaxa predict --fasta-file asv_seqs.fasta --checkpoint deeptaxa-v4-v2.pt \
   --output-dir out --tabular --batch-size 128 --num-workers 4
 ```
 
