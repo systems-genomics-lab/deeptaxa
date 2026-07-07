@@ -240,7 +240,7 @@ window.Quarto = {
   <li><a href="#multi-rank-loss-aggregation" id="toc-multi-rank-loss-aggregation" class="nav-link" data-scroll-target="#multi-rank-loss-aggregation"><span class="header-section-number">8.2</span> Multi-rank loss aggregation</a></li>
   </ul></li>
   <li><a href="#training-configuration" id="toc-training-configuration" class="nav-link" data-scroll-target="#training-configuration"><span class="header-section-number">9</span> Training configuration</a></li>
-  <li><a href="#extending-deeptaxa" id="toc-extending-deeptaxa" class="nav-link" data-scroll-target="#extending-deeptaxa"><span class="header-section-number">10</span> Extending DeepTaxa</a>
+  <li><a href="#advanced-developer-notes-extending-deeptaxa" id="toc-advanced-developer-notes-extending-deeptaxa" class="nav-link" data-scroll-target="#advanced-developer-notes-extending-deeptaxa"><span class="header-section-number">10</span> Advanced developer notes: extending DeepTaxa</a>
   <ul class="collapse">
   <li><a href="#applying-deeptaxa-to-other-marker-genes" id="toc-applying-deeptaxa-to-other-marker-genes" class="nav-link" data-scroll-target="#applying-deeptaxa-to-other-marker-genes"><span class="header-section-number">10.1</span> Applying DeepTaxa to other marker genes</a></li>
   <li><a href="#adding-a-new-taxonomic-rank" id="toc-adding-a-new-taxonomic-rank" class="nav-link" data-scroll-target="#adding-a-new-taxonomic-rank"><span class="header-section-number">10.2</span> Adding a new taxonomic rank</a></li>
@@ -789,8 +789,9 @@ Figure&nbsp;1: Focal loss versus standard cross-entropy as a function of predict
 <p>The learning rate follows a triangular schedule: it increases linearly from zero to the base rate over the first 10% of training steps (warmup), then decreases linearly back to zero over the remaining 90% (decay). This schedule stabilizes early training when the randomly initialized classification heads produce large, noisy gradients, and gradually anneals the step size for fine-grained convergence.</p>
 <p>For details on running a training job, interpreting loss curves, and using early stopping, see the <a href="./training.html">training tutorial</a>.</p>
 </section>
-<section id="extending-deeptaxa" class="level2" data-number="10">
-<h2 data-number="10" class="anchored" data-anchor-id="extending-deeptaxa"><span class="header-section-number">10</span> Extending DeepTaxa</h2>
+<section id="advanced-developer-notes-extending-deeptaxa" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="advanced-developer-notes-extending-deeptaxa"><span class="header-section-number">10</span> Advanced developer notes: extending DeepTaxa</h2>
+<p>The extensions below are for developers who want to adapt the architecture. Each one requires retraining the model and validating it independently. None of them applies to the released DeepTaxa checkpoints, which are trained on 16S rRNA with the seven ranks described above.</p>
 <section id="applying-deeptaxa-to-other-marker-genes" class="level3" data-number="10.1">
 <h3 data-number="10.1" class="anchored" data-anchor-id="applying-deeptaxa-to-other-marker-genes"><span class="header-section-number">10.1</span> Applying DeepTaxa to other marker genes</h3>
 <p>Although the tutorials use 16S rRNA sequences throughout, the model architecture is not specific to the 16S gene. The CNN kernels, Transformer attention, and BPE tokenizer operate on raw nucleotide strings regardless of their biological origin. Any marker gene with a reference database mapping sequences to hierarchical labels can be used as training data. Candidates include:</p>
