@@ -418,11 +418,3 @@ The current architecture treats each rank independently. To enforce parent-child
 DeepTaxa's hybrid architecture combines convolutional feature extraction (local motifs at multiple scales) with transformer-based attention (global sequence context), fused through learnable weights with a residual connection for gradient stability. The released checkpoints train with cross-entropy loss, and an optional focal loss is available for the long-tailed class distribution inherent to microbial taxonomy databases. Independent per-rank classification heads allow parallel predictions across all seven taxonomic levels.
 
 For running predictions, see the [prediction tutorial](prediction.qmd). For training and evaluation, see the [training tutorial](training.qmd) and [analysis tutorial](analysis.qmd).
-
-## Concepts used in this tutorial
-
-This tutorial uses several standard terms: base pairs, convolutional filters and kernel sizes, ReLU, dropout, residual connections, self-attention, byte-pair encoding, focal loss, mixed-precision training, and gradient accumulation. See the [Glossary](glossary.qmd) for short definitions.
-
-## Key references
-
-This tutorial references the DNABERT-2 tokenizer [@zhou2024dnabert2], the AdamW optimizer [@loshchilov2019adamw], and focal loss [@lin2017focal]. See the [References](references.qmd) page for the complete bibliography.

@@ -247,11 +247,3 @@ commit, and filtering it out, for example below 0.5, is reasonable.
 ## Summary
 
 DeepTaxa recovers all eight expected genera in both regions, matching the reference method at the genus rank. At the species rank it commits far more often than an exact-matching reference, at the cost of occasional near-neighbor calls that 16S cannot separate. Report genus-level recovery as the stable result, and report species-level calls in the four categories above so the limits of 16S resolution are not overinterpreted.
-
-## Related concepts
-
-For background on the 16S rRNA gene, mock communities, ASVs, taxonomic ranks, confidence scores, DADA2, SILVA, and species-level ambiguity, see the [Glossary](glossary.qmd).
-
-## Key references
-
-This tutorial uses the DeepTaxa method [@salah2026deeptaxa] and the Greengenes 2 database [@mcdonald2024greengenes], and compares against DADA2 [@callahan2016dada2] with SILVA [@quast2013silva]. See the [References](references.qmd) page for the complete bibliography.

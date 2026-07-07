@@ -378,11 +378,3 @@ DeepTaxa classified `{python} f"{n_eval:,}"` held-out 16S rRNA sequences with `{
 Prediction confidence strongly separates correct from incorrect classifications (mean `{python} f"{conf_correct:.3f}"` vs. `{python} f"{conf_incorrect:.3f}"`), supporting the default confidence threshold of 0.95 as a practical starting point for flagging potentially unreliable predictions.
 
 For training a model on custom reference data, see the [training tutorial](training.qmd). For a deeper analysis of error patterns, calibration, and generalization to novel taxa, see the [analysis tutorial](analysis.qmd).
-
-## Concepts used in this tutorial
-
-This tutorial uses several standard terms: accuracy, the 16S rRNA gene, the taxonomic hierarchy, softmax, and byte-pair encoding. See the [Glossary](glossary.qmd) for short definitions.
-
-## Key references
-
-This tutorial uses the Greengenes 2 reference database [@mcdonald2024greengenes] and the DNABERT-2 tokenizer [@zhou2024dnabert2]. See the [References](references.qmd) page for the complete bibliography.

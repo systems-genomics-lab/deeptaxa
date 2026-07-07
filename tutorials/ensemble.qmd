@@ -311,11 +311,3 @@ A few points to carry away:
 - **Region matching still applies.** Ensemble the seeds for the region that matches your reads. Averaging full-length seeds does not help V4 reads; use the V4 seeds for V4 amplicons.
 
 For the per-rank release numbers and the model card, see the [Hugging Face repository](https://huggingface.co/systems-genomics-lab/deeptaxa). For single-model prediction, see the [prediction tutorial](prediction.qmd); for a deeper look at where the model errs, see the [analysis tutorial](analysis.qmd).
-
-## Concepts used in this tutorial
-
-This tutorial uses several standard terms: the ensemble, softmax, soft and hard voting, bias and variance, calibration and ECE, and weighted F1. See the [Glossary](glossary.qmd) for short definitions.
-
-## Key references
-
-This tutorial builds on the DeepTaxa method [@salah2026deeptaxa]. See the [References](references.qmd) page for the complete bibliography.

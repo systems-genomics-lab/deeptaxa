@@ -193,7 +193,3 @@ DADA2, classification with DeepTaxa and SILVA), so the case study can be reprodu
 step zero; the committed data lets readers skip straight to the analysis. The DeepTaxa
 checkpoints are published at
 [huggingface.co/systems-genomics-lab/deeptaxa](https://huggingface.co/systems-genomics-lab/deeptaxa).
-
-## Key references
-
-This tutorial reanalyzes an ALS gut-microbiome dataset [@hertzberg2021als] with DeepTaxa [@salah2026deeptaxa], cross-checks against SILVA [@quast2013silva], and revisits a PICRUSt2 functional claim [@douglas2020picrust2]. See the [References](references.qmd) page for the complete bibliography.

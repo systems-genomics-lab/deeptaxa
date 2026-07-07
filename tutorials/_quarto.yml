@@ -71,6 +71,8 @@ format:
 bibliography: references.bib
 csl: apa.csl
 suppress-bibliography: true
+filters:
+  - link-citations.lua
 
 execute:
   freeze: auto

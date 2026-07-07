@@ -273,7 +273,3 @@ The `q2-deeptaxa` plugin makes the DeepTaxa classifier a first-class QIIME 2 cit
 For the command-line equivalent of the classification path, see the [prediction tutorial](prediction.qmd); for a full training walkthrough, see the [training tutorial](training.qmd).
 
 ---
-
-## Key references
-
-This tutorial builds on the DeepTaxa method [@salah2026deeptaxa]. See the [References](references.qmd) page for the complete bibliography.

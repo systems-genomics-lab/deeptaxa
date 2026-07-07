@@ -432,11 +432,3 @@ This tutorial covered the full training lifecycle: preparing data, configuring a
 The training run demonstrated here follows the same procedure, data, seed, and architecture used to produce the published DeepTaxa checkpoints (10 epochs on the full Greengenes dataset). The v2 release trains this configuration under five seeds; its five-seed mean is 92.95% species-level accuracy and a weighted F1-score of 0.9208.
 
 For prediction with the published pre-trained model, see the [prediction tutorial](prediction.qmd). For in-depth analysis of model behavior, see the [analysis tutorial](analysis.qmd).
-
-## Concepts used in this tutorial
-
-This tutorial uses several standard terms: the epoch, overfitting, cross-entropy loss, and the learning-rate schedule. See the [Glossary](glossary.qmd) for short definitions.
-
-## Key references
-
-This tutorial trains on the Greengenes 2 database [@mcdonald2024greengenes] with the AdamW optimizer [@loshchilov2019adamw]. See the [References](references.qmd) page for the complete bibliography.
