@@ -4,6 +4,7 @@ project:
 
 website:
   title: "DeepTaxa Tutorials"
+  page-navigation: true
   navbar:
     left:
       - text: Home
@@ -32,6 +33,20 @@ website:
       - icon: github
         text: GitHub
         href: https://github.com/systems-genomics-lab/deeptaxa
+  sidebar:
+    style: floating
+    contents:
+      - index.qmd
+      - prediction.qmd
+      - ensemble.qmd
+      - validation.qmd
+      - casestudy.qmd
+      - training.qmd
+      - analysis.qmd
+      - architecture.qmd
+      - qiime2.qmd
+      - glossary.qmd
+      - references.qmd
   page-footer:
     center: "[DeepTaxa](https://github.com/systems-genomics-lab/deeptaxa) — Systems Genomics Lab"
 
