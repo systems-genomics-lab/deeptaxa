@@ -63,6 +63,10 @@ pip install -q .
 pip install -q scikit-learn
 ```
 
+:::{.callout-note}
+Because this tutorial installs from the `main` branch, the exact code can change over time. For a reproducible run, record the commit you installed with `git -C ~/deeptaxa-workspace/deeptaxa rev-parse HEAD`, or install a tagged release once the ensemble tools are part of one.
+:::
+
 ## Download the five seed checkpoints
 
 Every region publishes five checkpoints named `deeptaxa-<region>-v2-seed<N>.pt` for seeds 42, 123, 456, 789, and 1011, plus a default `deeptaxa-<region>-v2.pt` that is a copy of the seed-42 checkpoint. This tutorial uses the full-length family; the same steps work for `v3v4` and `v4` with region-matched amplicon test sequences.
