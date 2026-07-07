@@ -19,6 +19,7 @@ The tutorials are independent but build on each other conceptually. For new user
 | [Analysis](analysis.qmd) | Evaluate classification performance in depth: confusion patterns, sequence and embedding similarity, calibration, and novel taxa detection |
 | [Architecture](architecture.qmd) | Understand the CNN-Transformer fusion, the loss formulation including the optional focal loss, and how to adapt the model to other marker genes |
 | [QIIME 2](qiime2.qmd) | Run DeepTaxa inside a QIIME 2 workflow: import a model, classify representative sequences into `FeatureData[Taxonomy]`, and train |
+| [Glossary](glossary.qmd) | Short explanations of the concepts used across the tutorials, from the 16S rRNA gene to calibration and ensembling |
 
 : {tbl-colwidths="[20,80]"}
 

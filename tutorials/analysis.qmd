@@ -933,34 +933,6 @@ In practice, sequences with high genus-level confidence but low species-level co
 
 For running predictions with the pre-trained model, see the [prediction tutorial](prediction.qmd). For training a model on custom data, see the [training tutorial](training.qmd).
 
-## Appendix: key concepts
+## Concepts used in this tutorial
 
-**Accuracy.** The fraction of predictions that match the true label. It is the most intuitive classification metric but can be misleading when some classes are much more common than others, because a model that always predicts the majority class can achieve high accuracy without learning anything useful.
-
-**Cosine similarity.** A measure of the angle between two vectors, ranging from -1 (opposite) through 0 (orthogonal) to 1 (identical direction). In embedding spaces, cosine similarity quantifies how similar two representations are regardless of their magnitude: a value near 1.0 means the model encodes the two inputs almost identically.
-
-**Confusion matrix.** A table that cross-tabulates true labels against predicted labels. Diagonal entries represent correct classifications; off-diagonal entries represent errors. Normalizing rows by their sum converts counts to per-class recall values.
-
-**Precision and recall.** Precision measures how many of the model's positive predictions are correct. Recall measures how many of the true positives the model detected. Both range from 0 to 1. A model that never predicts a class has zero recall for that class; a model that predicts a class for everything has perfect recall but low precision.
-
-**Jaccard index.** The size of the intersection divided by the size of the union of two sets. When applied to the sets of k-mers (short subsequences of length k) extracted from two DNA sequences, the Jaccard index estimates how much sequence content they share. Values range from 0 (no overlap) to 1 (identical k-mer content).
-
-**F1-score.** The harmonic mean of precision and recall. It equals 1.0 only when both precision and recall are perfect. The harmonic mean penalizes extreme imbalances: an F1 of 0.5 requires both precision and recall to be at least 0.5.
-
-**Embedding.** A fixed-length numerical vector that a neural network produces as an intermediate representation of its input. Sequences with similar biological properties tend to receive similar embeddings, even if their raw nucleotide strings differ at individual positions. Embeddings can be visualized, compared, and clustered to understand what the model has learned.
-
-**Expected Calibration Error (ECE).** A scalar measure of how well a model's confidence scores match its actual accuracy. Predictions are grouped into bins by confidence; within each bin, the gap between mean confidence and mean accuracy is computed. A well-calibrated model has an ECE near zero (@guo2017calibration).
-
-**Open-set classification.** The standard classification setting assumes that all test classes were seen during training. In open-set classification, some test instances belong to classes absent from the training vocabulary. DeepTaxa operates in a partially open-set regime: novel species appear in test data, but their higher-rank taxonomy (genus, family) is typically represented in the training set.
-
-**t-SNE (t-distributed Stochastic Neighbor Embedding).** A dimensionality reduction algorithm that projects high-dimensional data (such as embeddings) onto two dimensions for visualization. t-SNE preserves local neighborhood structure, placing points that are close in the original space close together in the projection. It is well-suited for revealing cluster structure in learned representations.
-
-**Taxonomy.** The hierarchical classification of organisms. Modern microbial taxonomy combines morphological, biochemical, and genomic criteria. The [Greengenes 2](https://doi.org/10.1038/s41587-023-01845-1) database used by DeepTaxa follows the Genome Taxonomy Database (GTDB) naming conventions.
-
----
-
-::: {.d-flex .justify-content-between}
-[← Previous: Training](training.qmd)
-
-[Next: Architecture →](architecture.qmd)
-:::
+This tutorial uses several standard terms: accuracy, precision and recall, F1, the confusion matrix, calibration and ECE, embeddings, cosine similarity, the Jaccard index, t-SNE, and open-set classification. See the [Glossary](glossary.qmd) for short definitions.

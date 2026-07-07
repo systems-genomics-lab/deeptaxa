@@ -419,34 +419,6 @@ DeepTaxa's hybrid architecture combines convolutional feature extraction (local 
 
 For running predictions, see the [prediction tutorial](prediction.qmd). For training and evaluation, see the [training tutorial](training.qmd) and [analysis tutorial](analysis.qmd).
 
-## Appendix: key concepts
+## Concepts used in this tutorial
 
-**Base pair (bp).** The fundamental unit of DNA length. One bp corresponds to one nucleotide and its complementary partner on the opposite strand. The 16S rRNA gene is approximately 1,500 bp long, meaning it encodes a sequence of about 1,500 nucleotides.
-
-**Residual connection.** A shortcut that adds the input of a layer directly to its output, so the layer only needs to learn the difference (residual) between the two. Residual connections stabilize gradient flow in deep networks by providing an alternative path that bypasses nonlinear transformations.
-
-**Self-attention.** A mechanism that computes a weighted average of all positions in a sequence for each position, where the weights are derived from pairwise similarity scores between position representations. This allows the model to capture dependencies between distant positions without the locality constraint of convolutions.
-
-**Focal loss.** A modification of cross-entropy loss that down-weights well-classified examples by a factor of $(1 - p_t)^\gamma$, where $p_t$ is the predicted probability of the correct class. At the default $\gamma = 2$, examples classified with high confidence contribute negligibly to the total loss, directing optimization toward harder cases.
-
-**Byte-pair encoding (BPE).** A tokenization algorithm that iteratively merges the most frequent adjacent character pairs into single units, building up a vocabulary of common substrings. Applied to DNA, BPE discovers frequently occurring k-mers without requiring a fixed k-mer length. Just as reading is more efficient when common words are recognized as units rather than parsed letter by letter, BPE allows the model to process common DNA patterns as single tokens. DNABERT-2 [@zhou2024dnabert2] pretrained a BPE tokenizer on multi-species genome data, so the tokenizer's vocabulary reflects patterns prevalent across the microbial tree of life.
-
-**Mixed-precision training.** A technique that performs the forward pass in 16-bit floating point (FP16) for speed and memory savings, while maintaining the model weights and optimizer state in 32-bit (FP32) for numerical precision. A loss scaler prevents small gradients from underflowing to zero in FP16.
-
-**Gradient accumulation.** A strategy for simulating large batch sizes by accumulating gradients across multiple forward-backward passes before performing a single optimizer step. The effective batch size equals the per-step batch size multiplied by the number of accumulation steps.
-
-**Convolutional filter.** A small matrix of learnable weights that slides across the input and computes a dot product at each position, producing a scalar that reflects how strongly the local pattern matches the filter. A bank of filters applied in parallel produces a multi-channel feature map.
-
-**Kernel size.** The number of consecutive positions a convolutional filter covers in a single step. A kernel size of 3 scans three nucleotides at a time (a trinucleotide); a kernel size of 7 spans seven nucleotides. Using multiple kernel sizes in parallel lets the model detect patterns at several spatial scales simultaneously.
-
-**ReLU activation.** A nonlinear function defined as $\text{ReLU}(x) = \max(0, x)$: negative values are set to zero; positive values pass through unchanged. Applied after each convolution, ReLU introduces the nonlinearity that allows stacked layers to represent complex, non-additive relationships. Without nonlinear activations, any number of stacked linear layers would collapse to a single linear transformation, severely limiting expressive power.
-
-**Dropout.** A regularization technique that randomly sets a fraction of activations to zero during each training step, preventing the network from relying on any single feature. This forces the model to develop redundant, distributed representations: because no single unit can be counted on to be active, other units must compensate. The result is a more robust model that generalizes better to unseen data. At inference time, dropout is disabled and all activations are used.
-
----
-
-::: {.d-flex .justify-content-between}
-[← Previous: Analysis](analysis.qmd)
-
-[Next: QIIME 2 →](qiime2.qmd)
-:::
+This tutorial uses several standard terms: base pairs, convolutional filters and kernel sizes, ReLU, dropout, residual connections, self-attention, byte-pair encoding, focal loss, mixed-precision training, and gradient accumulation. See the [Glossary](glossary.qmd) for short definitions.

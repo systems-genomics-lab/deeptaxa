@@ -24,6 +24,8 @@ website:
         href: architecture.qmd
       - text: QIIME 2
         href: qiime2.qmd
+      - text: Glossary
+        href: glossary.qmd
     right:
       - icon: github
         text: GitHub

@@ -314,16 +314,6 @@ A few points to carry away:
 
 For the per-rank release numbers and the model card, see the [Hugging Face repository](https://huggingface.co/systems-genomics-lab/deeptaxa). For single-model prediction, see the [prediction tutorial](prediction.qmd); for a deeper look at where the model errs, see the [analysis tutorial](analysis.qmd).
 
-## Appendix: key concepts
+## Concepts used in this tutorial
 
-**Ensemble.** A group of models whose predictions are combined into one. The members can differ in architecture or, as in this tutorial, only in the random seed used to train them. An ensemble is usually more accurate and better calibrated than any single member because combining them averages away the errors that are specific to individual models.
-
-**Softmax.** The function that turns a model's raw output scores (logits) into a probability distribution over the classes. It exponentiates each score and divides by their sum, so the values are positive and add to one. The largest softmax value is the model's prediction, and that value is its confidence.
-
-**Soft vote and hard vote.** Two ways to combine classifiers. A hard vote counts each model's top predicted label and keeps the majority label. A soft vote averages the models' softmax distributions and takes the argmax of the average, so a confident model counts for more than an uncertain one. Soft voting usually wins because it uses the models' confidence, not just their final answers.
-
-**Bias and variance.** Two sources of a model's error. Bias is the part that persists no matter how the model is trained; variance is the part that changes from one training run to the next. Averaging several models reduces variance while leaving bias unchanged, which is exactly why an ensemble of identically configured seeds helps: the seeds share a bias but differ in their variance.
-
-**Calibration and Expected Calibration Error (ECE).** A model is calibrated when its stated confidence matches how often it is right: calls made at 0.9 confidence should be correct about 90 percent of the time. ECE summarizes miscalibration as the average gap between confidence and accuracy across confidence bins, weighted by how many predictions fall in each bin; lower is better. Averaging several models tends to improve calibration by tempering the overconfidence of any single one.
-
-**Weighted F1.** The F1 score is the harmonic mean of precision and recall. The weighted version averages the per-class F1 scores, weighting each class by how often it appears, which gives a more honest summary than plain accuracy when the classes are very uneven, as the thousands of species are.
+This tutorial uses several standard terms: the ensemble, softmax, soft and hard voting, bias and variance, calibration and ECE, and weighted F1. See the [Glossary](glossary.qmd) for short definitions.

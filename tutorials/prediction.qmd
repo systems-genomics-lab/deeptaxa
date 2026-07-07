@@ -381,32 +381,6 @@ Prediction confidence strongly separates correct from incorrect classifications 
 
 For training a model on custom reference data, see the [training tutorial](training.qmd). For a deeper analysis of error patterns, calibration, and generalization to novel taxa, see the [analysis tutorial](analysis.qmd).
 
-## Appendix: key concepts
+## Concepts used in this tutorial
 
-**Accuracy.** The fraction of predictions that match the true label. It is the most intuitive classification metric but can be misleading when some classes are much more common than others, because a model that always predicts the majority class can achieve high accuracy without learning anything useful.
-
-**16S rRNA gene.** A gene approximately 1,500 bp (base pairs, the fundamental unit of DNA length) long, encoding a structural component of the bacterial and archaeal ribosome. It contains nine hypervariable regions (V1 through V9) flanked by conserved regions. The conserved regions serve as universal PCR primer binding sites, while the variable regions carry taxon-specific sequence differences that enable classification. The combination makes the 16S gene both universally amplifiable and taxonomically informative across the microbial tree of life.
-
-**Taxonomic hierarchy.** Biological classification organizes organisms into nested ranks, each representing a progressively finer grouping. The seven ranks used by DeepTaxa, illustrated with *Escherichia coli*:
-
-1. **Domain**: Bacteria
-2. **Phylum**: Pseudomonadota
-3. **Class**: Gammaproteobacteria
-4. **Order**: Enterobacterales
-5. **Family**: Enterobacteriaceae
-6. **Genus**: *Escherichia*
-7. **Species**: *E. coli*
-
-Each level is a superset of those below it: every species belongs to exactly one genus, every genus to exactly one family, and so on up the tree.
-
-**Softmax.** A mathematical function that converts a vector of real numbers (logits) into a probability distribution. Each output value is between 0 and 1, and all outputs sum to 1. The class with the highest softmax probability is the model's prediction.
-
-**Byte-pair encoding (BPE).** A tokenization algorithm that starts with individual characters and iteratively merges the most frequent adjacent pairs into new tokens. Applied to DNA sequences, BPE learns a vocabulary of common k-mers without requiring a fixed k-mer size.
-
----
-
-::: {.d-flex .justify-content-between}
-[← Home](index.qmd)
-
-[Next: Validation →](validation.qmd)
-:::
+This tutorial uses several standard terms: accuracy, the 16S rRNA gene, the taxonomic hierarchy, softmax, and byte-pair encoding. See the [Glossary](glossary.qmd) for short definitions.
