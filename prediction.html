@@ -68,6 +68,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./ensemble.html" rel="next">
+<link href="./index.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -143,7 +145,7 @@ window.Quarto = {
 
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-sidebar floating nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -161,11 +163,11 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link active" href="./index.html" aria-current="page"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./prediction.html" aria-current="page"> 
+    <a class="nav-link" href="./prediction.html"> 
 <span class="menu-text">Prediction</span></a>
   </li>  
   <li class="nav-item">
@@ -217,10 +219,93 @@ window.Quarto = {
 </div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./prediction.html">Taxonomic Classification of 16S rRNA Sequences with DeepTaxa</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DeepTaxa Tutorials</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./prediction.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Taxonomic Classification of 16S rRNA Sequences with DeepTaxa</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ensemble.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ensembling the Five DeepTaxa Seeds</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Validation Against Known Communities</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./casestudy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reanalysis of an ALS Gut Microbiome with DeepTaxa: A Case Study</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./training.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Training a DeepTaxa Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Analyzing DeepTaxa Model Performance</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./architecture.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Model Architecture and Design</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./qiime2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classifying Sequences with DeepTaxa inside QIIME 2</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Glossary</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
@@ -514,44 +599,44 @@ Listing&nbsp;7: Classify a single test sequence.
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>zcat data<span class="op">/</span>greengenes<span class="op">/</span>gg_2024_09_testing.fna.gz <span class="op">|</span> awk <span class="st">'BEGIN{RS="&gt;"; ORS=""} NR==2 {print "&gt;"$0; exit}'</span> <span class="op">&gt;</span> outputs<span class="op">/</span>single_sequence<span class="op">/</span>single_sequence.fna</span>
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>deeptaxa predict <span class="op">--</span>fasta<span class="op">-</span><span class="bu">file</span> outputs<span class="op">/</span>single_sequence<span class="op">/</span>single_sequence.fna <span class="op">--</span>checkpoint data<span class="op">/</span>models<span class="op">/</span>deeptaxa<span class="op">-</span>full<span class="op">-</span>length<span class="op">-</span>v2.pt <span class="op">--</span>tabular <span class="op">--</span>output<span class="op">-</span><span class="bu">dir</span> outputs<span class="op">/</span>single_sequence</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>2026-07-07 14:50:07,226 - INFO - 
+<pre><code>2026-07-07 17:14:58,841 - INFO - 
 ======================================================================
           DeepTaxa Prediction Session (v1.2.0)
 --------------------------------------------------
-          Started: 2026-07-07T14:50:07.226947
+          Started: 2026-07-07T17:14:58.841821
 ======================================================================
     
-2026-07-07 14:50:09,080 - INFO - Initialized HybridCNNBERTClassifier with CNN: {'embed_dim': 896, 'num_filters': 256, 'kernel_sizes': [3, 5, 7], 'num_conv_layers': 1, 'dropout_prob': 0.2}, BERT hidden_size=896, output_attentions=False
-2026-07-07 14:50:09,145 - INFO - Model loaded from checkpoint: data/models/deeptaxa-full-length-v2.pt with type: hybridcnnbert
-2026-07-07 14:50:09,347 - INFO - Loaded 1 sequences from outputs/single_sequence/single_sequence.fna
+2026-07-07 17:15:00,695 - INFO - Initialized HybridCNNBERTClassifier with CNN: {'embed_dim': 896, 'num_filters': 256, 'kernel_sizes': [3, 5, 7], 'num_conv_layers': 1, 'dropout_prob': 0.2}, BERT hidden_size=896, output_attentions=False
+2026-07-07 17:15:00,761 - INFO - Model loaded from checkpoint: data/models/deeptaxa-full-length-v2.pt with type: hybridcnnbert
+2026-07-07 17:15:00,957 - INFO - Loaded 1 sequences from outputs/single_sequence/single_sequence.fna
 
 Predicting:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Predicting: 100%|██████████| 1/1 [00:00&lt;00:00,  1.05it/s]
-Predicting: 100%|██████████| 1/1 [00:00&lt;00:00,  1.00it/s]
-2026-07-07 14:50:10,353 - INFO - Saved run UUID to outputs/single_sequence/deeptaxa_uuid.txt
-2026-07-07 14:50:10,353 - INFO - 
+Predicting: 100%|██████████| 1/1 [00:00&lt;00:00,  1.08it/s]
+Predicting: 100%|██████████| 1/1 [00:00&lt;00:00,  1.02it/s]
+2026-07-07 17:15:01,945 - INFO - Saved run UUID to outputs/single_sequence/deeptaxa_uuid.txt
+2026-07-07 17:15:01,946 - INFO - 
 ======================================================================
           DeepTaxa Prediction Summary (v1.2.0)
 --------------------------------------------------
           Here's a summary of your prediction results:
           - Total Sequences Processed: 1
-          - Prediction Time: 3.13 seconds
-          - Completed At: 2026-07-07T14:50:10.352490
+          - Prediction Time: 3.10 seconds
+          - Completed At: 2026-07-07T17:15:01.944421
 ======================================================================
     
-2026-07-07 14:50:10,353 - INFO - Performance Metrics by Taxonomic Rank:
-2026-07-07 14:50:10,353 - INFO - Rank       | Mean Score   | Std Score    | Accuracy     | Top-{top_k} Acc | F1       | Precision    | Recall       | AUC         
-2026-07-07 14:50:10,353 - INFO - ---------------------------------------------------------------------------------------------------------------------------------
-2026-07-07 14:50:10,354 - INFO - domain     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 14:50:10,354 - INFO - phylum     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 14:50:10,354 - INFO - class      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 14:50:10,354 - INFO - order      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 14:50:10,354 - INFO - family     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 14:50:10,354 - INFO - genus      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 14:50:10,354 - INFO - species    | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
-2026-07-07 14:50:10,674 - INFO - Saved prediction results to: outputs/single_sequence/single_sequence_deeptaxa_predictions.json
-2026-07-07 14:50:10,687 - INFO - Saved tabular prediction results to: outputs/single_sequence/single_sequence_deeptaxa_predictions.tsv
-2026-07-07 14:50:10,687 - INFO - 
+2026-07-07 17:15:01,946 - INFO - Performance Metrics by Taxonomic Rank:
+2026-07-07 17:15:01,946 - INFO - Rank       | Mean Score   | Std Score    | Accuracy     | Top-{top_k} Acc | F1       | Precision    | Recall       | AUC         
+2026-07-07 17:15:01,946 - INFO - ---------------------------------------------------------------------------------------------------------------------------------
+2026-07-07 17:15:01,946 - INFO - domain     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 17:15:01,946 - INFO - phylum     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 17:15:01,946 - INFO - class      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 17:15:01,946 - INFO - order      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 17:15:01,946 - INFO - family     | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 17:15:01,946 - INFO - genus      | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 17:15:01,946 - INFO - species    | 1.0000       | 0.0000       | N/A          | N/A          | N/A      | N/A          | N/A          | N/A         
+2026-07-07 17:15:02,131 - INFO - Saved prediction results to: outputs/single_sequence/single_sequence_deeptaxa_predictions.json
+2026-07-07 17:15:02,136 - INFO - Saved tabular prediction results to: outputs/single_sequence/single_sequence_deeptaxa_predictions.tsv
+2026-07-07 17:15:02,137 - INFO - 
 ======================================================================
 Thank you for using DeepTaxa 🤗
 ======================================================================</code></pre>
@@ -1296,6 +1381,18 @@ Sequence: RS-GCF-014654365.1-NZ-BNAY01000027.1
     }
   });
   </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./index.html" class="pagination-link" aria-label="DeepTaxa Tutorials">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">DeepTaxa Tutorials</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./ensemble.html" class="pagination-link" aria-label="Ensembling the Five DeepTaxa Seeds">
+        <span class="nav-page-text">Ensembling the Five DeepTaxa Seeds</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
