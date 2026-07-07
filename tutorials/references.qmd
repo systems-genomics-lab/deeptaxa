@@ -1,11 +1,12 @@
 ---
 title: "References"
 subtitle: "Complete bibliography for the DeepTaxa tutorials"
+suppress-bibliography: false
 nocite: |
   @*
 ---
 
-This page is the authoritative bibliography for the tutorials. Each tutorial lists only the sources most relevant to its workflow under "Key references" and links here for the full list.
+This page collects every reference cited across the tutorials. Each tutorial lists only the sources most relevant to its own workflow and links back here for the complete list.
 
 ::: {#refs}
 :::
