@@ -7,12 +7,12 @@
 set -euo pipefail
 
 DATA="${DATA:-../data}"
-CHECKPOINT="${CHECKPOINT:-deeptaxa-v4-v1.pt}"
+CHECKPOINT="${CHECKPOINT:-deeptaxa-v4-v2.pt}"
 
 # Download the V4 checkpoint if it is not already present.
 if [ ! -f "$CHECKPOINT" ]; then
   curl -L -o "$CHECKPOINT" \
-    "https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-v4-v1.pt"
+    "https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-v4-v2.pt"
 fi
 
 deeptaxa predict --fasta-file "$DATA/asv_seqs.fasta" --checkpoint "$CHECKPOINT" \

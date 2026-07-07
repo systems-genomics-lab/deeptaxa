@@ -27,7 +27,7 @@ execute:
 ![](casestudy/gut_brain_axis.jpg){fig-alt="Illustration of the gut-brain axis: a glowing brain and gut linked by signaling streams with microbiome cells" fig-align="center" width="100%"}
 
 ::: {.text-center}
-<small>A stylized illustration of the gut-brain axis</small>
+<small>A stylized illustration of the gut-brain axis, used to introduce the case study. The image is illustrative and is not a data-derived result.</small>
 :::
 
 ::: {.callout-note appearance="simple"}
@@ -39,6 +39,8 @@ execute:
 
 *Last validated July 2026.*
 :::
+
+This case study is a methodological demonstration of taxonomic classification and reproducibility. It is not intended for diagnosis, prognosis, treatment selection, or patient-level interpretation.
 
 ## Summary
 
@@ -214,10 +216,9 @@ step zero; the committed data lets readers skip straight to the analysis. The De
 checkpoints are published at
 [huggingface.co/systems-genomics-lab/deeptaxa](https://huggingface.co/systems-genomics-lab/deeptaxa).
 
-## References
+## Key references
 
-::: {#refs}
-:::
+This tutorial reanalyzes an ALS gut-microbiome dataset [@hertzberg2021als] with DeepTaxa [@salah2026deeptaxa], cross-checks against SILVA [@quast2013silva], and revisits a PICRUSt2 functional claim [@douglas2020picrust2]. See the [References](references.qmd) page for the complete bibliography.
 
 ---
 

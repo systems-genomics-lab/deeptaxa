@@ -10,6 +10,8 @@ website:
         href: index.qmd
       - text: Prediction
         href: prediction.qmd
+      - text: Ensemble
+        href: ensemble.qmd
       - text: Validation
         href: validation.qmd
       - text: Case study
@@ -22,6 +24,10 @@ website:
         href: architecture.qmd
       - text: QIIME 2
         href: qiime2.qmd
+      - text: Glossary
+        href: glossary.qmd
+      - text: References
+        href: references.qmd
     right:
       - icon: github
         text: GitHub
@@ -43,9 +49,13 @@ format:
     smooth-scroll: true
     fig-cap-location: bottom
     tbl-cap-location: top
+    include-in-header:
+      text: |
+        <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "814105493de84c40bfe298120ac18d08"}'></script><!-- End Cloudflare Web Analytics -->
 
 bibliography: references.bib
 csl: apa.csl
+suppress-bibliography: true
 
 execute:
   freeze: auto

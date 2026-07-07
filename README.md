@@ -15,7 +15,7 @@
 [![Issues](https://img.shields.io/github/issues/systems-genomics-lab/deeptaxa)](https://github.com/systems-genomics-lab/deeptaxa/issues)
 [![GitHub Stars](https://img.shields.io/github/stars/systems-genomics-lab/deeptaxa?style=social)](https://github.com/systems-genomics-lab/deeptaxa/stargazers)
 
-**DeepTaxa** is a deep learning framework for hierarchical taxonomic classification of 16S rRNA gene sequences. It classifies sequences into all seven taxonomic ranks (Domain through Species) in a single forward pass, achieving 92.96% species-level accuracy (3-seed mean) on the Greengenes2 2024.09 test set.
+**DeepTaxa** is a deep learning framework for hierarchical taxonomic classification of 16S rRNA gene sequences. It classifies sequences into all seven taxonomic ranks (Domain through Species) in a single forward pass, achieving 92.95% species-level accuracy (5-seed mean) on the Greengenes2 2024.09 test set.
 
 ---
 
@@ -39,21 +39,21 @@
 
 ## Performance
 
-The published HybridCNNBERT checkpoint achieves the following on 69,335 held-out test sequences from Greengenes2 2024.09 (3-seed mean across seeds 42, 123, 456):
+The v2 full-length checkpoints achieve the following on 69,335 held-out test sequences from Greengenes2 2024.09 (5-seed mean across seeds 42, 123, 456, 789, 1011):
 
 | Rank | Accuracy | F1 | ECE |
 |------|----------|-----|-----|
-| Domain | 99.98% | 99.98% | 0.0001 |
-| Phylum | 99.69% | 99.68% | 0.0023 |
+| Domain | 99.98% | 99.98% | 0.0002 |
+| Phylum | 99.70% | 99.69% | 0.0022 |
 | Class | 99.63% | 99.59% | 0.0024 |
-| Order | 99.07% | 98.97% | 0.0056 |
-| Family | 98.61% | 98.41% | 0.0075 |
-| Genus | 96.90% | 96.48% | 0.0144 |
-| Species | 92.96% | 92.12% | 0.0242 |
+| Order | 99.06% | 98.96% | 0.0057 |
+| Family | 98.61% | 98.41% | 0.0074 |
+| Genus | 96.87% | 96.44% | 0.0145 |
+| Species | 92.95% | 92.08% | 0.0242 |
 
-Cross-seed standard deviation is at most 0.0008 F1 at every rank (species std 0.0008 F1 / 0.07 percentage points accuracy), demonstrating high reproducibility.
+Cross-seed standard deviation is at most 0.0004 F1 at every rank (species std 0.0004 F1 / 0.03 percentage points accuracy), demonstrating high reproducibility.
 
-The table above reports the 3-seed mean. The released `deeptaxa-full-length-v1.pt` is the seed-42 checkpoint, which scores 92.88% species accuracy and 92.03% species F1 on the same test set, very close to the 3-seed mean of 92.96% and 92.12%.
+The table above reports the 5-seed mean. Each region ships all five seeds for ensembling, along with a default single model (`deeptaxa-full-length-v2.pt`, a copy of the seed-42 checkpoint) for users who need only one model.
 
 ### Architecture
 
@@ -72,15 +72,23 @@ Three architectures are available:
 
 ### Pre-Trained Checkpoints
 
-Three checkpoints are hosted on [Hugging Face](https://huggingface.co/systems-genomics-lab/deeptaxa):
+Three model families (full-length, V3-V4, V4) are hosted on [Hugging Face](https://huggingface.co/systems-genomics-lab/deeptaxa). As of the v2 release each family ships all five seeds (`deeptaxa-<region>-v2-seed{42,123,456,789,1011}.pt`) for ensembling, plus a default single model (`deeptaxa-<region>-v2.pt`, a copy of the seed-42 checkpoint):
 
-| Checkpoint | Training data | Species accuracy | Parameters |
+| Default checkpoint | Training data | Species accuracy | Parameters |
 |-----------|--------------|-----------------|------------|
-| `deeptaxa-full-length-v1.pt` | Full-length 16S (277,336 sequences, ~1,500 bp) | 92.96% (3-seed mean) | 76.4 M |
-| `deeptaxa-v3v4-v1.pt` | In-silico V3-V4 amplicons (341F/805R, ~420 bp, 273,003 amplicons) | 87.55% (seed 42) | 75.8 M |
-| `deeptaxa-v4-v1.pt` | In-silico V4 amplicons (515F/806R, ~253 bp, 274,509 amplicons) | 82.84% (seed 42) | 76.4 M |
+| `deeptaxa-full-length-v2.pt` | Full-length 16S (277,336 sequences, ~1,500 bp) | 92.95% (5-seed mean) | 76.4 M |
+| `deeptaxa-v3v4-v2.pt` | In-silico V3-V4 amplicons (341F/805R, ~420 bp, 273,003 amplicons) | 87.54% (5-seed mean) | 75.8 M |
+| `deeptaxa-v4-v2.pt` | In-silico V4 amplicons (515F/806R, ~253 bp, 274,509 amplicons) | 82.84% (5-seed mean) | 76.4 M |
 
-All three checkpoints share the same compact architecture. The V4 checkpoint keeps the full 16,909-species label space (V4 amplicons extract at 99 percent yield) and matches the full-length parameter count, while the V3-V4 model is slightly smaller because its per-rank heads cover a smaller species vocabulary (8,347 vs 16,909). A `config.json` with full model metadata is also available.
+All three families share the same compact architecture. The V4 family keeps the full 16,909-species label space (V4 amplicons extract at 99 percent yield) and matches the full-length parameter count, while the V3-V4 model is slightly smaller because its per-rank heads cover a smaller species vocabulary (8,347 vs 16,909). A `config.json` with full model metadata is also available. The v1 checkpoints remain available in the same repository.
+
+Each checkpoint records its own seed in a `seed` field, so the ensemble members are self-identifying. For the best accuracy and calibration, average the per-rank softmax probabilities of all five seed checkpoints for a region and take the argmax at each rank (see [`scripts/ensemble_predict.py`](scripts/ensemble_predict.py)). This soft-vote ensemble improves species F1 over a single seed in every region, with larger gains at the finer ranks:
+
+| Region | Single-seed species F1 | 5-seed ensemble species F1 |
+|--------|-----------------------:|---------------------------:|
+| Full-length | 0.9213 | 0.9330 |
+| V3-V4 | 0.8588 | 0.8698 |
+| V4 | 0.8016 | 0.8110 |
 
 ---
 
@@ -129,12 +137,12 @@ Dependencies (torch, transformers, pandas, numpy, scikit-learn, biopython, h5py,
 # Download the checkpoint
 mkdir -p ../deeptaxa-data/models
 wget -P ../deeptaxa-data/models \
-  https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-full-length-v1.pt
+  https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-full-length-v2.pt
 
 # Classify sequences
 deeptaxa predict \
   --fasta-file your_sequences.fna \
-  --checkpoint ../deeptaxa-data/models/deeptaxa-full-length-v1.pt \
+  --checkpoint ../deeptaxa-data/models/deeptaxa-full-length-v2.pt \
   --output-dir ../deeptaxa-outputs/predictions
 ```
 
@@ -144,7 +152,7 @@ deeptaxa predict \
 deeptaxa predict \
   --fasta-file ../deeptaxa-data/greengenes/gg_2024_09_testing.fna.gz \
   --taxonomy-file ../deeptaxa-data/greengenes/gg_2024_09_testing.tsv.gz \
-  --checkpoint ../deeptaxa-data/models/deeptaxa-full-length-v1.pt \
+  --checkpoint ../deeptaxa-data/models/deeptaxa-full-length-v2.pt \
   --output-dir ../deeptaxa-outputs/evaluation
 ```
 
@@ -152,7 +160,7 @@ deeptaxa predict \
 
 ```bash
 deeptaxa describe \
-  --checkpoint ../deeptaxa-data/models/deeptaxa-full-length-v1.pt
+  --checkpoint ../deeptaxa-data/models/deeptaxa-full-length-v2.pt
 ```
 
 > **Tip**: Run `deeptaxa train --help` or `deeptaxa predict --help` for a full list of options.
@@ -173,9 +181,9 @@ working_directory/
 │   │   ├── gg_2024_09_testing.fna.gz     (69,335 sequences, ~24 MB)
 │   │   └── gg_2024_09_testing.tsv.gz     (taxonomy labels, ~0.8 MB)
 │   └── models/
-│       ├── deeptaxa-full-length-v1.pt
-│       ├── deeptaxa-v3v4-v1.pt
-│       └── deeptaxa-v4-v1.pt
+│       ├── deeptaxa-full-length-v2.pt
+│       ├── deeptaxa-v3v4-v2.pt
+│       └── deeptaxa-v4-v2.pt
 └── deeptaxa-outputs/      # Training and prediction outputs
 ```
 
@@ -193,10 +201,15 @@ done
 
 # Checkpoints
 mkdir -p ../models && cd ../models
-wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-full-length-v1.pt
-wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-v3v4-v1.pt
-wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-v4-v1.pt
+wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-full-length-v2.pt
+wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-v3v4-v2.pt
+wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-v4-v2.pt
 wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/config.json
+
+# To ensemble, download all five seeds for a region (example: full-length)
+for s in 42 123 456 789 1011; do
+  wget https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-full-length-v2-seed${s}.pt
+done
 ```
 
 > **Tip**: If `wget` is unavailable (for example, on macOS), substitute `curl -L -O` from within the target directory to download each file.
@@ -293,6 +306,7 @@ The `scripts/` directory contains reusable tools for common workflows:
 | `calibration_diagnosis.sh` | A/B comparison of temperature configurations |
 | `calibration_sweep.sh` | Multi-configuration temperature sweep |
 | `simulate_amplicons.py` | Extract amplicon regions via in-silico PCR |
+| `ensemble_predict.py` | Evaluate the five-seed soft-vote ensemble against the test set |
 | `sequence_similarity.py` | Compute train-test nearest-neighbor identity |
 | `similarity_curve.py` | Plot accuracy stratified by train-test similarity |
 
@@ -328,13 +342,13 @@ A trained model is a QIIME 2 artifact of semantic type `DeepTaxaModel`, so its
 provenance is tracked like any other artifact. Download a published checkpoint
 that matches your amplicon region from the
 [model repository](https://huggingface.co/systems-genomics-lab/deeptaxa)
-(`deeptaxa-full-length-v1.pt` for full-length 16S, `deeptaxa-v3v4-v1.pt` for
-V3-V4, `deeptaxa-v4-v1.pt` for V4), then import it once:
+(`deeptaxa-full-length-v2.pt` for full-length 16S, `deeptaxa-v3v4-v2.pt` for
+V3-V4, `deeptaxa-v4-v2.pt` for V4), then import it once:
 
 ```bash
 qiime tools import \
   --type DeepTaxaModel \
-  --input-path deeptaxa-full-length-v1.pt \
+  --input-path deeptaxa-full-length-v2.pt \
   --input-format DeepTaxaModelFormat \
   --output-path deeptaxa-model.qza
 ```

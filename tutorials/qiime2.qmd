@@ -44,24 +44,24 @@ A trained DeepTaxa model is a QIIME 2 artifact of semantic type `DeepTaxaModel`,
 
 | Input data | Recommended checkpoint |
 |------------|------------------------|
-| Full-length 16S (~1,500 bp) | `deeptaxa-full-length-v1.pt` |
-| V3-V4 (341F/805R) | `deeptaxa-v3v4-v1.pt` |
-| V4 (515F/806R) | `deeptaxa-v4-v1.pt` |
+| Full-length 16S (~1,500 bp) | `deeptaxa-full-length-v2.pt` |
+| V3-V4 (341F/805R) | `deeptaxa-v3v4-v2.pt` |
+| V4 (515F/806R) | `deeptaxa-v4-v2.pt` |
 
 Using the wrong region's checkpoint lowers species accuracy, so match the checkpoint to how the reads were sequenced. These reads are V4, so this example uses the V4 checkpoint, then imports it once:
 
 ```bash
-curl -L -O https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-v4-v1.pt
+curl -L -O https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-v4-v2.pt
 
 qiime tools import \
   --type DeepTaxaModel \
-  --input-path deeptaxa-v4-v1.pt \
+  --input-path deeptaxa-v4-v2.pt \
   --input-format DeepTaxaModelFormat \
   --output-path deeptaxa-model.qza
 ```
 
 ```text
-Imported deeptaxa-v4-v1.pt as DeepTaxaModelFormat to deeptaxa-model.qza
+Imported deeptaxa-v4-v2.pt as DeepTaxaModelFormat to deeptaxa-model.qza
 ```
 
 The result, `deeptaxa-model.qza`, is reused by every later `classify` or `describe` call.
@@ -271,6 +271,12 @@ Saved DeepTaxaModel to: deeptaxa-model.qza
 The `q2-deeptaxa` plugin makes the DeepTaxa classifier a first-class QIIME 2 citizen. A checkpoint imported once as a `DeepTaxaModel` classifies representative sequences into a `FeatureData[Taxonomy]` with a single `classify` call, and the result flows into the rest of a QIIME 2 workflow like any other taxonomy. The `describe` and `fit` actions cover inspecting an existing model and training a new one.
 
 For the command-line equivalent of the classification path, see the [prediction tutorial](prediction.qmd); for a full training walkthrough, see the [training tutorial](training.qmd).
+
+---
+
+## Key references
+
+This tutorial builds on the DeepTaxa method [@salah2026deeptaxa]. See the [References](references.qmd) page for the complete bibliography.
 
 ---
 

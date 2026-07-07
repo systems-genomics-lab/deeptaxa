@@ -46,19 +46,17 @@ print(torch.cuda.device_count())
 print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'No GPU')
 ```
 
-Install DeepTaxa and optional libraries for evaluation and plotting.
+Install DeepTaxa from PyPI, along with the optional libraries for evaluation and plotting. DeepTaxa is distributed as `deeptaxa-rrna`; after installation the command-line tool is `deeptaxa`. Bioconda is an alternative for Conda-based toolchains (`conda install -c bioconda deeptaxa-rrna`).
 
 ```{python}
 #| eval: true
 #| label: lst-install-deeptaxa
-#| lst-cap: "Install DeepTaxa and dependencies."
+#| lst-cap: "Install DeepTaxa from PyPI."
 #| output: false
 %%bash
-mkdir -p ~/deeptaxa-workspace && cd ~/deeptaxa-workspace
-test -d deeptaxa || git clone https://github.com/systems-genomics-lab/deeptaxa.git
-cd deeptaxa && git checkout --quiet "$(git describe --tags --abbrev=0)"
-pip install -q .
-pip install -q matplotlib scikit-learn
+mkdir -p ~/deeptaxa-workspace
+python -m pip install -q deeptaxa-rrna
+python -m pip install -q matplotlib scikit-learn
 ```
 
 Confirm the installation.
@@ -98,7 +96,7 @@ List the downloaded files.
 #| label: lst-list-training-data
 #| lst-cap: "Verify training data files."
 %%bash
-ls -lh ~/deeptaxa-workspace/data/greengenes/
+cd ~/deeptaxa-workspace && du -h data/greengenes/*
 ```
 
 To confirm that the downloads are intact, compare each file against its published
@@ -165,17 +163,30 @@ Training time depends on GPU model, batch size, and data loading speed. On an NV
 During training, DeepTaxa logs per-batch progress, loss values, and validation metrics to the console. NaN gradient warnings (if they appear) are handled automatically by skipping the affected batch.
 :::
 
-Launch the training run.
+Launch the training run. The full hybrid CNN-BERT run takes about 2.5 hours, so it is shown here for reproducibility but is not executed while this page renders; the metrics and figures below come from a saved run of exactly this command.
 
-```{python}
-#| eval: true
-#| label: lst-train-run
-#| lst-cap: "Launch the 10-epoch training run."
-#| output: false
-%%bash
+```bash
 cd ~/deeptaxa-workspace
-deeptaxa train --fasta-file data/greengenes/gg_2024_09_training.fna.gz --taxonomy-file data/greengenes/gg_2024_09_training.tsv.gz --model-type hybridcnnbert --output-dir outputs/training
+deeptaxa train \
+  --fasta-file data/greengenes/gg_2024_09_training.fna.gz \
+  --taxonomy-file data/greengenes/gg_2024_09_training.tsv.gz \
+  --model-type hybridcnnbert \
+  --output-dir outputs/training
 ```
+
+:::{.callout-tip}
+## Optional quick smoke test
+
+To confirm the command works without waiting for the full run, train a CNN-only model for a single epoch on the same data. This exercises the whole pipeline in a few minutes; it does not reproduce the published model or its reported accuracy.
+
+```bash
+deeptaxa train \
+  --fasta-file data/greengenes/gg_2024_09_training.fna.gz \
+  --taxonomy-file data/greengenes/gg_2024_09_training.tsv.gz \
+  --model-type cnn --epochs 1 \
+  --output-dir outputs/smoke_test
+```
+:::
 
 ## Understanding training metrics
 
@@ -418,24 +429,14 @@ for r in RANKS:
 
 This tutorial covered the full training lifecycle: preparing data, configuring and launching a training run, inspecting checkpoints, interpreting loss curves and per-rank F1 trajectories, and evaluating the trained model on held-out test data.
 
-The training run demonstrated here follows the same procedure, data, seed, and architecture used to produce the published DeepTaxa checkpoint (10 epochs on the full Greengenes dataset), which achieved 92.96% species-level accuracy and a weighted F1-score of 0.9212.
+The training run demonstrated here follows the same procedure, data, seed, and architecture used to produce the published DeepTaxa checkpoints (10 epochs on the full Greengenes dataset). The v2 release trains this configuration under five seeds; its five-seed mean is 92.95% species-level accuracy and a weighted F1-score of 0.9208.
 
 For prediction with the published pre-trained model, see the [prediction tutorial](prediction.qmd). For in-depth analysis of model behavior, see the [analysis tutorial](analysis.qmd).
 
-## Appendix: key concepts
+## Concepts used in this tutorial
 
-**Epoch.** One complete pass through the entire training dataset. During each epoch, the model processes every sequence once (in random order, via mini-batches) and updates its parameters after each batch.
+This tutorial uses several standard terms: the epoch, overfitting, cross-entropy loss, and the learning-rate schedule. See the [Glossary](glossary.qmd) for short definitions.
 
-**Overfitting.** When a model performs well on the training data but poorly on unseen data. This happens when the model memorizes training examples rather than learning generalizable patterns. Monitoring validation loss is the standard way to detect overfitting.
+## Key references
 
-**Cross-entropy loss.** A loss function for classification tasks that measures the discrepancy between the model's predicted probability distribution and the true label. It equals $-\log p_t$, where $p_t$ is the predicted probability of the correct class. Lower cross-entropy indicates better predictions.
-
-**Learning rate schedule.** The learning rate controls the step size of each parameter update. Starting large allows rapid initial progress; gradually reducing it allows fine-grained convergence. DeepTaxa uses linear warmup (increasing from zero to the base rate over the first 10% of steps) followed by linear decay (decreasing back to zero over the remaining 90%).
-
----
-
-::: {.d-flex .justify-content-between}
-[← Previous: Case study](casestudy.qmd)
-
-[Next: Analysis →](analysis.qmd)
-:::
+This tutorial trains on the Greengenes 2 database [@mcdonald2024greengenes] with the AdamW optimizer [@loshchilov2019adamw]. See the [References](references.qmd) page for the complete bibliography.

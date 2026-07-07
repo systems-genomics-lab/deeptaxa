@@ -52,19 +52,17 @@ print(torch.cuda.device_count())
 print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'No GPU')
 ```
 
-Clone the DeepTaxa repository and install it along with optional libraries for evaluation and plotting.
+Install DeepTaxa from PyPI, along with the optional libraries for evaluation and plotting. DeepTaxa is distributed as `deeptaxa-rrna`; after installation the command-line tool is `deeptaxa`. Bioconda is an alternative for Conda-based toolchains (`conda install -c bioconda deeptaxa-rrna`).
 
 ```{python}
 #| eval: true
 #| label: lst-install-deeptaxa
-#| lst-cap: "Install DeepTaxa and dependencies."
+#| lst-cap: "Install DeepTaxa from PyPI."
 #| output: false
 %%bash
-mkdir -p ~/deeptaxa-workspace && cd ~/deeptaxa-workspace
-test -d deeptaxa || git clone https://github.com/systems-genomics-lab/deeptaxa.git
-cd deeptaxa && git checkout --quiet "$(git describe --tags --abbrev=0)"
-pip install -q .
-pip install -q matplotlib scikit-learn
+mkdir -p ~/deeptaxa-workspace
+python -m pip install -q deeptaxa-rrna
+python -m pip install -q matplotlib scikit-learn
 ```
 
 Confirm the installation.
@@ -85,7 +83,7 @@ The test set contains 69,335 sequences held out from training. Each sequence car
 
 | File | Description | Size |
 |------|-------------|------|
-| `data/models/deeptaxa-full-length-v1.pt` | Pre-trained model checkpoint | ~306 MB |
+| `data/models/deeptaxa-full-length-v2.pt` | Pre-trained model checkpoint | ~306 MB |
 | `data/greengenes/gg_2024_09_testing.fna.gz` | Test sequences (FASTA, compressed) | ~65 MB |
 | `data/greengenes/gg_2024_09_testing.tsv.gz` | Ground-truth taxonomy (TSV, compressed) | ~1.5 MB |
 
@@ -99,7 +97,7 @@ Download the pre-trained checkpoint and the test data from Hugging Face.
 %%bash
 cd ~/deeptaxa-workspace
 mkdir -p data/models data/greengenes
-test -f data/models/deeptaxa-full-length-v1.pt || curl -L -o data/models/deeptaxa-full-length-v1.pt https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-full-length-v1.pt
+test -f data/models/deeptaxa-full-length-v2.pt || curl -L -o data/models/deeptaxa-full-length-v2.pt https://huggingface.co/systems-genomics-lab/deeptaxa/resolve/main/deeptaxa-full-length-v2.pt
 test -f data/greengenes/gg_2024_09_testing.fna.gz || curl -L -o data/greengenes/gg_2024_09_testing.fna.gz https://huggingface.co/datasets/systems-genomics-lab/greengenes/resolve/main/gg_2024_09_testing.fna.gz
 test -f data/greengenes/gg_2024_09_testing.tsv.gz || curl -L -o data/greengenes/gg_2024_09_testing.tsv.gz https://huggingface.co/datasets/systems-genomics-lab/greengenes/resolve/main/gg_2024_09_testing.tsv.gz
 ```
@@ -111,7 +109,7 @@ List the downloaded files.
 #| label: lst-list-data
 #| lst-cap: "Verify downloaded files."
 %%bash
-ls -lh ~/deeptaxa-workspace/data/models/ ~/deeptaxa-workspace/data/greengenes/
+cd ~/deeptaxa-workspace && du -h data/models/* data/greengenes/*
 ```
 
 To confirm that the downloads are intact, compare each file against its published
@@ -121,7 +119,7 @@ verify them; every line should report `OK`.
 ```bash
 cd ~/deeptaxa-workspace
 cat > data/CHECKSUMS.sha256 <<'EOF'
-b924500450ba623e26c7a023bf7246c0d4fb61787e8aa8d720d7ad35c3c6dfb4  data/models/deeptaxa-full-length-v1.pt
+b924500450ba623e26c7a023bf7246c0d4fb61787e8aa8d720d7ad35c3c6dfb4  data/models/deeptaxa-full-length-v2.pt
 d79347cb231edc72371c20daa8384581a1e6fbb9fa8ad6e172a3eecba29b5709  data/greengenes/gg_2024_09_testing.fna.gz
 d5268e7980ce81a39a521e22ff6078f622843c792682e7f95519188475c6d6bb  data/greengenes/gg_2024_09_testing.tsv.gz
 EOF
@@ -174,7 +172,7 @@ cd ~/deeptaxa-workspace
 mkdir -p outputs/single_sequence
 # Extract the first record from the compressed FASTA
 zcat data/greengenes/gg_2024_09_testing.fna.gz | awk 'BEGIN{RS=">"; ORS=""} NR==2 {print ">"$0; exit}' > outputs/single_sequence/single_sequence.fna
-deeptaxa predict --fasta-file outputs/single_sequence/single_sequence.fna --checkpoint data/models/deeptaxa-full-length-v1.pt --tabular --output-dir outputs/single_sequence
+deeptaxa predict --fasta-file outputs/single_sequence/single_sequence.fna --checkpoint data/models/deeptaxa-full-length-v2.pt --tabular --output-dir outputs/single_sequence
 ```
 
 ### Full test set prediction
@@ -188,7 +186,7 @@ For a systematic evaluation, we classify all 69,335 test sequences. Passing `--t
 #| output: false
 %%bash
 cd ~/deeptaxa-workspace
-deeptaxa predict --fasta-file data/greengenes/gg_2024_09_testing.fna.gz --taxonomy-file data/greengenes/gg_2024_09_testing.tsv.gz --checkpoint data/models/deeptaxa-full-length-v1.pt --tabular --output-dir outputs/predictions
+deeptaxa predict --fasta-file data/greengenes/gg_2024_09_testing.fna.gz --taxonomy-file data/greengenes/gg_2024_09_testing.tsv.gz --checkpoint data/models/deeptaxa-full-length-v2.pt --tabular --output-dir outputs/predictions
 ```
 
 Verify that the prediction output was saved.
@@ -381,32 +379,10 @@ Prediction confidence strongly separates correct from incorrect classifications 
 
 For training a model on custom reference data, see the [training tutorial](training.qmd). For a deeper analysis of error patterns, calibration, and generalization to novel taxa, see the [analysis tutorial](analysis.qmd).
 
-## Appendix: key concepts
+## Concepts used in this tutorial
 
-**Accuracy.** The fraction of predictions that match the true label. It is the most intuitive classification metric but can be misleading when some classes are much more common than others, because a model that always predicts the majority class can achieve high accuracy without learning anything useful.
+This tutorial uses several standard terms: accuracy, the 16S rRNA gene, the taxonomic hierarchy, softmax, and byte-pair encoding. See the [Glossary](glossary.qmd) for short definitions.
 
-**16S rRNA gene.** A gene approximately 1,500 bp (base pairs, the fundamental unit of DNA length) long, encoding a structural component of the bacterial and archaeal ribosome. It contains nine hypervariable regions (V1 through V9) flanked by conserved regions. The conserved regions serve as universal PCR primer binding sites, while the variable regions carry taxon-specific sequence differences that enable classification. The combination makes the 16S gene both universally amplifiable and taxonomically informative across the microbial tree of life.
+## Key references
 
-**Taxonomic hierarchy.** Biological classification organizes organisms into nested ranks, each representing a progressively finer grouping. The seven ranks used by DeepTaxa, illustrated with *Escherichia coli*:
-
-1. **Domain**: Bacteria
-2. **Phylum**: Pseudomonadota
-3. **Class**: Gammaproteobacteria
-4. **Order**: Enterobacterales
-5. **Family**: Enterobacteriaceae
-6. **Genus**: *Escherichia*
-7. **Species**: *E. coli*
-
-Each level is a superset of those below it: every species belongs to exactly one genus, every genus to exactly one family, and so on up the tree.
-
-**Softmax.** A mathematical function that converts a vector of real numbers (logits) into a probability distribution. Each output value is between 0 and 1, and all outputs sum to 1. The class with the highest softmax probability is the model's prediction.
-
-**Byte-pair encoding (BPE).** A tokenization algorithm that starts with individual characters and iteratively merges the most frequent adjacent pairs into new tokens. Applied to DNA sequences, BPE learns a vocabulary of common k-mers without requiring a fixed k-mer size.
-
----
-
-::: {.d-flex .justify-content-between}
-[← Home](index.qmd)
-
-[Next: Validation →](validation.qmd)
-:::
+This tutorial uses the Greengenes 2 reference database [@mcdonald2024greengenes] and the DNABERT-2 tokenizer [@zhou2024dnabert2]. See the [References](references.qmd) page for the complete bibliography.

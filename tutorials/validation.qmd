@@ -25,11 +25,57 @@ in the Sequence Read Archive: the V3-V4 reads are run
 [SRR35133066](https://www.ncbi.nlm.nih.gov/sra/SRR35133066) and the full-length reads
 are run [SRR38028391](https://www.ncbi.nlm.nih.gov/sra/SRR38028391).
 
+## When to use this tutorial
+
+Use this tutorial to check DeepTaxa on data whose composition is already known. It differs from the [prediction tutorial](prediction.qmd), which classifies unknown sequences, and from the [analysis tutorial](analysis.qmd), which studies model behavior in depth.
+
+## Required inputs
+
+- Mock-community reads reduced to amplicon sequence variants (ASVs). Here the public ZymoBIOMICS runs above are used: V3-V4 on Illumina and full-length 16S on PacBio.
+- The DeepTaxa checkpoint that matches the sequenced region (V3-V4 or full-length).
+- The known ZymoBIOMICS composition: eight genera, each with an expected species.
+- Optional: a DADA2 + SILVA taxonomy for the same ASVs, used here as a reference method.
+
+## Expected outputs
+
+- Per-ASV DeepTaxa predictions from domain to species, with confidence scores.
+- Genus-level recovery: whether each expected genus is found.
+- Species-level recovery, split into exact matches, near-neighbor calls, unresolved reads, and incorrect calls.
+- A DeepTaxa versus DADA2 + SILVA comparison (the figure below).
+
+## Runtime and hardware
+
+Runtime observed during validation: a few minutes per region on an NVIDIA A40 GPU, and the two companion notebooks run end to end on a free Colab GPU. Runtime will vary with the number of ASVs, the checkpoint, and the hardware.
+
+## Validation design
+
+A mock community is useful because its composition is known in advance, so recovery can be measured directly. Recovery is read at two levels. Genus-level recovery is the more stable target, because the 16S gene usually carries enough signal to separate genera. Species-level recovery is harder, because closely related species can share nearly identical 16S regions, so species-level results are interpreted with more care: an exact match and a near neighbor that 16S cannot distinguish are reported separately rather than lumped together.
+
+## Workflow overview
+
+| Step | Purpose | Output |
+|------|---------|--------|
+| Prepare the mock-community ASVs | Match the inputs to the expected taxa and the region | FASTA and expected composition |
+| Run DeepTaxa | Classify each ASV | Prediction table with confidence |
+| Compare with the expected taxa | Measure recovery | Genus and species recovery |
+| Compare with DADA2 + SILVA | Provide a conventional baseline | Method comparison |
+| Interpret the results | Separate exact, near-neighbor, unresolved, and incorrect calls | Validation summary |
+
 ## How each region is checked
 
 The steps are the same for both regions: install DeepTaxa, download the checkpoint
 that matches the region, classify a set of amplicon sequence variants (ASVs), read the
-confidence scores, and compare the calls against the known composition.
+confidence scores, and compare the calls against the known composition. The core of a
+region is a single `deeptaxa predict` call, shown here for the V3-V4 ASVs; the notebooks
+run the full workflow, including the comparison and the name reconciliation below.
+
+```bash
+deeptaxa predict \
+  --fasta-file zymo_v3v4_asvs.fna \
+  --checkpoint deeptaxa-v3v4-v2.pt \
+  --tabular \
+  --output-dir predictions/
+```
 
 - [V3-V4 mock community](validation/v3-v4.ipynb) classifies ASVs from the ZymoBIOMICS
   standard sequenced over V3-V4, and recovers all eight expected genera.
@@ -49,10 +95,7 @@ and DADA2 is the classifier, which uses a
 naive Bayes model for the genus and exact matching for the species.
 
 The methods differ at the species rank, and the difference is not the same in the two
-regions. DADA2 + SILVA assigns a species only on an exact, unambiguous match: every
-species it assigns is correct, so its precision is perfect, but it resolves few reads to
-the species level and otherwise stays at the genus, declining to name a species rather
-than naming one incorrectly. On the short V3-V4 region this caution is severe, and
+regions. DADA2 + SILVA assigns a species only on an exact, unambiguous match. In this mock-community benchmark that gives the reference method very high precision, but it also leaves many reads unresolved at the species level: it otherwise stays at the genus, declining to name a species rather than naming one incorrectly. On the short V3-V4 region this caution is severe, and
 DeepTaxa resolves far more reads to an exact species than the reference does. On the
 full-length gene the two are close on exact matches, and DeepTaxa's advantage there is
 coverage, not exactness.
@@ -156,6 +199,35 @@ fig.tight_layout()
 plt.show()
 ```
 
+## Interpreting species-level recovery
+
+Score each species-level call in one of four categories, and report them separately rather than treating every non-exact call as an error:
+
+| Category | Meaning | How to report |
+|----------|---------|---------------|
+| Exact match | Predicted species equals the expected species | Count as recovered |
+| Near neighbor | Predicted species is a close relative that 16S cannot reliably distinguish | Report separately |
+| Unresolved | No confident species-level call | Do not count as wrong without context |
+| Incorrect | The call conflicts with the expected taxon and is not a close 16S relative | Count as an error |
+
+## Sanity checks
+
+- The number of DeepTaxa predictions matches the number of input ASVs.
+- All eight expected genera appear in the prediction table.
+- The checkpoint matches the sequenced region.
+- Confidence scores are present for the ranks being scored.
+- Species-level calls are read together with their near-neighbor relationships, not in isolation.
+- DeepTaxa and DADA2 + SILVA names are reconciled before scoring (see Troubleshooting).
+
+## Troubleshooting
+
+If expected taxa are missing, confirm that the FASTA holds the right ASVs and that the checkpoint matches the sequenced region.
+
+If many species calls look wrong, check the matching genus calls and the near-neighbor relationships first; some species mismatches reflect the limited resolution of the 16S region rather than a real failure.
+
+If DeepTaxa and DADA2 + SILVA disagree on names, check for synonymy and database-version differences. DeepTaxa reports the GTDB names used by Greengenes2 [@mcdonald2024greengenes], which renames or splits several genera relative to the NCBI names on most reference materials; *Lactobacillus fermentum*, for instance, becomes *Limosilactobacillus*. Both notebooks include a short function that reconciles the names before scoring.
+
+If the output is empty, confirm that the FASTA is valid, the sequence identifiers are unique, and the checkpoint loaded correctly.
 
 ## Practical points
 
@@ -172,21 +244,17 @@ being correct. The score falls at the finer ranks, and on short or off-region re
 because the marker carries less information there. A low score is the model declining to
 commit, and filtering it out, for example below 0.5, is reasonable.
 
-Taxonomic names must be reconciled before scoring. DeepTaxa
-reports the GTDB names used by Greengenes2 [@mcdonald2024greengenes], which renames or
-splits several genera relative to the NCBI names on most reference materials.
-*Lactobacillus fermentum*, for instance, becomes *Limosilactobacillus*. Without this
-step, correct calls are counted as errors, and both notebooks include a short function
-that handles it.
+## Summary
 
-## References
+DeepTaxa recovers all eight expected genera in both regions, matching the reference method at the genus rank. At the species rank it commits far more often than an exact-matching reference, at the cost of occasional near-neighbor calls that 16S cannot separate. Report genus-level recovery as the stable result, and report species-level calls in the four categories above so the limits of 16S resolution are not overinterpreted.
 
-The source code and the trained checkpoints are on
-[GitHub](https://github.com/systems-genomics-lab/deeptaxa) and
-[Hugging Face](https://huggingface.co/systems-genomics-lab/deeptaxa).
+## Related concepts
 
-::: {#refs}
-:::
+For background on the 16S rRNA gene, mock communities, ASVs, taxonomic ranks, confidence scores, DADA2, SILVA, and species-level ambiguity, see the [Glossary](glossary.qmd).
+
+## Key references
+
+This tutorial uses the DeepTaxa method [@salah2026deeptaxa] and the Greengenes 2 database [@mcdonald2024greengenes], and compares against DADA2 [@callahan2016dada2] with SILVA [@quast2013silva]. See the [References](references.qmd) page for the complete bibliography.
 
 ---
 

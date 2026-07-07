@@ -1,0 +1,98 @@
+---
+title: "Glossary"
+subtitle: "Short explanations of the concepts used across the DeepTaxa tutorials"
+---
+
+This page collects the terms that recur across the tutorials, so each tutorial can stay focused on its workflow and link here for background. Entries are grouped into sequences and biology, model components, training, evaluation and metrics, and ensembling.
+
+## Sequences and biology
+
+**16S rRNA gene.** A gene approximately 1,500 bp long that encodes a structural component of the bacterial and archaeal ribosome. It contains nine hypervariable regions (V1 through V9) flanked by conserved regions. The conserved regions serve as universal PCR primer binding sites, while the variable regions carry taxon-specific differences that enable classification, which makes the gene both universally amplifiable and taxonomically informative across the microbial tree of life.
+
+**Base pair (bp).** The fundamental unit of DNA length. One bp corresponds to one nucleotide and its complementary partner on the opposite strand, so a 1,500 bp gene encodes a sequence of about 1,500 nucleotides.
+
+**Hypervariable region.** One of the nine segments of the 16S gene (V1 through V9) that accumulate mutations quickly. Amplicon studies sequence one or a few of these regions, such as V3-V4 or V4, rather than the full gene.
+
+**Amplicon.** The DNA fragment produced by PCR amplification between two primers. In 16S studies, an amplicon covers a chosen region (for example, V4 with the 515F/806R primers) rather than the entire gene.
+
+**Taxonomic hierarchy.** Biological classification organizes organisms into nested ranks, each a progressively finer grouping. DeepTaxa predicts the seven standard ranks: domain, phylum, class, order, family, genus, and species.
+
+**Taxonomy.** The hierarchical classification of organisms. Modern microbial taxonomy combines morphological, biochemical, and genomic criteria; the [Greengenes 2](https://doi.org/10.1038/s41587-023-01845-1) database used by DeepTaxa follows the Genome Taxonomy Database (GTDB) naming conventions.
+
+**ASV (amplicon sequence variant).** A unique sequence inferred from amplicon data after denoising, resolved to single-nucleotide differences. ASVs are the modern replacement for clustered operational taxonomic units (OTUs) and are the typical input to a classifier.
+
+## Model components
+
+**Softmax.** The function that converts a vector of raw scores (logits) into a probability distribution: it exponentiates each score and divides by their sum, so the outputs are positive and add to one. The class with the highest softmax value is the model's prediction, and that value is its confidence.
+
+**Byte-pair encoding (BPE).** A tokenization algorithm that starts from individual characters and iteratively merges the most frequent adjacent pairs into new tokens. Applied to DNA, BPE learns a vocabulary of common k-mers without a fixed k-mer length, letting the model process frequent patterns as single tokens. DNABERT-2 [@zhou2024dnabert2] pretrained its BPE tokenizer on multi-species genomes.
+
+**Convolutional neural network (CNN).** A network built from convolutional filters that slide across the input and detect local patterns. In DeepTaxa the CNN branch captures short sequence motifs.
+
+**Convolutional filter.** A small matrix of learnable weights that slides across the input and computes a dot product at each position, producing a value that reflects how strongly the local pattern matches the filter. A bank of filters produces a multi-channel feature map.
+
+**Kernel size.** The number of consecutive positions a convolutional filter covers in one step. A kernel of size 3 scans three nucleotides at a time; using several kernel sizes in parallel lets the model detect patterns at multiple scales.
+
+**ReLU activation.** The nonlinear function $\text{ReLU}(x) = \max(0, x)$: negatives are set to zero, positives pass through unchanged. Nonlinear activations are what let stacked layers represent complex relationships; without them, stacked linear layers would collapse to a single linear transformation.
+
+**Dropout.** A regularization technique that randomly zeros a fraction of activations during each training step, so the network cannot rely on any single feature and must develop redundant, distributed representations. Dropout is disabled at inference.
+
+**Residual connection.** A shortcut that adds the input of a layer directly to its output, so the layer only needs to learn the difference between the two. Residual connections stabilize gradient flow in deep networks.
+
+**Self-attention.** A mechanism that computes, for each position in a sequence, a weighted average over all positions, with weights derived from pairwise similarity scores. This captures dependencies between distant positions without the locality constraint of convolutions.
+
+**Transformer.** A network built from self-attention and feed-forward layers. In DeepTaxa the BERT-style Transformer branch captures long-range context across the gene.
+
+**Embedding.** A fixed-length numerical vector that a network produces as an intermediate representation of its input. Sequences with similar properties tend to receive similar embeddings, which can be visualized, compared, and clustered to understand what the model has learned.
+
+## Training
+
+**Epoch.** One complete pass through the entire training dataset. During each epoch the model processes every sequence once, in mini-batches, updating its parameters after each batch.
+
+**Overfitting.** When a model performs well on the training data but poorly on unseen data because it has memorized examples rather than learned generalizable patterns. Monitoring validation loss is the standard way to detect it.
+
+**Cross-entropy loss.** The default loss for classification, measuring the discrepancy between the predicted distribution and the true label. It equals $-\log p_t$, where $p_t$ is the predicted probability of the correct class; lower is better.
+
+**Focal loss.** A modification of cross-entropy that down-weights well-classified examples by a factor of $(1 - p_t)^\gamma$. At the default $\gamma = 2$, confident correct predictions contribute negligibly, directing optimization toward harder cases.
+
+**Learning rate schedule.** The learning rate sets the step size of each parameter update. DeepTaxa uses a linear warmup (rising from zero to the base rate over the first 10 percent of steps) followed by linear decay back to zero, which stabilizes early training and allows fine convergence later.
+
+**Mixed-precision training.** Performing the forward pass in 16-bit floating point for speed and memory savings while keeping weights and optimizer state in 32-bit for numerical stability; a loss scaler prevents small gradients from underflowing.
+
+**Gradient accumulation.** Simulating a large batch by summing gradients across several forward-backward passes before one optimizer step. The effective batch size is the per-step batch size times the number of accumulation steps.
+
+**Checkpoint.** A saved snapshot of a trained model: its weights, the label encoders, and metadata needed to reproduce predictions. DeepTaxa checkpoints are inference-only once released.
+
+## Evaluation and metrics
+
+**Accuracy.** The fraction of predictions that match the true label. It is the most intuitive metric but can mislead when classes are uneven, since always predicting the majority class can score high without learning anything useful.
+
+**Precision and recall.** Precision is the fraction of a model's positive predictions that are correct; recall is the fraction of true positives the model detected. Both range from 0 to 1.
+
+**F1-score.** The harmonic mean of precision and recall, equal to 1.0 only when both are perfect. The harmonic mean penalizes extreme imbalance, so a high F1 requires both precision and recall to be reasonable.
+
+**Macro and weighted F1.** Two ways to average the per-class F1 scores. Macro F1 gives every class equal weight; weighted F1 weights each class by how often it appears. Weighted F1 gives a more honest summary than plain accuracy when the classes are very uneven, as the thousands of species are.
+
+**Confusion matrix.** A table cross-tabulating true labels against predicted labels. Diagonal entries are correct classifications and off-diagonal entries are errors; normalizing each row by its sum converts counts to per-class recall.
+
+**Confidence score.** The probability a model assigns to its chosen class, that is, the largest softmax value. DeepTaxa reports it per rank and can trim a lineage at a confidence threshold.
+
+**Entropy.** A measure of how spread out a probability distribution is. Low entropy means the model concentrates its probability on one class (a confident call); high entropy means the probability is spread across many classes (an uncertain call).
+
+**Calibration and Expected Calibration Error (ECE).** A model is calibrated when its stated confidence matches how often it is right: calls made at 0.9 confidence should be correct about 90 percent of the time. ECE summarizes miscalibration as the average gap between confidence and accuracy across confidence bins, weighted by how many predictions fall in each bin (@guo2017calibration); lower is better.
+
+**Cosine similarity.** A measure of the angle between two vectors, from -1 (opposite) through 0 (orthogonal) to 1 (identical direction). In embedding spaces it quantifies how similar two representations are regardless of magnitude.
+
+**Jaccard index.** The size of the intersection divided by the size of the union of two sets. Applied to the sets of k-mers from two DNA sequences, it estimates how much sequence content they share, from 0 (no overlap) to 1 (identical).
+
+**t-SNE (t-distributed stochastic neighbor embedding).** A dimensionality-reduction algorithm that projects high-dimensional data such as embeddings onto two dimensions while preserving local neighborhood structure, which makes it well suited for revealing cluster structure in learned representations.
+
+**Open-set classification.** The standard setting assumes every test class was seen in training; in the open-set setting some test instances belong to classes absent from the training vocabulary. DeepTaxa is partially open-set: novel species appear in test data, but their higher ranks are usually represented in training.
+
+## Ensembling
+
+**Ensemble.** A group of models whose predictions are combined into one. The members can differ in architecture or, as in the [ensemble tutorial](ensemble.qmd), only in the random seed used to train them. An ensemble is usually more accurate and better calibrated than any single member.
+
+**Soft vote and hard vote.** Two ways to combine classifiers. A hard vote counts each model's top label and keeps the majority; a soft vote averages the models' softmax distributions and takes the argmax of the average, so a confident model counts for more than an uncertain one. Soft voting usually wins because it uses the models' confidence, not just their final answers.
+
+**Bias and variance.** Two sources of a model's error. Bias is the part that persists no matter how the model is trained; variance is the part that changes from one training run to the next. Averaging several models reduces variance while leaving bias unchanged, which is why an ensemble of identically configured seeds helps.
