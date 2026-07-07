@@ -3,8 +3,6 @@ title: "Glossary"
 subtitle: "Short explanations of the concepts used across the DeepTaxa tutorials"
 ---
 
-This page collects the terms that recur across the tutorials, so each tutorial can stay focused on its workflow and link here for background. Entries are grouped into sequences and biology, model components, training, evaluation and metrics, and ensembling.
-
 ## Sequences and biology
 
 **16S rRNA gene.** A gene approximately 1,500 bp long that encodes a structural component of the bacterial and archaeal ribosome. It contains nine hypervariable regions (V1 through V9) flanked by conserved regions. The conserved regions serve as universal PCR primer binding sites, while the variable regions carry taxon-specific differences that enable classification, which makes the gene both universally amplifiable and taxonomically informative across the microbial tree of life.
