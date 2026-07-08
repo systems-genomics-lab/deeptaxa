@@ -6,7 +6,5 @@ nocite: |
   @*
 ---
 
-This page collects every reference cited across the tutorials. Each tutorial lists only the sources most relevant to its own workflow and links back here for the complete list.
-
 ::: {#refs}
 :::
