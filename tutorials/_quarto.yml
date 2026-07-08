@@ -48,7 +48,7 @@ website:
       - glossary.qmd
       - references.qmd
   page-footer:
-    center: "[DeepTaxa](https://github.com/systems-genomics-lab/deeptaxa) — Systems Genomics Lab"
+    center: "[DeepTaxa](https://github.com/systems-genomics-lab/deeptaxa) — [Systems Genomics Lab](http://systemsgenomics.io/)"
 
 format:
   html:
