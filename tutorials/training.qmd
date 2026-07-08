@@ -160,7 +160,7 @@ Training time depends on GPU model, batch size, and data loading speed. On an NV
 :::
 
 :::{.callout-note}
-During training, DeepTaxa logs per-batch progress, loss values, and validation metrics to the console. NaN gradient warnings (if they appear) are handled automatically by skipping the affected batch.
+During training, DeepTaxa logs per-batch progress, loss values, and validation metrics to the console. If a NaN gradient warning appears, the affected batch is skipped so the run continues; occasional skips are harmless, but frequent ones can signal an unstable learning rate or a data problem and are worth investigating.
 :::
 
 Launch the training run. The full hybrid CNN-BERT run takes about 2.5 hours, so it is shown here for reproducibility but is not executed while this page renders; the metrics and figures below come from a saved run of exactly this command.

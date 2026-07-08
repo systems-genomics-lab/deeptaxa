@@ -628,7 +628,7 @@ else:
 
 ### Interpretation
 
-The sequence similarity analysis confirms that the model's most frequent misclassifications involve species with near-identical 16S sequences, where the biological signal itself is ambiguous. The embedding analysis shows that this sequence-level similarity translates directly into representational proximity: confused species map to overlapping regions in the model's learned feature space. This is not a failure of the model but a reflection of the inherent resolution limit of the 16S gene for distinguishing closely related organisms.
+The sequence similarity analysis indicates that the model's most frequent misclassifications involve species with near-identical 16S sequences, where the biological signal itself is ambiguous. The embedding analysis shows that this sequence-level similarity corresponds to representational proximity: confused species map to overlapping regions in the model's learned feature space. Sequence similarity is unlikely to be the only factor, since training frequency, reference coverage, and label quality also play a part, but these patterns point to the inherent resolution limit of the 16S gene for distinguishing closely related organisms rather than to a failure of the model.
 
 :::{.callout-tip}
 When two species consistently receive high cosine similarity in embedding space, consider whether the taxonomic boundary between them is well-supported by independent evidence (e.g., whole-genome ANI). In some cases, the model may be revealing genuine taxonomic ambiguity rather than making errors.

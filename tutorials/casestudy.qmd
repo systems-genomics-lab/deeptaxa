@@ -179,9 +179,8 @@ settle.
 
 The reliability of short-read 16S taxonomy depends on the choice of classifier and
 reference, and it can be checked rather than assumed. With the appropriate DeepTaxa
-checkpoint, a V4 dataset that would normally be limited to phylum and class becomes
-classifiable to genus, and an independent SILVA classification confirms those calls for the
-relevant taxa. On that basis the reanalysis re-examines a published result and adds genus-level resolution to it. The diversity and community-level signals are consistent across methods, though the nine-pair cohort keeps them tentative; the genus and functional layers are exploratory and await a larger cohort.
+checkpoint, this V4 dataset resolves to the genus rank, and an independent SILVA
+classification agrees with those calls for the relevant taxa. On that basis the reanalysis re-examines a published result and adds genus-level resolution to it. The diversity and community-level signals are consistent across methods, though the nine-pair cohort keeps them tentative; the genus and functional layers are exploratory and await a larger cohort.
 
 ## Reproducing this analysis
 
