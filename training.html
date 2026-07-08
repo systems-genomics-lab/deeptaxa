@@ -674,7 +674,7 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>During training, DeepTaxa logs per-batch progress, loss values, and validation metrics to the console. NaN gradient warnings (if they appear) are handled automatically by skipping the affected batch.</p>
+<p>During training, DeepTaxa logs per-batch progress, loss values, and validation metrics to the console. If a NaN gradient warning appears, the affected batch is skipped so the run continues; occasional skips are harmless, but frequent ones can signal an unstable learning rate or a data problem and are worth investigating.</p>
 </div>
 </div>
 <p>Launch the training run. The full hybrid CNN-BERT run takes about 2.5 hours, so it is shown here for reproducibility but is not executed while this page renders; the metrics and figures below come from a saved run of exactly this command.</p>
@@ -921,12 +921,12 @@ Listing&nbsp;8: Inspect the final checkpoint.
 <pre><code>Run UUID: 2026_07_06T00_44_23_1a2ac4db_c74a_4296_a156_b39de4d3cace</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>2026-07-07 21:04:25,298 - INFO - 
+<pre><code>2026-07-08 08:23:55,723 - INFO - 
 ======================================================================
           DeepTaxa Model Description (v1.3.0)
 --------------------------------------------------
           Checkpoint: outputs/training/checkpoints/deeptaxa_2026_07_06T00_44_23_1a2ac4db_c74a_4296_a156_b39de4d3cace_epoch10.pt
-          Timestamp: 2026-07-07T21:04:25.298456
+          Timestamp: 2026-07-08T08:23:55.723194
 ======================================================================
 
 Model Details:
